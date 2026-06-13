@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TR: Vida - Capa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #11CAA0;
+            --primary-glow: rgba(17, 202, 160, 0.4);
+            --bg-dark: #0f1115;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #F3F0DF;
+            --text-dim: #A0A0A0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(17, 202, 160, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(17, 202, 160, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Navbar com Efeito Glassmorphism */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 17, 21, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+        }
+
+        .btn-logout {
+            color: #FF6B6B !important;
+        }
+
+        /* Container Principal */
+        .main-content {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Capa do Livro */
+        .book-wrapper {
+            position: relative;
+            perspective: 1000px;
+            margin-bottom: 3rem;
+        }
+
+        .book-cover {
+            width: 300px;
+            height: 450px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.6),
+                0 0 20px var(--primary-glow);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .book-wrapper:hover .book-cover {
+            transform: rotateY(-10deg) rotateX(5deg) scale(1.02);
+            box-shadow: 
+                20px 20px 50px rgba(0,0,0,0.8),
+                0 0 30px var(--primary-glow);
+        }
+
+        .glow-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(40px);
+        }
+
+        /* Botões e Info */
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 10px 20px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg);
+            color: var(--text-main);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            padding: 1.5rem 2.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stats-card i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .stats-info span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stats-info strong {
+            font-size: 1.2rem;
+            color: var(--text-main);
+        }
+
+        /* Admin Badge */
+        .admin-badge {
+            margin-top: 2rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E8E);
+            color: white;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .admin-badge.visible {
+            display: flex;
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .navbar { padding: 1rem; }
+            .nav-links { display: none; } /* Poderia adicionar um menu hambúrguer */
+            .book-cover { width: 260px; height: 390px; }
+            h1 { font-size: 3rem; }
+            .actions { flex-direction: column; width: 100%; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">TR: VIDA</a>
+        <div class="nav-links">
+            <a href="/perfil"><i class="fas fa-user"></i> Perfil</a>
+            <a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a>
+            <a href="/logout" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="header-section">
+            <h1>TR: Vida</h1>
+            <p class="subtitle">Volume 1 — O Começo de Tudo</p>
+        </header>
+
+        <div class="book-wrapper">
+            <div class="glow-effect"></div>
+            <a href="/trvida/1" id="main-link">
+                <img src="/imagens/capa.png" alt="Capa do Livro" class="book-cover" id="cover-img" onerror="this.src='https://via.placeholder.com/300x450?text=Capa+Indisponível';">
+            </a>
+        </div>
+
+        <div class="actions">
+            <a href="/trvida/1" class="btn btn-primary" id="read-btn">
+                <i class="fas fa-book-open"></i> Começar Leitura
+            </a>
+            <a href="/dashboard" class="btn btn-outline" id="admin-btn" style="display: none;">
+                <i class="fas fa-edit"></i> Painel do Editor
+            </a>
+        </div>
+
+        <div class="stats-card">
+            <i class="fas fa-layer-group"></i>
+            <div class="stats-info">
+                <span>Capítulos Publicados</span>
+                <strong id="chapter-count">Carregando...</strong>
+            </div>
+        </div>
+
+        <div class="admin-badge" id="admin-badge">
+            <i class="fas fa-crown"></i> Administrador
+        </div>
+    </main>
+
+    <script>
+        async function init() {
+            try {
+                // Carregar capítulos
+                const capsResp = await fetch('/api/capitulos');
+                const caps = await capsResp.json();
+                const count = Array.isArray(caps) ? caps.length : 0;
+                document.getElementById('chapter-count').textContent = count;
+                
+                if (count > 0) {
+                    const lastCap = caps[caps.length - 1];
+                    document.getElementById('read-btn').href = `/trvida/${lastCap}`;
+                    document.getElementById('main-link').href = `/trvida/${lastCap}`;
+                    document.getElementById('read-btn').innerHTML = '<i class="fas fa-book-reader"></i> Continuar Leitura';
+                }
+
+                // Verificar Admin
+                const meResp = await fetch('/api/me');
+                const me = await meResp.json();
+                
+                if (me.admin) {
+                    document.getElementById('admin-btn').style.display = 'flex';
+                    document.getElementById('admin-badge').classList.add('visible');
+                }
+            } catch (err) {
+                console.error("Erro ao carregar dados:", err);
+                document.getElementById('chapter-count').textContent = "Erro";
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

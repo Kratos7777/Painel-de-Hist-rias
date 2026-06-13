@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TR: Vida - O portal definitivo para histórias imersivas. Conecte-se e viva a jornada.">
+    <title>TR: Vida | Portal de Histórias</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #11CAA0;
+            --primary-dark: #0a9d7f;
+            --primary-glow: rgba(17, 202, 160, 0.4);
+            --bg-dark: #0f1115;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --discord-color: #5865F2;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animação de Fundo Dinâmica */
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--primary-glow);
+            filter: blur(120px);
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 20%); }
+        }
+
+        /* Header / Navigation */
+        nav {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 2rem 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i { font-size: 1.4rem; }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 650px;
+            z-index: 10;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(17, 202, 160, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        h1 span {
+            color: var(--primary);
+            display: block;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            max-width: 500px;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        /* Botões */
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .btn-discord {
+            background: var(--discord-color);
+            color: white;
+            text-decoration: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.3);
+        }
+
+        .btn-discord:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(88, 101, 242, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--primary);
+        }
+
+        /* Features Section */
+        .features-grid {
+            padding: 5rem 10%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3));
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            padding: 3rem 2rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.05);
+            border-color: var(--primary-glow);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 10%;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            color: var(--text-dim);
+        }
+
+        .footer-links {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-links a:hover { color: var(--primary); }
+
+        /* Animações */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav { padding: 1.5rem 5%; }
+            .hero { padding: 0 5%; text-align: center; justify-content: center; }
+            .hero-content { max-width: 100%; }
+            .cta-group { flex-direction: column; width: 100%; }
+            .btn-discord, .btn-secondary { width: 100%; justify-content: center; }
+            h1 { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow">
+        <div class="blob" style="top: 10%; left: 10%;"></div>
+        <div class="blob" style="bottom: 10%; right: 10%; animation-delay: -5s;"></div>
+    </div>
+
+    <nav>
+        <a href="/" class="logo">
+            <i class="fas fa-scroll"></i> TR: VIDA
+        </a>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <span class="badge">Portal de Literatura Digital</span>
+                <h1>A Jornada <span>Começa Aqui.</span></h1>
+                <p class="hero-description">
+                    Mergulhe em um universo de mistérios, decisões e emoções. O TR: Vida é o portal onde cada capítulo ganha vida através de uma experiência imersiva única.
+                </p>
+                
+                <div class="cta-group">
+                    <a href="/auth/discord" class="btn-discord">
+                        <i class="fab fa-discord"></i> Entrar com Discord
+                    </a>
+                    <a href="#saiba-mais" class="btn-secondary">Explorar Obra</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="saiba-mais" class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-book-open"></i></div>
+                <h3>Leitura Imersiva</h3>
+                <p>Interface limpa e focada, projetada para que nada interrompa sua conexão com a história.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                <h3>Progresso Real</h3>
+                <p>Sincronização instantânea entre seus dispositivos. Continue exatamente de onde parou.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Acesso Seguro</h3>
+                <p>Autenticação via Discord garante que seus dados e preferências estejam sempre protegidos.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-gem"></i></div>
+                <h3>Conteúdo VIP</h3>
+                <p>Acesse capítulos extras, ilustrações exclusivas e o painel do autor em tempo real.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">Termos</a>
+            <a href="#">Privacidade</a>
+            <a href="#">Contato</a>
+            <a href="/dashboard">Admin</a>
+        </div>
+        <p>&copy; 2026 TR: Vida - Todos os direitos reservados. Desenvolvido com <i class="fas fa-heart" style="color: var(--primary);"></i></p>
+    </footer>
+
+    <script>
+        // Efeito de Parallax suave no fundo
+        document.addEventListener('mousemove', (e) => {
+            const blobs = document.querySelectorAll('.blob');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            blobs.forEach((blob, index) => {
+                const speed = (index + 1) * 20;
+                blob.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+
+        // Smooth scroll
+        document.querySelector('.btn-secondary').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#saiba-mais').scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
