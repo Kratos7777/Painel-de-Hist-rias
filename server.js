@@ -73,17 +73,21 @@ app.use('/api/', limiter);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(cookieParser(process.env.SESSION_SECRET || 'seiva_secreta_trvida'));
+const SESSION_SECRET = process.env.SESSION_SECRET || 'raiz_mestra_trvida_v10';
+
+app.use(cookieParser(SESSION_SECRET));
 app.use(compression()); // Comprime dados para transporte rápido
 app.use(morgan('dev')); // Monitora o fluxo no terminal
 
 // Gestão de Sessão (Memória do Tronco)
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'raiz_mestra_trvida',
-    resave: false,
+    secret: SESSION_SECRET,
+    resave: true, // Garante que a sessão seja salva de volta na loja
     saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dias de vida
     }
 }));
@@ -112,6 +116,12 @@ app.use(passport.session());
 // Middleware de Proteção (Garante que apenas seres autorizados acessem os ramos)
 const isAuth = (req, res, next) => {
     if (req.isAuthenticated()) return next();
+    
+    // Se for uma chamada de API, retorna erro 401 em vez de redirecionar
+    if (req.originalUrl.startsWith('/api/')) {
+        return res.status(401).json({ success: false, error: "Sessão expirada ou não autenticada." });
+    }
+    
     res.redirect('/');
 };
 
@@ -131,7 +141,16 @@ app.get('/', (req, res) => {
 app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback',
     passport.authenticate('discord', { failureRedirect: '/' }),
-    (req, res) => res.redirect('/capa')
+    (req, res) => {
+        // Salva a sessão explicitamente antes do redirecionamento para garantir persistência
+        req.session.save((err) => {
+            if (err) {
+                console.error("Erro ao salvar sessão no callback:", err);
+                return res.redirect('/');
+            }
+            res.redirect('/capa');
+        });
+    }
 );
 
 app.get('/capa', isAuth, (req, res) => res.sendFile(path.join(PATHS.PUBLIC, 'capa.html')));
@@ -190,6 +209,74 @@ async function getStoryContent(id) {
     }
     return null;
 }
+
+// ------------------------------------------------------------------------------
+// 5. OS FRUTOS: API DE DADOS
+// (Rotas que expõem os dados processados pela Seiva)
+// ------------------------------------------------------------------------------
+
+// Rota para obter o próximo ID de capítulo disponível
+app.get("/api/stories/next-id", isAuth, async (req, res) => {
+    try {
+        const stories = await getStoriesList();
+        const maxId = stories.reduce((max, story) => Math.max(max, story.id), 0);
+        res.json({ success: true, nextId: maxId + 1 });
+    } catch (err) {
+        console.error("Erro ao obter próximo ID:", err);
+        res.status(500).json({ success: false, error: "Erro ao obter próximo ID." });
+    }
+});
+
+// Rota para salvar (criar/atualizar) um capítulo
+app.post("/api/stories/save", isAuth, async (req, res) => {
+    const { id, content } = req.body;
+    if (!id || !content) {
+        return res.status(400).json({ success: false, error: "ID e conteúdo são obrigatórios." });
+    }
+
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId) || parsedId <= 0) {
+        return res.status(400).json({ success: false, error: "ID de capítulo inválido." });
+    }
+
+    try {
+        const fileName = `trvida${parsedId}.txt`;
+        const filePath = path.join(PATHS.DATA, fileName);
+        await util.promisify(fs.writeFile)(filePath, content, "utf8");
+        res.json({ success: true, message: `Capítulo ${parsedId} salvo com sucesso.` });
+    } catch (err) {
+        console.error("Erro ao salvar capítulo:", err);
+        res.status(500).json({ success: false, error: "Erro ao salvar capítulo." });
+    }
+});
+
+// Rota para deletar um capítulo
+app.delete("/api/stories/delete/:id", isAuth, async (req, res) => {
+    const id = req.params.id;
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId) || parsedId <= 0) {
+        return res.status(400).json({ success: false, error: "ID de capítulo inválido." });
+    }
+
+    try {
+        const files = await readdir(PATHS.DATA);
+        const fileNameToDelete = files.find(f => {
+            const match = f.match(/^trvida(\d+)\.txt$/);
+            return match && parseInt(match[1], 10) === parsedId;
+        });
+
+        if (fileNameToDelete) {
+            const filePath = path.join(PATHS.DATA, fileNameToDelete);
+            await util.promisify(fs.unlink)(filePath);
+            res.json({ success: true, message: `Capítulo ${parsedId} deletado com sucesso.` });
+        } else {
+            res.status(404).json({ success: false, error: "Capítulo não encontrado para exclusão." });
+        }
+    } catch (err) {
+        console.error("Erro ao deletar capítulo:", err);
+        res.status(500).json({ success: false, error: "Erro ao deletar capítulo." });
+    }
+});
 
 // ------------------------------------------------------------------------------
 // 5. OS FRUTOS: API DE DADOS
