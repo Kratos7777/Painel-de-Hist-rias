@@ -115,17 +115,6 @@ app.get('/funcionalidades', auth, (req, res) => {
 // =====================
 // CAPA
 // =====================
-app.get('/', (req, res) => {
-    if (req.isAuthenticated()) {
-        return res.redirect('/capa');
-    }
-    const caminhoIndex = path.resolve(__dirname, 'index.html');
-    res.sendFile(caminhoIndex, (err) => {
-        if (err) {
-            res.status(500).send(`Erro ao carregar index.html: ${err.message}. Caminho tentado: ${caminhoIndex}`);
-        }
-    });
-});
 
 app.get('/capa', verificarAutenticacao, (req, res) => {
     const caminhoCapa = path.resolve(__dirname, 'capa.html');
