@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Portal de Histórias</title>
+    <!-- 
+        NOTA PARA O DESENVOLVEDOR:
+        Este arquivo foi expandido para garantir robustez, acessibilidade e performance.
+        O erro de "tela branca" relatado foi endereçado através de:
+        1. Uso de links relativos para maior compatibilidade.
+        2. Try/Catch em operações críticas de Storage.
+        3. Tratamento de erros global no Script.
+    -->
+    <style>
+        /* =============================================
+           VARIÁVEIS CSS GLOBAIS (DESIGN SYSTEM)
+        ============================================= */
+        :root {
+            --cor-primaria: #11CAA0;
+            --cor-primaria-escura: #0a9d7f;
+            --cor-primaria-hover: #0ec494;
+            --cor-fundo: #121212;
+            --cor-fundo-card: rgba(24, 28, 37, 0.85);
+            --cor-fundo-card-hover: rgba(24, 28, 37, 0.95);
+            --cor-texto: #F3F0DF;
+            --cor-texto-secundario: #A0A0A0;
+            --cor-borda: rgba(17, 202, 160, 0.2);
+            --cor-borda-forte: rgba(17, 202, 160, 0.5);
+            --cor-sombra: rgba(0, 0, 0, 0.4);
+            --raio-borda: 8px;
+            --raio-borda-pequeno: 4px;
+            --transicao: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --fonte-familia: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* Temas Adicionais */
+            --sepia-bg: #f4ecd8;
+            --sepia-text: #5c4033;
+            --light-bg: #ffffff;
+            --light-text: #333333;
+            --midnight-bg: #0a0a0e;
+            --midnight-text: #d1d1d1;
+        }
+
+        /* Aplicação de Temas Globais via Atributo */
+        [data-theme="light"] {
+            --cor-fundo: var(--light-bg);
+            --cor-texto: var(--light-text);
+            --cor-fundo-card: rgba(240, 240, 240, 0.9);
+            --cor-borda: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="sepia"] {
+            --cor-fundo: var(--sepia-bg);
+            --cor-texto: var(--sepia-text);
+            --cor-fundo-card: rgba(230, 220, 200, 0.9);
+            --cor-borda: rgba(92, 64, 51, 0.15);
+        }
+
+        [data-theme="midnight"] {
+            --cor-fundo: var(--midnight-bg);
+            --cor-texto: var(--midnight-text);
+            --cor-fundo-card: rgba(15, 15, 25, 0.9);
+            --cor-borda: rgba(17, 202, 160, 0.1);
+        }
+
+        /* =============================================
+           RESET E BASE
+        ============================================= */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            font-family: var(--fonte-familia);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background-color var(--transicao), color var(--transicao);
+            overflow-x: hidden;
+        }
+
+        /* =============================================
+           SCROLLBAR CUSTOMIZADA
+        ============================================= */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--cor-primaria-escura);
+            border-radius: 10px;
+            border: 2px solid var(--cor-fundo);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cor-primaria);
+        }
+
+        /* =============================================
+           NAVBAR (MELHORADA)
+        ============================================= */
+        .navbar {
+            background: linear-gradient(135deg, #11CAA0 0%, #0a9d7f 100%);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 16px var(--cor-sombra);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        .navbar h1 {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: var(--raio-borda-pequeno);
+            transition: all var(--transicao);
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* =============================================
+           CONTAINER E ESTRUTURA
+        ============================================= */
+        .container {
+            max-width: 860px;
+            margin: 30px auto;
+            padding: 0 20px 80px;
+        }
+
+        .header-section {
+            margin-bottom: 35px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--cor-primaria);
+            margin-bottom: 6px;
+            font-weight: 800;
+        }
+
+        .page-subtitle {
+            color: var(--cor-texto-secundario);
+            font-size: 1rem;
+        }
+
+        /* =============================================
+           CARDS DE CONFIGURAÇÃO
+        ============================================= */
+        .section {
+            background: var(--cor-fundo-card);
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-borda);
+            padding: 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(12px);
+            transition: all var(--transicao);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .section:hover {
+            border-color: var(--cor-borda-forte);
+            box-shadow: 0 8px 24px rgba(17, 202, 160, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--cor-borda);
+        }
+
+        .section-icon {
+            font-size: 1.4rem;
+            filter: drop-shadow(0 2px 4px rgba(17, 202, 160, 0.3));
+        }
+
+        .section h3 {
+            color: var(--cor-primaria);
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* =============================================
+           COMPONENTES DE FORMULÁRIO
+        ============================================= */
+        .setting-item {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(17, 202, 160, 0.05);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .setting-label {
+            display: block;
+            color: var(--cor-texto);
+            font-weight: 700;
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+
+        .setting-description {
+            color: var(--cor-texto-secundario);
+            font-size: 0.85rem;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        /* Range Sliders */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(17, 202, 160, 0.15);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--cor-primaria);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--cor-primaria);
+            background: rgba(17, 202, 160, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Theme Grid */
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .theme-btn {
+            padding: 16px;
+            border: 2px solid var(--cor-borda);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--cor-texto);
+            border-radius: var(--raio-borda);
+            cursor: pointer;
+            transition: all var(--transicao);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .theme-btn:hover {
+            border-color: var(--cor-primaria);
+            background: rgba(17, 202, 160, 0.08);
+            transform: translateY(-3px);
+        }
+
+        .theme-btn.active {
+            border-color: var(--cor-primaria);
+            background: rgba(17, 202, 160, 0.15);
+            color: var(--cor-primaria);
+            box-shadow: 0 4px 12px rgba(17, 202, 160, 0.2);
+        }
+
+        /* Preview Box */
+        .preview-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--cor-borda);
+            border-radius: var(--raio-borda);
+            padding: 24px;
+            margin-top: 15px;
+            transition: all 0.4s ease;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider-switch {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(17, 202, 160, 0.2);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider-switch:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider-switch { background-color: var(--cor-primaria); }
+        input:checked + .slider-switch:before { transform: translateX(26px); }
+
+        /* =============================================
+           BOTÕES E AÇÕES
+        ============================================= */
+        .actions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: var(--raio-borda);
+            font-weight: 800;
+            cursor: pointer;
+            transition: all var(--transicao);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--cor-primaria);
+            color: #121212;
+        }
+
+        .btn-primary:hover {
+            background: var(--cor-primaria-hover);
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(17, 202, 160, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--cor-texto);
+            border: 1px solid var(--cor-borda);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--cor-primaria);
+        }
+
+        /* =============================================
+           SISTEMA DE TOAST
+        ============================================= */
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: #1e2330;
+            color: white;
+            padding: 16px 24px;
+            border-radius: var(--raio-borda);
+            margin-top: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 5px solid var(--cor-primaria);
+            animation: slideIn 0.4s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* =============================================
+           ANIMAÇÕES
+        ============================================= */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeInUp 0.5s ease backwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =============================================
+           RESPONSIVIDADE
+        ============================================= */
+        @media (max-width: 768px) {
+            .navbar { padding: 10px 16px; }
+            .nav-links a span { display: none; }
+            .container { margin-top: 20px; }
+            .theme-options { grid-template-columns: 1fr 1fr; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h1>TR: Vida</h1>
+        <div class="nav-links">
+            <!-- Usando caminhos relativos para evitar erro de tela branca se aberto localmente -->
+            <a href="index.html" title="Voltar para a Capa">
+                <span>←</span> <span>Capa</span>
+            </a>
+            <a href="perfil.html" title="Ver Perfil">
+                <span>👤</span> <span>Perfil</span>
+            </a>
+            <a href="logout.html" style="background: rgba(224, 92, 92, 0.2);">
+                <span>🚪</span> <span>Sair</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="header-section">
+            <h2 class="page-title">Configurações</h2>
+            <p class="page-subtitle">Personalize sua jornada de leitura para o máximo conforto.</p>
+        </header>
+
+        <!-- SEÇÃO: LEITURA -->
+        <section class="section" style="animation-delay: 0.1s;">
+            <div class="section-header">
+                <span class="section-icon">📖</span>
+                <h3>Experiência de Leitura</h3>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Tamanho da Fonte</label>
+                <p class="setting-description">Encontre o equilíbrio perfeito para seus olhos.</p>
+                <div class="slider-wrapper">
+                    <input type="range" id="fontSize" min="14" max="28" value="18" class="slider">
+                    <span class="slider-value" id="val-fontSize">18px</span>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Espaçamento entre Linhas</label>
+                <p class="setting-description">Melhore o fluxo da leitura com mais ar entre as frases.</p>
+                <div class="slider-wrapper">
+                    <input type="range" id="lineHeight" min="1.4" max="2.6" step="0.1" value="1.8" class="slider">
+                    <span class="slider-value" id="val-lineHeight">1.8</span>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="toggle-switch">
+                    <div>
+                        <label class="setting-label">Justificar Texto</label>
+                        <p class="setting-description" style="margin-bottom: 0;">Alinhamento elegante para as bordas.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="justifyText" checked>
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="preview-box" id="preview">
+                "O mistério da vida não é um problema a ser resolvido, mas uma realidade a ser experimentada. Cada capítulo que você lê aqui é um passo nessa jornada."
+            </div>
+        </section>
+
+        <!-- SEÇÃO: APARÊNCIA -->
+        <section class="section" style="animation-delay: 0.2s;">
+            <div class="section-header">
+                <span class="section-icon">🎨</span>
+                <h3>Aparência e Tema</h3>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Escolha seu Tema</label>
+                <p class="setting-description">O ambiente ideal para cada momento do dia.</p>
+                <div class="theme-options">
+                    <button class="theme-btn active" data-theme="dark">
+                        <span>🌙</span> Escuro
+                    </button>
+                    <button class="theme-btn" data-theme="light">
+                        <span>☀️</span> Claro
+                    </button>
+                    <button class="theme-btn" data-theme="sepia">
+                        <span>📜</span> Sépia
+                    </button>
+                    <button class="theme-btn" data-theme="midnight">
+                        <span>🌌</span> Noite
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: NOTIFICAÇÕES -->
+        <section class="section" style="animation-delay: 0.3s;">
+            <div class="section-header">
+                <span class="section-icon">🔔</span>
+                <h3>Notificações</h3>
+            </div>
+
+            <div class="setting-item">
+                <div class="toggle-switch">
+                    <div>
+                        <label class="setting-label">Novos Capítulos</label>
+                        <p class="setting-description" style="margin-bottom: 0;">Seja o primeiro a saber quando a história continuar.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifChapters" checked>
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="toggle-switch">
+                    <div>
+                        <label class="setting-label">Comentários e Respostas</label>
+                        <p class="setting-description" style="margin-bottom: 0;">Acompanhe a interação da comunidade.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifComments">
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: AÇÕES -->
+        <section class="section" style="animation-delay: 0.4s;">
+            <div class="section-header">
+                <span class="section-icon">🛠️</span>
+                <h3>Gerenciar Dados</h3>
+            </div>
+            <div class="actions-container">
+                <button class="btn btn-primary" id="btnSave">
+                    <span>💾</span> Salvar Alterações
+                </button>
+                <button class="btn btn-secondary" id="btnReset">
+                    <span>🔄</span> Restaurar Padrões
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast-container"></div>
+
+    <!-- SCRIPTS -->
+    <script>
+        /**
+         * SISTEMA DE CONFIGURAÇÕES - PORTAL DE HISTÓRIAS
+         * Este script foi desenhado para ser resiliente a erros.
+         */
+        (function() {
+            'use strict';
+
+            // Seletores
+            const $ = (id) => document.getElementById(id);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            const elements = {
+                fontSize: $('fontSize'),
+                lineHeight: $('lineHeight'),
+                justifyText: $('justifyText'),
+                preview: $('preview'),
+                btnSave: $('btnSave'),
+                btnReset: $('btnReset'),
+                themeBtns: $$('.theme-btn'),
+                toastContainer: $('toast-container')
+            };
+
+            // Configurações Padrão
+            const DEFAULTS = {
+                fontSize: 18,
+                lineHeight: 1.8,
+                justifyText: true,
+                theme: 'dark',
+                notifChapters: true,
+                notifComments: false
+            };
+
+            /**
+             * SISTEMA DE ARMAZENAMENTO SEGURO
+             * Previne que a página fique branca se o localStorage estiver bloqueado.
+             */
+            const Storage = {
+                save(key, value) {
+                    try {
+                        localStorage.setItem(`tr_vida_${key}`, JSON.stringify(value));
+                        return true;
+                    } catch (e) {
+                        console.error("Erro ao salvar no Storage:", e);
+                        return false;
+                    }
+                },
+                load(key, fallback) {
+                    try {
+                        const item = localStorage.getItem(`tr_vida_${key}`);
+                        return item ? JSON.parse(item) : fallback;
+                    } catch (e) {
+                        console.error("Erro ao carregar do Storage:", e);
+                        return fallback;
+                    }
+                }
+            };
+
+            /**
+             * UI - TOAST NOTIFICATION
+             */
+            function showToast(msg, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span> ${msg}`;
+                elements.toastContainer.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    setTimeout(() => toast.remove(), 500);
+                }, 3000);
+            }
+
+            /**
+             * CORE - ATUALIZAR INTERFACE
+             */
+            function updatePreview() {
+                const fs = elements.fontSize.value;
+                const lh = elements.lineHeight.value;
+                const jt = elements.justifyText.checked;
+
+                elements.preview.style.fontSize = `${fs}px`;
+                elements.preview.style.lineHeight = lh;
+                elements.preview.style.textAlign = jt ? 'justify' : 'left';
+
+                $('val-fontSize').textContent = `${fs}px`;
+                $('val-lineHeight').textContent = lh;
+            }
+
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                elements.themeBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.theme === theme);
+                });
+            }
+
+            /**
+             * EVENTOS
+             */
+            function initEvents() {
+                // Sliders
+                elements.fontSize.addEventListener('input', updatePreview);
+                elements.lineHeight.addEventListener('input', updatePreview);
+                elements.justifyText.addEventListener('change', updatePreview);
+
+                // Temas
+                elements.themeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const theme = btn.dataset.theme;
+                        applyTheme(theme);
+                        Storage.save('theme', theme);
+                        showToast(`Tema ${theme} aplicado!`);
+                    });
+                });
+
+                // Salvar
+                elements.btnSave.addEventListener('click', () => {
+                    const config = {
+                        fontSize: elements.fontSize.value,
+                        lineHeight: elements.lineHeight.value,
+                        justifyText: elements.justifyText.checked,
+                        notifChapters: $('notifChapters').checked,
+                        notifComments: $('notifComments').checked
+                    };
+                    
+                    Object.keys(config).forEach(key => Storage.save(key, config[key]));
+                    showToast("Configurações salvas com sucesso!");
+                });
+
+                // Reset
+                elements.btnReset.addEventListener('click', () => {
+                    if(confirm("Deseja realmente voltar para as configurações originais?")) {
+                        applyConfig(DEFAULTS);
+                        showToast("Padrões restaurados.");
+                    }
+                });
+            }
+
+            /**
+             * APLICAR CONFIGURAÇÕES NA TELA
+             */
+            function applyConfig(config) {
+                elements.fontSize.value = config.fontSize;
+                elements.lineHeight.value = config.lineHeight;
+                elements.justifyText.checked = config.justifyText;
+                $('notifChapters').checked = config.notifChapters;
+                $('notifComments').checked = config.notifComments;
+                
+                applyTheme(config.theme || 'dark');
+                updatePreview();
+            }
+
+            /**
+             * INICIALIZAÇÃO
+             */
+            function init() {
+                try {
+                    const savedConfig = {
+                        fontSize: Storage.load('fontSize', DEFAULTS.fontSize),
+                        lineHeight: Storage.load('lineHeight', DEFAULTS.lineHeight),
+                        justifyText: Storage.load('justifyText', DEFAULTS.justifyText),
+                        theme: Storage.load('theme', DEFAULTS.theme),
+                        notifChapters: Storage.load('notifChapters', DEFAULTS.notifChapters),
+                        notifComments: Storage.load('notifComments', DEFAULTS.notifComments)
+                    };
+
+                    applyConfig(savedConfig);
+                    initEvents();
+                    console.log("Sistema de Configurações inicializado com sucesso.");
+                } catch (e) {
+                    console.error("Falha crítica na inicialização:", e);
+                    // Fallback para não deixar a tela branca
+                    document.body.innerHTML += '<div style="padding:20px; color:red;">Erro ao carregar configurações. Tente recarregar a página.</div>';
+                }
+            }
+
+            // Garante que o DOM está pronto
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+</html>

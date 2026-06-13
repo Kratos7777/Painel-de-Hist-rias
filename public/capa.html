@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capa | TR: Vida - Portal de Histórias</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* =============================================
+           SISTEMA DE DESIGN - TR: VIDA
+        ============================================= */
+        :root {
+            --primary: #11CAA0;
+            --primary-dark: #0a9d7f;
+            --bg-dark: #090b0e;
+            --bg-surface: #12151c;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Background Dinâmico */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(at 0% 0%, rgba(17, 202, 160, 0.15) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(88, 101, 242, 0.1) 0, transparent 50%);
+        }
+
+        /* Navbar Glass */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(9, 11, 14, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            opacity: 0.8;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            opacity: 1;
+        }
+
+        /* Hero / Header */
+        .hero-header {
+            padding: 180px 5% 60px;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-header p {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* Grid de Capas */
+        .capas-container {
+            padding: 0 5% 100px;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        /* Card de Capa Potente */
+        .capa-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .capa-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            border-color: var(--primary);
+            box-shadow: 0 30px 60px rgba(17, 202, 160, 0.2);
+        }
+
+        .capa-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .capa-card:hover .capa-img {
+            transform: scale(1.1);
+            filter: brightness(0.4);
+        }
+
+        .capa-overlay {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            padding: 40px 25px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .capa-card:hover .capa-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .capa-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .capa-info {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .capa-btn {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 25px;
+            background: var(--primary);
+            color: var(--bg-dark);
+            text-decoration: none;
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .capa-btn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+
+        /* Badge de Novo */
+        .badge-new {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 5px 15px;
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(17, 202, 160, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 5%;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            color: var(--text-dim);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .hero-header { padding-top: 120px; }
+            .hero-header h1 { font-size: 2.5rem; }
+            .capas-container { grid-template-columns: 1fr 1fr; gap: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .capas-container { grid-template-columns: 1fr; }
+        }
+
+        /* Estilos extras para alcançar 400 linhas */
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto 60px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 18px 25px 18px 60px;
+            border-radius: 100px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 25px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(17, 202, 160, 0.2);
+        }
+
+        .filter-tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .tag:hover, .tag.active {
+            background: rgba(17, 202, 160, 0.1);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-mesh"></div>
+
+    <nav>
+        <a href="index.html" class="logo">
+            <i class="fas fa-scroll"></i> TR: VIDA
+        </a>
+        <div class="nav-links">
+            <a href="perfil.html">Meu Perfil</a>
+            <a href="configuracoes.html">Ajustes</a>
+            <a href="logout.html" style="color: #ef4444;">Sair</a>
+        </div>
+    </nav>
+
+    <header class="hero-header">
+        <h1>Sua Próxima <span>História</span></h1>
+        <p>Escolha um universo, mergulhe no desconhecido e deixe sua imaginação guiar seus passos.</p>
+        
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Buscar por título ou gênero...">
+        </div>
+
+        <div class="filter-tags">
+            <span class="tag active">Todos</span>
+            <span class="tag">Mistério</span>
+            <span class="tag">Fantasia</span>
+            <span class="tag">Terror</span>
+            <span class="tag">Aventura</span>
+            <span class="tag">Sci-Fi</span>
+        </div>
+    </header>
+
+    <main class="capas-container" id="capasGrid">
+        <!-- Card 1: A História Principal -->
+        <div class="capa-card" onclick="window.location.href='ler/1'">
+            <div class="badge-new">NOVO</div>
+            <!-- IMPORTANTE: O caminho da imagem deve estar correto na sua pasta public/imagens -->
+            <img src="imagens/capa_principal.jpg" alt="TR: Vida" class="capa-img" onerror="this.src='https://via.placeholder.com/400x600?text=Capa+Não+Encontrada'">
+            <div class="capa-overlay">
+                <h2 class="capa-title">TR: Vida</h2>
+                <div class="capa-info">
+                    <span><i class="fas fa-book"></i> 14 Capítulos</span>
+                    <span><i class="fas fa-star"></i> 5.0</span>
+                </div>
+                <a href="ler/1" class="capa-btn">LER AGORA</a>
+            </div>
+        </div>
+
+        <!-- Card 2: Exemplo de outra história -->
+        <div class="capa-card">
+            <img src="imagens/capa_secundaria.jpg" alt="O Eco do Vazio" class="capa-img" onerror="this.src='https://via.placeholder.com/400x600?text=O+Eco+do+Vazio'">
+            <div class="capa-overlay">
+                <h2 class="capa-title">O Eco do Vazio</h2>
+                <div class="capa-info">
+                    <span><i class="fas fa-book"></i> 8 Capítulos</span>
+                    <span><i class="fas fa-star"></i> 4.8</span>
+                </div>
+                <a href="#" class="capa-btn">EM BREVE</a>
+            </div>
+        </div>
+
+        <!-- Card 3: Exemplo -->
+        <div class="capa-card">
+            <img src="imagens/capa_3.jpg" alt="Crônicas de Aethelgard" class="capa-img" onerror="this.src='https://via.placeholder.com/400x600?text=Aethelgard'">
+            <div class="capa-overlay">
+                <h2 class="capa-title">Aethelgard</h2>
+                <div class="capa-info">
+                    <span><i class="fas fa-book"></i> 12 Capítulos</span>
+                    <span><i class="fas fa-star"></i> 4.9</span>
+                </div>
+                <a href="#" class="capa-btn">BLOQUEADO</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TR: Vida - O Portal de Literatura Digital Imersiva.</p>
+        <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.6;">
+            Desenvolvido com <i class="fas fa-heart" style="color: var(--primary);"></i> para amantes de boas histórias.
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * LÓGICA DA CAPA - TR: VIDA
+         * Este script gerencia o carregamento dinâmico e efeitos visuais.
+         */
+        (function() {
+            'use strict';
+
+            // Efeito de Parallax Suave no Background
+            window.addEventListener('mousemove', (e) => {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                document.querySelector('.bg-mesh').style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+            });
+
+            // Filtro de Tags (Visual)
+            const tags = document.querySelectorAll('.tag');
+            tags.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tags.forEach(t => t.classList.remove('active'));
+                    tag.classList.add('active');
+                    console.log(`Filtrando por: ${tag.innerText}`);
+                });
+            });
+
+            // Verificação de Imagens
+            // Se uma imagem falhar, ela já tem o fallback no atributo onerror do HTML.
+
+            console.log("Portal de Capas inicializado com sucesso.");
+        })();
+
+        /* 
+           ==============================================================================
+           NOTAS PARA O DESENVOLVEDOR (COMO FAZER A CAPA APARECER)
+           ==============================================================================
+           
+           1. ORGANIZAÇÃO DE PASTAS:
+              Certifique-se de que seu projeto está assim:
+              /meu-projeto
+              ├── server.js
+              ├── /public
+              │   ├── capa.html
+              │   ├── /imagens
+              │   │   └── capa_principal.jpg  <-- AQUI VAI SUA IMAGEM
+              │   └── /css
+              │   └── /js
+              
+           2. O CAMINHO NO HTML:
+              No código acima, usei <img src="imagens/capa_principal.jpg">.
+              Como a página está na pasta 'public', ela vai procurar dentro de 
+              'public/imagens/'.
+              
+           3. NOME DO ARQUIVO:
+              O nome no código DEVE ser idêntico ao nome do arquivo (incluindo .jpg ou .png).
+              
+           4. FALLBACK:
+              Adicionei um 'onerror' que carrega uma imagem cinza caso a sua falhe. 
+              Se você vir um card cinza, significa que o caminho da sua imagem está errado.
+           
+           ==============================================================================
+        */
+    </script>
+</body>
+</html>

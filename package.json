@@ -6,11 +6,15 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "chalk": "^4.1.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
     "express-session": "^1.18.0",
+    "helmet": "^8.2.0",
     "passport": "^0.7.0",
     "passport-discord": "^0.1.4"
   }
 }
-
