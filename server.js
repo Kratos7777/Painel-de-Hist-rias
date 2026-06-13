@@ -9,26 +9,33 @@ const fs = require('fs');
 
 const app = express();
 
-// =====================
-// CONFIG BÁSICA
-// =====================
+// ==========================================
+// CONFIGURAÇÕES BÁSICAS DO EXPRESS
+// ==========================================
 app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-// =====================
-// ENV
-// =====================
+// Rota estática dedicada para servir as imagens locais no contêiner do Render
+app.use('/imagens', express.static(path.resolve(__dirname, 'imagens'), {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    }
+}));
+
+// ==========================================
+// CARREGAMENTO DAS VARIÁVEIS DE AMBIENTE (.ENV)
+// ==========================================
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET || "change_this_secret";
 const DISCORD_ID = process.env.DISCORD_ID;
 
-// =====================
-// SESSION
-// =====================
+// ==========================================
+// CONFIGURAÇÃO DE SESSÃO DO USUÁRIO
+// ==========================================
 app.use(session({
     secret: SESSION_SECRET,
     resave: false,
@@ -40,9 +47,9 @@ app.use(session({
     }
 }));
 
-// =====================
-// PASSPORT DISCORD
-// =====================
+// ==========================================
+// CONFIGURAÇÃO DO PASSPORT (AUTENTICAÇÃO DISCORD)
+// ==========================================
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
@@ -59,10 +66,26 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ==========================================
-// ROTAS DO PORTAL (FLUXO CORRIGIDO E BLINDADO)
+// MIDDLEWARES DE VALIDAÇÃO DE SEGURANÇA
+// ==========================================
+function auth(req, res, next) {
+    if (req.isAuthenticated()) return next();
+    return res.redirect('/');
+}
+
+// Vinculação de segurança para evitar o erro fatal de "ReferenceError" na rota da capa
+const verificarAutenticacao = auth;
+
+function admin(req, res, next) {
+    if (req.isAuthenticated() && req.user.id === DISCORD_ID) return next();
+    return res.status(403).send("Acesso negado");
+}
+
+// ==========================================
+// ROTAS DO FLUXO PRINCIPAL (LOGIN E REDIRECIONAMENTO)
 // ==========================================
 
-// Se o usuário já tiver sessão ativa, vai para a capa. Se não, tela de login (index.html)
+// Se o usuário já tiver um cookie de login ativo, vai para a capa. Se não, exibe o index.html
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
         return res.redirect('/capa');
@@ -70,51 +93,24 @@ app.get('/', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'index.html'));
 });
 
+// Rota de disparo que inicia o processo de login junto ao aplicativo do Discord
 app.get('/auth/discord', passport.authenticate('discord'));
 
-// =====================
-// AUTH MIDDLEWARE
-// =====================
-function auth(req, res, next) {
-    if (req.isAuthenticated()) return next();
-    return res.redirect('/');
-}
-
-function admin(req, res, next) {
-    if (req.isAuthenticated() && req.user.id === DISCORD_ID) return next();
-    return res.status(403).send("Acesso negado");
-}
-
-// =====================
-// HOME
-// =====================
-app.get('/', (req, res) => {
-    if (req.isAuthenticated()) return res.redirect('/funcionalidades');
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// =====================
-// LOGIN DISCORD
-// =====================
-app.get('/auth/discord', passport.authenticate('discord'));
-
+// Rota de retorno do Discord que salva a sessão e redireciona para a Capa com segurança
 app.get('/auth/discord/callback',
     passport.authenticate('discord', { failureRedirect: '/' }),
     (req, res) => {
-        req.session.save(() => res.redirect('/funcionalidades'));
+        req.session.save(() => res.redirect('/capa'));
     }
 );
 
-// =====================
-// FUNCIONALIDADES
-// =====================
+// ==========================================
+// ROTAS DE INTERFACE DO PORTAL (PÁGINAS HTML)
+// ==========================================
+
 app.get('/funcionalidades', auth, (req, res) => {
     res.sendFile(path.join(__dirname, 'funcionalidades.html'));
 });
-
-// =====================
-// CAPA
-// =====================
 
 app.get('/capa', verificarAutenticacao, (req, res) => {
     const caminhoCapa = path.resolve(__dirname, 'capa.html');
@@ -125,41 +121,31 @@ app.get('/capa', verificarAutenticacao, (req, res) => {
     });
 });
 
-// =====================
-// PERFIL DO USUÁRIO
-// =====================
 app.get('/perfil', auth, (req, res) => {
     res.sendFile(path.join(__dirname, 'perfil.html'));
 });
 
-// =====================
-// CONFIGURAÇÕES
-// =====================
 app.get('/configuracoes', auth, (req, res) => {
     res.sendFile(path.join(__dirname, 'configuracoes.html'));
 });
 
-// =====================
-// CAPÍTULO
-// =====================
 app.get('/trvida/:numero', auth, (req, res) => {
-    const num = parseInt(req.params.numero);
+    const num = parseInt(req.params.numero, 10);
     if (isNaN(num) || num <= 0) {
         return res.status(400).send("Capítulo inválido");
     }
     res.sendFile(path.join(__dirname, 'capitulo.html'));
 });
 
-// =====================
-// DASHBOARD
-// =====================
 app.get('/dashboard', admin, (req, res) => {
     res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-// =====================
-// API - DADOS DO USUÁRIO
-// =====================
+// ==========================================
+// ENDPOINTS DA API INTERNA DO SISTEMA
+// ==========================================
+
+// Retorna as informações básicas do perfil logado
 app.get('/api/usuario', auth, (req, res) => {
     res.json({
         id: req.user.id,
@@ -169,18 +155,14 @@ app.get('/api/usuario', auth, (req, res) => {
     });
 });
 
-// =====================
-// API - LER CAPÍTULO
-// =====================
+// Retorna o texto bruto de um capítulo específico da história
 app.get('/api/capitulo/:numero', auth, (req, res) => {
-    const num = parseInt(req.params.numero);
-
+    const num = parseInt(req.params.numero, 10);
     if (isNaN(num) || num <= 0) {
         return res.status(400).send("Capítulo inválido");
     }
 
     let file = path.join(__dirname, 'data', `trvida${num}.txt`);
-    
     if (!fs.existsSync(file)) {
         file = path.join(__dirname, `trvida${num}.txt`);
     }
@@ -191,12 +173,9 @@ app.get('/api/capitulo/:numero', auth, (req, res) => {
     });
 });
 
-// =====================
-// API - LISTA CAPÍTULOS
-// =====================
+// Varre a pasta do projeto para retornar a lista de todos os capítulos existentes
 app.get('/api/capitulos', auth, (req, res) => {
     let dataDir = path.join(__dirname, 'data');
-    
     if (!fs.existsSync(dataDir)) {
         dataDir = __dirname;
     }
@@ -206,7 +185,7 @@ app.get('/api/capitulos', auth, (req, res) => {
 
         const caps = files
             .filter(f => f.startsWith('trvida') && f.endsWith('.txt'))
-            .map(f => parseInt(f.replace('trvida', '').replace('.txt', '')))
+            .map(f => parseInt(f.replace('trvida', '').replace('.txt', ''), 10))
             .filter(n => !isNaN(n))
             .sort((a, b) => a - b);
 
@@ -214,18 +193,14 @@ app.get('/api/capitulos', auth, (req, res) => {
     });
 });
 
-// =====================
-// API - BUSCAR CAPÍTULO (EDITOR)
-// =====================
+// Recupera o conteúdo de um arquivo para exibição interna no painel do editor (Restrito)
 app.get('/api/buscar-capitulo', admin, (req, res) => {
-    const num = parseInt(req.query.numero);
-
+    const num = parseInt(req.query.numero, 10);
     if (isNaN(num) || num <= 0) {
         return res.send("");
     }
 
     let file = path.join(__dirname, 'data', `trvida${num}.txt`);
-    
     if (!fs.existsSync(file)) {
         file = path.join(__dirname, `trvida${num}.txt`);
     }
@@ -236,12 +211,9 @@ app.get('/api/buscar-capitulo', admin, (req, res) => {
     });
 });
 
-// =====================
-// API - SALVAR CAPÍTULO (EDITOR)
-// =====================
+// Recebe e salva alterações enviadas pelo editor criando subpastas se necessário (Restrito)
 app.post('/api/salvar-capitulo', admin, (req, res) => {
-    const num = parseInt(req.body.numero);
-
+    const num = parseInt(req.body.numero, 10);
     if (isNaN(num) || num <= 0) {
         return res.status(400).send("Número inválido");
     }
@@ -261,22 +233,19 @@ app.post('/api/salvar-capitulo', admin, (req, res) => {
     });
 });
 
-// =====================
-// API - ME (ADMIN CHECK)
-// =====================
+// Endpoint rápido para verificar se a sessão atual pertence ao ID administrador
 app.get('/api/me', (req, res) => {
     if (!req.isAuthenticated()) {
         return res.json({ admin: false });
     }
-
     return res.json({
         admin: req.user.id === DISCORD_ID
     });
 });
 
-// =====================
-// LOGOUT
-// =====================
+// ==========================================
+// ROTA DE LOGOUT E DESTRUIÇÃO DE SESSÃO
+// ==========================================
 app.get('/logout', (req, res) => {
     req.logout(() => {
         req.session.destroy(() => {
@@ -285,14 +254,17 @@ app.get('/logout', (req, res) => {
     });
 });
 
-// =====================
-// ERROR HANDLER
-// =====================
+// ==========================================
+// MANIPULADOR DE ERROS INTRÍNSECOS DO EXPRESS
+// ==========================================
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send("Erro no servidor. Tente novamente.");
 });
 
+// ==========================================
+// INICIALIZAÇÃO DO SERVIDOR HTTP
+// ==========================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log("=========================================");
