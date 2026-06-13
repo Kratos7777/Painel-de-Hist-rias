@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Capítulos | TR: Vida</title>
+    
+    <!-- SEMENTE: RAÍZES ESTÉTICAS E ESTILOS BASE -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* SISTEMA DE DESIGN - O JARDIM DO EDITOR */
+        :root {
+            --primary: #11CAA0;
+            --primary-glow: rgba(17, 202, 160, 0.3);
+            --bg: #090b0e;
+            --surface: #12151c;
+            --surface-light: #1a1d26;
+            --text: #ffffff;
+            --text-dim: #a0a0a0;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --transition: all 0.3s ease-in-out;
+            --shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-mesh {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(at 0% 0%, rgba(17, 202, 160, 0.1) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(88, 101, 242, 0.05) 0, transparent 50%);
+        }
+
+        nav {
+            padding: 1.5rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem; font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex; align-items: center; gap: 12px;
+            letter-spacing: -1px;
+        }
+
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a {
+            color: var(--text); text-decoration: none;
+            font-weight: 600; font-size: 0.9rem;
+            transition: var(--transition); opacity: 0.7;
+        }
+        .nav-links a:hover { opacity: 1; color: var(--primary); }
+        .nav-links a.active { opacity: 1; color: var(--primary); }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            padding: 120px 5% 50px;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+
+        .sidebar h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chapter-list {
+            list-style: none;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+            padding-right: 10px; /* Espaço para scrollbar */
+        }
+
+        .chapter-list li {
+            margin-bottom: 10px;
+        }
+
+        .chapter-list button {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--surface-light);
+            border: none;
+            border-radius: 8px;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chapter-list button:hover {
+            background: var(--primary-glow);
+            color: var(--primary);
+        }
+
+        .chapter-list button.active {
+            background: var(--primary);
+            color: var(--bg);
+            font-weight: 600;
+        }
+
+        .editor-area {
+            flex-grow: 1;
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-area h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .editor-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .editor-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .editor-controls .btn-save {
+            background: var(--primary);
+            color: var(--bg);
+        }
+        .editor-controls .btn-save:hover { background: var(--primary-glow); color: var(--primary); }
+
+        .editor-controls .btn-delete {
+            background: var(--danger);
+            color: var(--text);
+        }
+        .editor-controls .btn-delete:hover { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .editor-controls .btn-new {
+            background: var(--surface-light);
+            color: var(--text);
+        }
+        .editor-controls .btn-new:hover { background: var(--primary-glow); color: var(--primary); }
+
+        textarea {
+            width: 100%;
+            flex-grow: 1;
+            background: var(--surface-light);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            color: var(--text);
+            font-family: 'Lora', serif;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 300px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .message-area {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message-area.success { background: rgba(34, 197, 94, 0.2); color: var(--success); display: block; }
+        .message-area.error { background: rgba(239, 68, 68, 0.2); color: var(--danger); display: block; }
+
+        footer {
+            padding: 40px 5% 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                padding-top: 100px;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+            .editor-area {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TRONCO: ESTRUTURA PRINCIPAL DO CORPO -->
+    <div class="bg-mesh"></div>
+
+    <nav>
+        <a href="/" class="logo"><i class="fas fa-leaf"></i> TR: VIDA</a>
+        <div class="nav-links">
+            <a href="/capa">Biblioteca</a>
+            <a href="/perfil">Meu Perfil</a>
+            <a href="/configuracoes">Ajustes</a>
+            <a href="/editor" class="active">Editor</a>
+            <a href="/logout" style="color: var(--danger);">Sair</a>
+        </div>
+    </nav>
+
+    <main>
+        <aside class="sidebar">
+            <h2>Capítulos Existentes</h2>
+            <ul class="chapter-list" id="chapter-list">
+                <!-- Capítulos serão carregados aqui via JS -->
+                <li id="loading-chapters">Carregando capítulos...</li>
+            </ul>
+            <button class="btn-new" id="new-chapter-btn" style="margin-top: 20px; width: 100%;">+ Novo Capítulo</button>
+        </aside>
+
+        <section class="editor-area">
+            <h1 id="editor-title">Novo Capítulo</h1>
+            <div class="editor-controls">
+                <button class="btn-save" id="save-btn"><i class="fas fa-save"></i> Salvar</button>
+                <button class="btn-delete" id="delete-btn" disabled><i class="fas fa-trash"></i> Excluir</button>
+            </div>
+            <textarea id="chapter-content" placeholder="Escreva o conteúdo do seu capítulo aqui..."></textarea>
+            <div id="message-area" class="message-area"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TR: Vida - O Ecossistema da Literatura Imersiva.</p>
+    </footer>
+
+    <!-- SEIVA: LÓGICA DINÂMICA (JavaScript) -->
+    <script>
+        (function() {
+            'use strict';
+
+            const DOM = {
+                chapterList: document.getElementById('chapter-list'),
+                editorTitle: document.getElementById('editor-title'),
+                chapterContent: document.getElementById('chapter-content'),
+                saveBtn: document.getElementById('save-btn'),
+                deleteBtn: document.getElementById('delete-btn'),
+                newChapterBtn: document.getElementById('new-chapter-btn'),
+                messageArea: document.getElementById('message-area')
+            };
+
+            let currentChapterId = null;
+            let allStories = [];
+
+            // Função para exibir mensagens de feedback
+            function showMessage(message, type) {
+                DOM.messageArea.innerText = message;
+                DOM.messageArea.className = `message-area ${type}`;
+                setTimeout(() => {
+                    DOM.messageArea.className = 'message-area';
+                    DOM.messageArea.innerText = '';
+                }, 5000);
+            }
+
+            // Função para carregar a lista de capítulos
+            async function loadChapterList() {
+                DOM.chapterList.innerHTML = '<li id="loading-chapters">Carregando capítulos...</li>';
+                try {
+                    const response = await fetch('/api/stories/list');
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                    const data = await response.json();
+
+                    if (data.success && data.stories.length > 0) {
+                        allStories = data.stories;
+                        renderChapterList(allStories);
+                    } else {
+                        DOM.chapterList.innerHTML = '<li>Nenhum capítulo encontrado. Crie um novo!</li>';
+                        allStories = [];
+                    }
+                } catch (err) {
+                    console.error("Erro ao carregar lista de capítulos:", err);
+                    DOM.chapterList.innerHTML = `<li>Erro ao carregar capítulos: ${err.message}</li>`;
+                }
+            }
+
+            // Renderiza a lista de capítulos no sidebar
+            function renderChapterList(stories) {
+                DOM.chapterList.innerHTML = '';
+                stories.forEach(story => {
+                    const li = document.createElement('li');
+                    const button = document.createElement('button');
+                    button.dataset.id = story.id;
+                    button.innerText = story.title;
+                    button.onclick = () => selectChapter(story.id);
+                    li.appendChild(button);
+                    DOM.chapterList.appendChild(li);
+                });
+            }
+
+            // Seleciona um capítulo para edição
+            async function selectChapter(id) {
+                currentChapterId = id;
+                DOM.deleteBtn.disabled = false;
+                DOM.chapterList.querySelectorAll('button').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (parseInt(btn.dataset.id, 10) === id) {
+                        btn.classList.add('active');
+                    }
+                });
+
+                try {
+                    const response = await fetch(`/api/stories/content/${id}`);
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        DOM.editorTitle.innerText = `Editando Capítulo ${data.id}`;
+                        DOM.chapterContent.value = data.content;
+                    } else {
+                        showMessage(`Erro ao carregar capítulo: ${data.error}`, 'error');
+                        newChapter(); // Inicia um novo capítulo se o selecionado não for encontrado
+                    }
+                } catch (err) {
+                    console.error("Erro ao carregar conteúdo do capítulo:", err);
+                    showMessage(`Erro ao carregar conteúdo: ${err.message}`, 'error');
+                    newChapter();
+                }
+            }
+
+            // Inicia um novo capítulo
+            async function newChapter() {
+                currentChapterId = null;
+                DOM.editorTitle.innerText = 'Novo Capítulo';
+                DOM.chapterContent.value = '';
+                DOM.deleteBtn.disabled = true;
+                DOM.chapterList.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+
+                // Tenta obter o próximo ID disponível
+                try {
+                    const response = await fetch('/api/stories/next-id');
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        DOM.editorTitle.innerText = `Novo Capítulo (ID Sugerido: ${data.nextId})`;
+                        currentChapterId = data.nextId; // Pré-preenche o ID para o novo capítulo
+                    }
+                } catch (err) {
+                    console.warn("Não foi possível sugerir próximo ID:", err.message);
+                }
+            }
+
+            // Salva o capítulo atual
+            DOM.saveBtn.addEventListener('click', async () => {
+                const content = DOM.chapterContent.value;
+                if (!content.trim()) {
+                    showMessage('O conteúdo do capítulo não pode estar vazio.', 'error');
+                    return;
+                }
+
+                let idToSave = currentChapterId;
+                if (!idToSave) {
+                    // Se for um novo capítulo e o ID não foi pré-preenchido, tenta obter um novo ID
+                    try {
+                        const response = await fetch('/api/stories/next-id');
+                        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                        const data = await response.json();
+                        if (data.success) {
+                            idToSave = data.nextId;
+                        } else {
+                            showMessage('Não foi possível obter um ID para o novo capítulo.', 'error');
+                            return;
+                        }
+                    } catch (err) {
+                        showMessage(`Erro ao obter ID para novo capítulo: ${err.message}`, 'error');
+                        return;
+                    }
+                }
+
+                try {
+                    const response = await fetch('/api/stories/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: idToSave, content })
+                    });
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        loadChapterList();
+                        selectChapter(idToSave); // Seleciona o capítulo salvo
+                    } else {
+                        showMessage(`Erro ao salvar: ${data.error}`, 'error');
+                    }
+                } catch (err) {
+                    console.error("Erro ao salvar capítulo:", err);
+                    showMessage(`Erro ao salvar capítulo: ${err.message}`, 'error');
+                }
+            });
+
+            // Deleta o capítulo atual
+            DOM.deleteBtn.addEventListener('click', async () => {
+                if (!currentChapterId) return;
+                if (!confirm(`Tem certeza que deseja deletar o Capítulo ${currentChapterId}?`)) return;
+
+                try {
+                    const response = await fetch(`/api/stories/delete/${currentChapterId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        loadChapterList();
+                        newChapter(); // Após deletar, inicia um novo capítulo
+                    } else {
+                        showMessage(`Erro ao deletar: ${data.error}`, 'error');
+                    }
+                } catch (err) {
+                    console.error("Erro ao deletar capítulo:", err);
+                    showMessage(`Erro ao deletar capítulo: ${err.message}`, 'error');
+                }
+            });
+
+            // Evento para o botão Novo Capítulo
+            DOM.newChapterBtn.addEventListener('click', newChapter);
+
+            // Inicialização
+            loadChapterList();
+            newChapter(); // Inicia com um formulário de novo capítulo
+            console.log("Editor TR: Vida ativo. Jardim pronto para cultivo.");
+        })();
+    </script>
+</body>
+</html>
