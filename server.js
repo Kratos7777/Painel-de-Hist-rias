@@ -31,7 +31,7 @@ const PORT    = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Remove aspas e espaços acidentais nas vars de ambiente
-const cleanEnv = (val) => (val ? val.trim().replace(/['"]/g, '') : null);
+const cleanEnv = (val) => val.trim().replace(/['"]/g, '');
 
 const CLIENT_ID        = cleanEnv(process.env.CLIENT_ID);
 const CLIENT_SECRET    = cleanEnv(process.env.CLIENT_SECRET);
@@ -165,7 +165,7 @@ app.get('/login', (req, res) => {
     res.redirect('/auth/discord');
 });
 
-*.js
+js
 app.get('/entrar', (req, res) => {
     res.redirect('/auth/discord');
 });
