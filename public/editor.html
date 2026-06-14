@@ -3,863 +3,484 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TR: VIDA - Estúdio do Autor</title>
-
-    <!-- Favicon: A semente da identidade visual -->
-    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
-
-    <!-- Fontes e Ícones: As sementes estéticas do ecossistema, carregadas de forma otimizada -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <title>Dashboard - Painel de Controle</title>
     <style>
-        /* ===================================================================== */
-        /* CSS GLOBAL: A Seiva que Nutre o Design do Ecossistema               */
-        /* ===================================================================== */
-
-        /* Variáveis CSS: Define a paleta de cores e tipografia para consistência */
-        :root {
-            --primary: #11CAA0; /* Verde esmeralda vibrante, cor principal do ecossistema */
-            --primary-glow: rgba(17, 202, 160, 0.3); /* Efeito de brilho para a cor primária */
-            --bg: #04060a; /* Fundo muito escuro, base do ecossistema */
-            --surface: #0a0c10; /* Superfície de elementos, um pouco mais escuro que o fundo */
-            --surface-light: #12151c; /* Superfície de elementos mais clara */
-            --text: #ffffff; /* Cor principal do texto */
-            --text-dim: #a0a0a0; /* Cor do texto secundário ou atenuado */
-            --danger: #ef4444; /* Cor para mensagens de erro */
-            --success: #28a745; /* Cor para mensagens de sucesso */
-            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transição suave para interações */
-            --shadow: 0 15px 40px rgba(0,0,0,0.4); /* Sombra para elementos em destaque */
-            --border-color: rgba(255,255,255,0.08); /* Cor de borda sutil */
-            --glass-bg: rgba(255, 255, 255, 0.05); /* Fundo para efeito de vidro */
-            --glass-border: rgba(255, 255, 255, 0.1); /* Borda para efeito de vidro */
-        }
-
-        /* Reset e Base: O solo fértil para o layout */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-font-smoothing: antialiased; /* Suavização de fontes para melhor legibilidade */
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        html, body {
-            height: 100%;
-            overflow-x: hidden; /* Evita rolagem horizontal indesejada */
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.7;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background-color: #121212;
+            color: #F3F0DF;
+            font-family: 'Segoe UI', sans-serif;
+            line-height: 1.6;
         }
-
-        /* ===================================================================== */
-        /* EFEITOS VISUAIS: A Atmosfera Cinematográfica do Ecossistema          */
-        /* ===================================================================== */
-
-        .bg-mesh {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2;
-            background:
-                radial-gradient(at 0% 0%, rgba(17, 202, 160, 0.15) 0, transparent 60%),
-                radial-gradient(at 100% 100%, rgba(88, 101, 242, 0.08) 0, transparent 60%),
-                radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.03) 0, transparent 70%);
-            opacity: 0.7;
-            animation: backgroundPan 90s infinite alternate linear; /* Animação de movimento suave */
-            transform: scale(1.1); /* Garante que o efeito preencha a tela */
-        }
-
-        @keyframes backgroundPan {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.7) 100%);
-            z-index: -1;
-        }
-
-        /* ===================================================================== */
-        /* NAVEGAÇÃO: A Barra de Ramos Superiores                                */
-        /* ===================================================================== */
 
         .navbar {
-            background-color: var(--surface);
-            padding: 1.5rem 5%;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+            padding: 15px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px); /* Efeito de vidro na navbar */
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--primary);
-            text-decoration: none;
-            text-shadow: 0 0 10px var(--primary-glow);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-brand i {
+        .navbar h1 {
+            color: white;
             font-size: 1.5rem;
         }
 
-        .navbar-links {
+        .nav-links {
             display: flex;
-            gap: 30px;
-            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .navbar-links a {
-            color: var(--text-dim);
+        .nav-links a {
+            color: white;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: var(--transition);
-            position: relative;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
         }
 
-        .navbar-links a:hover {
-            color: var(--primary);
-            transform: translateY(-2px);
-            text-shadow: 0 0 5px var(--primary-glow);
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        .navbar-links a.active {
-            color: var(--primary);
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 5px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
 
-        .navbar-links a.danger {
-            color: var(--danger);
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
-        .navbar-links a.danger:hover {
-            color: var(--text);
-            background-color: var(--danger);
-            border-radius: 5px;
-            padding: 5px 10px;
-        }
-
-        .navbar-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-user img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            object-fit: cover;
-        }
-
-        .navbar-user span {
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .navbar-user .logout-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-size: 1rem;
-            margin-left: 1rem;
-            transition: var(--transition);
-        }
-
-        .navbar-user .logout-btn:hover {
-            color: #ff7070;
-            transform: scale(1.05);
-        }
-
-        /* ===================================================================== */
-        /* PAINEL DO EDITOR: O Estúdio do Autor                                */
-        /* ===================================================================== */
-
-        .editor-container {
-            display: flex;
-            flex-grow: 1;
-            max-width: 1400px;
-            margin: 2rem auto;
-            background: var(--surface);
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 300px;
-            background: var(--surface-light);
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            text-align: center;
-            text-shadow: 0 0 8px var(--primary-glow);
-        }
-
-        .chapter-list-editor {
-            list-style: none;
-            overflow-y: auto;
-            flex-grow: 1;
-            padding-right: 10px;
-        }
-
-        /* Custom Scrollbar para a lista de capítulos */
-        .chapter-list-editor::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .chapter-list-editor::-webkit-scrollbar-track {
-            background: var(--surface);
-            border-radius: 10px;
-        }
-
-        .chapter-list-editor::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-            border: 2px solid var(--surface-light);
-        }
-
-        .chapter-list-editor::-webkit-scrollbar-thumb:hover {
-            background: #0fd1a7;
-        }
-
-        .chapter-item-editor {
-            background: var(--surface);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            margin-bottom: 0.8rem;
-            padding: 1rem 1.2rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chapter-item-editor:hover {
-            background-color: var(--primary-glow);
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
-
-        .chapter-item-editor.selected {
-            background-color: var(--primary);
-            color: var(--bg);
-            border-color: var(--primary);
-            box-shadow: 0 0 15px var(--primary-glow);
-        }
-
-        .chapter-item-editor.selected h3, .chapter-item-editor.selected p {
-            color: var(--bg);
-        }
-
-        .chapter-item-editor h3 {
-            font-size: 1.1rem;
-            color: var(--text);
-            margin-bottom: 0.3rem;
-        }
-
-        .chapter-item-editor p {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-        }
-
-        .new-chapter-btn {
-            background: var(--primary);
-            color: var(--bg);
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .new-chapter-btn:hover {
-            background: var(--text);
-            color: var(--primary);
-            transform: translateY(-3px);
-        }
-
-        .editor-main {
-            flex-grow: 1;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .editor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
-        }
-
-        .editor-header h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            color: var(--text);
-        }
-
-        .editor-actions button {
-            background: var(--surface-light);
-            color: var(--text);
-            padding: 0.7rem 1.2rem;
-            border: 1px solid var(--border-color);
+        .stat-card {
+            background: rgba(24, 28, 37, 0.7);
+            border: 1px solid rgba(17, 202, 160, 0.2);
             border-radius: 8px;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-left: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
         }
 
-        .editor-actions button:hover {
-            background: var(--primary);
-            color: var(--bg);
-            border-color: var(--primary);
+        .stat-card:hover {
+            border-color: #11CAA0;
+            background: rgba(24, 28, 37, 0.9);
         }
 
-        .editor-actions .delete-btn {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: var(--text);
+        .stat-number {
+            font-size: 2.5rem;
+            color: #11CAA0;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .editor-actions .delete-btn:hover {
-            background: #ff7070;
-            border-color: #ff7070;
+        .stat-label {
+            color: #A0A0A0;
+            font-size: 0.9rem;
         }
 
-        .editor-actions .save-btn {
-            background: var(--success);
-            border-color: var(--success);
-            color: var(--text);
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
         }
 
-        .editor-actions .save-btn:hover {
-            background: #39e65e;
-            border-color: #39e65e;
+        .section {
+            background: rgba(24, 28, 37, 0.7);
+            border: 1px solid rgba(17, 202, 160, 0.2);
+            border-radius: 8px;
+            padding: 30px;
         }
 
-        .editor-textarea {
+        .section h2 {
+            color: #11CAA0;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid rgba(17, 202, 160, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #A0A0A0;
+            font-weight: bold;
+        }
+
+        input[type="number"],
+        textarea {
             width: 100%;
-            flex-grow: 1;
-            background: var(--bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 1.5rem;
-            font-family: 'Lora', serif;
-            font-size: 1.1rem;
-            color: var(--text);
-            resize: vertical;
-            min-height: 300px;
+            padding: 12px;
+            background: rgba(15, 17, 21, 0.8);
+            border: 1px solid rgba(17, 202, 160, 0.3);
+            color: #F3F0DF;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus,
+        textarea:focus {
             outline: none;
-            transition: var(--transition);
+            border-color: #11CAA0;
+            box-shadow: 0 0 10px rgba(17, 202, 160, 0.2);
         }
 
-        .editor-textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px var(--primary-glow);
+        textarea {
+            min-height: 300px;
+            resize: vertical;
         }
 
-        .editor-stats {
+        .button-group {
             display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: var(--text-dim);
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
 
-        /* Mensagens de Status/Feedback */
-        .feedback-message {
-            padding: 1rem;
-            margin-top: 1rem;
-            border-radius: 8px;
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #11CAA0;
+            color: #121212;
+        }
+
+        .btn-primary:hover {
+            background: #0a9d7f;
+        }
+
+        .btn-secondary {
+            background: rgba(17, 202, 160, 0.2);
+            color: #11CAA0;
+            border: 1px solid #11CAA0;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(17, 202, 160, 0.3);
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(17, 202, 160, 0.2);
+            color: #11CAA0;
+            border: 1px solid #11CAA0;
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
+            display: block;
+        }
+
+        .chapter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .chapter-item {
+            padding: 15px;
+            background: rgba(17, 202, 160, 0.1);
+            border: 1px solid rgba(17, 202, 160, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
             text-align: center;
-            font-weight: 600;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
+            font-weight: bold;
         }
 
-        .feedback-message.show {
-            opacity: 1;
-            visibility: visible;
+        .chapter-item:hover {
+            background: rgba(17, 202, 160, 0.2);
+            border-color: #11CAA0;
         }
 
-        .feedback-message.success {
-            background-color: rgba(40, 167, 69, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
+        .chapter-item.active {
+            background: rgba(17, 202, 160, 0.3);
+            border-color: #11CAA0;
+            color: #11CAA0;
         }
 
-        .feedback-message.error {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            border: 1px solid var(--danger);
+        .info-box {
+            background: rgba(17, 202, 160, 0.1);
+            border-left: 3px solid #11CAA0;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }
 
-        /* ===================================================================== */
-        /* RODAPÉ: As Raízes Profundas do Ecossistema                          */
-        /* ===================================================================== */
-
-        footer {
-            padding: 40px 5% 20px;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            margin-top: auto;
-            background: var(--bg);
+        .info-box strong {
+            color: #11CAA0;
         }
-
-        /* ===================================================================== */
-        /* RESPONSIVIDADE: A Adaptação do Ecossistema a Diferentes Solos       */
-        /* ===================================================================== */
 
         @media (max-width: 1024px) {
-            .editor-container {
-                flex-direction: column;
-                margin: 1rem auto;
-                width: 95%;
-            }
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-            .editor-main {
-                padding: 1.5rem;
-            }
-            .editor-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            .editor-actions {
-                width: 100%;
-                display: flex;
-                justify-content: flex-end;
-            }
-            .editor-actions button {
-                margin-left: 0;
-                margin-right: 10px;
+            .main-content {
+                grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
-                gap: 1rem;
             }
-            .navbar-links {
-                margin-top: 0.5rem;
-            }
-            .navbar-links a {
-                margin: 0 0.8rem;
-            }
-            .navbar-user {
-                margin-top: 1rem;
-            }
-            .sidebar h2 {
-                font-size: 1.5rem;
-            }
-            .chapter-item-editor h3 {
-                font-size: 1rem;
-            }
-            .editor-header h2 {
-                font-size: 1.8rem;
-            }
-            .editor-textarea {
-                font-size: 1rem;
-            }
-        }
 
-        @media (max-width: 480px) {
-            .navbar-brand {
-                font-size: 1.5rem;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .navbar-links a {
-                margin: 0 0.5rem;
-            }
-            .new-chapter-btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
-            }
-            .editor-actions button {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
+
+            textarea {
+                min-height: 200px;
             }
         }
     </style>
+    <script src="/global.js"></script>
 </head>
+
 <body>
-    <div class="bg-mesh"></div>
-    <div class="overlay"></div>
 
-    <!-- Navbar: A barra de ramos superiores -->
-    <nav class="navbar">
-        <a href="/capa" class="navbar-brand"><i class="fas fa-leaf"></i> TR: VIDA</a>
-        <div class="navbar-links">
-            <a href="/capa"><i class="fas fa-book"></i> Biblioteca</a>
-            <a href="/editor" class="active"><i class="fas fa-edit"></i> Painel Editor</a>
-            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    <div class="navbar">
+        <h1>🎛️ Dashboard de Controle</h1>
+        <div class="nav-links">
+            <a href="/capa">← Voltar</a>
+            <a href="/logout">Sair</a>
         </div>
-        <div class="navbar-user">
-            <img src="https://via.placeholder.com/40" alt="Avatar do Usuário" id="userAvatar">
-            <span id="userName">Carregando...</span>
+    </div>
+
+    <div class="container">
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-capitulos">0</div>
+                <div class="stat-label">Capítulos Publicados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="proximo-numero">1</div>
+                <div class="stat-label">Próximo Capítulo</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">👑</div>
+                <div class="stat-label">Modo Admin</div>
+            </div>
         </div>
-    </nav>
 
-    <!-- Painel do Editor: O Estúdio do Autor -->
-    <main class="editor-container">
-        <aside class="sidebar">
-            <h2>Capítulos Plantados</h2>
-            <ul class="chapter-list-editor" id="chapterListEditor">
-                <!-- Capítulos serão carregados aqui via JavaScript -->
-                <li style="text-align: center; color: var(--text-dim);">Carregando capítulos...</li>
-            </ul>
-            <button class="new-chapter-btn" id="newChapterBtn"><i class="fas fa-plus-circle"></i> Novo Capítulo</button>
-        </aside>
+        <div class="main-content">
 
-        <section class="editor-main">
-            <div class="editor-header">
-                <h2 id="currentChapterTitle">Selecione ou Crie um Capítulo</h2>
-                <div class="editor-actions">
-                    <button id="saveChapterBtn" class="save-btn" disabled><i class="fas fa-save"></i> Salvar</button>
-                    <button id="deleteChapterBtn" class="delete-btn" disabled><i class="fas fa-trash-alt"></i> Excluir</button>
+            <div class="section">
+                <h2>Editar Capítulo</h2>
+
+                <div class="message" id="message"></div>
+
+                <div class="info-box">
+                    <strong>Dica:</strong> Selecione um capítulo da lista abaixo ou digite o número para editar.
+                </div>
+
+                <div class="form-group">
+                    <label for="numero-capitulo">Número do Capítulo:</label>
+                    <input type="number" id="numero-capitulo" min="1" value="1" placeholder="Digite o número">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="carregarCapitulo()">📖 Carregar</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="conteudo-capitulo">Conteúdo:</label>
+                    <textarea id="conteudo-capitulo" placeholder="Cole o conteúdo do capítulo aqui..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="salvarCapitulo()">💾 Salvar Capítulo</button>
+                    <button class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
                 </div>
             </div>
-            <textarea id="chapterContentEditor" class="editor-textarea" placeholder="Comece a escrever seu capítulo aqui..."></textarea>
-            <div class="editor-stats">
-                <span id="wordCount">0 palavras</span>
-                <span id="charCount">0 caracteres</span>
-            </div>
-            <div id="feedbackMessage" class="feedback-message"></div>
-        </section>
-    </main>
 
-    <!-- Rodapé: As raízes profundas do ecossistema -->
-    <footer>
-        <p>&copy; 2026 TR: Vida - O Ecossistema da Literatura Imersiva. Todos os direitos reservados.</p>
-        <p>Desenvolvido com paixão e código. <span style="color: var(--primary);">#EcossistemaPrimordial</span></p>
-    </footer>
+            <div class="section">
+                <h2>Capítulos Disponíveis</h2>
+
+                <div class="info-box">
+                    <strong id="total-capitulos-label">0</strong> capítulo(s) publicado(s)
+                </div>
+
+                <div class="chapter-list" id="chapter-list">
+                    <p style="color: #A0A0A0; grid-column: 1/-1;">Nenhum capítulo publicado ainda</p>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(17, 202, 160, 0.2);">
+                    <h3 style="color: #11CAA0; margin-bottom: 15px;">Ações Rápidas</h3>
+                    <div class="button-group">
+                        <button class="btn-secondary" onclick="novoCapitulo()">➕ Novo Capítulo</button>
+                        <button class="btn-secondary" onclick="recarregarLista()">🔄 Recarregar</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 
     <script>
-        // ===================================================================== */
-        // JAVASCRIPT: A Seiva Dinâmica que Anima o Ecossistema                 */
-        // ===================================================================== */
-
-        const DOM = {
-            userAvatar: document.getElementById("userAvatar"),
-            userName: document.getElementById("userName"),
-            chapterListEditor: document.getElementById("chapterListEditor"),
-            newChapterBtn: document.getElementById("newChapterBtn"),
-            currentChapterTitle: document.getElementById("currentChapterTitle"),
-            chapterContentEditor: document.getElementById("chapterContentEditor"),
-            saveChapterBtn: document.getElementById("saveChapterBtn"),
-            deleteChapterBtn: document.getElementById("deleteChapterBtn"),
-            wordCount: document.getElementById("wordCount"),
-            charCount: document.getElementById("charCount"),
-            feedbackMessage: document.getElementById("feedbackMessage"),
-        };
-
-        let allChapters = [];
-        let selectedChapterId = null;
-        let autoSaveTimeout = null;
-
-        // Função para buscar e exibir informações do usuário
-        async function fetchUserInfo() {
-            try {
-                const response = await fetch("/api/user");
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = "/?error=session_expired";
-                        return;
-                    }
-                    throw new Error(`Erro ao buscar informações do usuário: ${response.statusText}`);
-                }
-                const userData = await response.json();
-                if (userData.success && userData.user) {
-                    DOM.userName.textContent = userData.user.username;
-                    DOM.userAvatar.src = userData.user.avatarUrl || "https://via.placeholder.com/40";
-                } else {
-                    DOM.userName.textContent = "Visitante";
-                    DOM.userAvatar.src = "https://via.placeholder.com/40";
-                }
-            } catch (error) {
-                console.error("Erro ao carregar informações do usuário:", error);
-                DOM.userName.textContent = "Visitante";
-                DOM.userAvatar.src = "https://via.placeholder.com/40";
-            }
-        }
-
-        // Função para exibir feedback ao usuário
-        function showFeedback(message, type) {
-            DOM.feedbackMessage.textContent = message;
-            DOM.feedbackMessage.className = `feedback-message show ${type}`;
+        function mostrarMensagem(texto, tipo) {
+            const msg = document.getElementById("message");
+            msg.textContent = texto;
+            msg.className = `message ${tipo}`;
             setTimeout(() => {
-                DOM.feedbackMessage.classList.remove("show");
-            }, 3000);
+                msg.className = "message";
+            }, 4000);
         }
 
-        // Função para buscar e renderizar a lista de capítulos
-        async function fetchAndRenderChapters() {
-            try {
-                DOM.chapterListEditor.innerHTML = 
-                    `<li style="text-align: center; color: var(--text-dim);">
-                        <i class="fas fa-spinner fa-spin"></i> Carregando capítulos...
-                    </li>`;
-                const response = await fetch("/api/stories/list");
-                if (!response.ok) {
-                    throw new Error(`Erro ao buscar capítulos: ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success && data.stories) {
-                    allChapters = data.stories.sort((a, b) => a.id - b.id); // Ordena por ID
-                    renderChapterList(allChapters);
-                } else {
-                    DOM.chapterListEditor.innerHTML = 
-                        `<li style="text-align: center; color: var(--text-dim);">
-                            <i class="fas fa-info-circle"></i> Nenhum capítulo plantado ainda.
-                        </li>`;
-                }
-            } catch (error) {
-                console.error("Erro ao carregar capítulos:", error);
-                DOM.chapterListEditor.innerHTML = 
-                    `<li style="text-align: center; color: var(--danger);">
-                        <i class="fas fa-exclamation-triangle"></i> Erro ao carregar capítulos.
-                    </li>`;
-            }
-        }
+        async function carregarCapitulo() {
+            const numero = parseInt(document.getElementById("numero-capitulo").value);
 
-        // Função para renderizar a lista de capítulos na sidebar
-        function renderChapterList(chaptersToRender) {
-            DOM.chapterListEditor.innerHTML = "";
-            if (chaptersToRender.length === 0) {
-                DOM.chapterListEditor.innerHTML = 
-                    `<li style="text-align: center; color: var(--text-dim);">
-                        <i class="fas fa-info-circle"></i> Nenhum capítulo encontrado.
-                    </li>`;
-                return;
-            }
-            chaptersToRender.forEach(chapter => {
-                const li = document.createElement("li");
-                li.classList.add("chapter-item-editor");
-                if (selectedChapterId === chapter.id) {
-                    li.classList.add("selected");
-                }
-                li.dataset.id = chapter.id;
-                li.innerHTML = `
-                    <div>
-                        <h3>Capítulo ${chapter.id}</h3>
-                        <p>${chapter.title}</p>
-                    </div>
-                `;
-                li.addEventListener("click", () => selectChapter(chapter.id));
-                DOM.chapterListEditor.appendChild(li);
-            });
-        }
-
-        // Função para selecionar um capítulo para edição
-        async function selectChapter(id) {
-            selectedChapterId = id;
-            const chapter = allChapters.find(c => c.id === id);
-            if (chapter) {
-                DOM.currentChapterTitle.textContent = `Editando Capítulo ${chapter.id}`; 
-                DOM.chapterContentEditor.value = chapter.content; // Conteúdo completo
-                DOM.saveChapterBtn.disabled = false;
-                DOM.deleteChapterBtn.disabled = false;
-                updateEditorStats();
-                renderChapterList(allChapters); // Atualiza a seleção visual
-            } else {
-                // Se o capítulo não for encontrado localmente, tenta buscar do servidor
-                try {
-                    const response = await fetch(`/api/stories/content/${id}`);
-                    if (!response.ok) throw new Error(`Erro ao buscar capítulo ${id}`);
-                    const data = await response.json();
-                    if (data.success && data.chapter) {
-                        // Adiciona o capítulo à lista local se não estiver lá
-                        if (!allChapters.find(c => c.id === id)) {
-                            allChapters.push({ id: data.chapter.id, title: data.chapter.title, content: data.chapter.content });
-                            allChapters.sort((a, b) => a.id - b.id);
-                        }
-                        selectChapter(id); // Tenta selecionar novamente
-                    } else {
-                        showFeedback("Capítulo não encontrado no servidor.", "error");
-                    }
-                } catch (error) {
-                    console.error("Erro ao buscar capítulo para edição:", error);
-                    showFeedback("Erro ao carregar capítulo para edição.", "error");
-                }
-            }
-        }
-
-        // Função para criar um novo capítulo
-        async function createNewChapter() {
-            try {
-                const response = await fetch("/api/stories/next-id");
-                if (!response.ok) throw new Error(`Erro ao obter próximo ID: ${response.statusText}`);
-                const data = await response.json();
-                if (data.success && data.nextId) {
-                    const newId = data.nextId;
-                    const newChapter = { id: newId, title: `Novo Capítulo ${newId}`, content: "" };
-                    allChapters.push(newChapter);
-                    allChapters.sort((a, b) => a.id - b.id);
-                    renderChapterList(allChapters);
-                    selectChapter(newId);
-                    DOM.chapterContentEditor.focus();
-                    showFeedback(`Capítulo ${newId} criado.`, "success");
-                } else {
-                    showFeedback("Não foi possível obter o próximo ID de capítulo.", "error");
-                }
-            } catch (error) {
-                console.error("Erro ao criar novo capítulo:", error);
-                showFeedback("Erro ao criar novo capítulo.", "error");
-            }
-        }
-
-        // Função para salvar o capítulo atual
-        async function saveChapter() {
-            if (selectedChapterId === null) {
-                showFeedback("Nenhum capítulo selecionado para salvar.", "error");
+            if (isNaN(numero) || numero <= 0) {
+                mostrarMensagem("Digite um número válido", "error");
                 return;
             }
 
-            const content = DOM.chapterContentEditor.value;
-            const titleMatch = content.match(/^(.+?)\n/);
-            const title = titleMatch ? titleMatch[1].trim() : `Capítulo ${selectedChapterId}`; // Pega a primeira linha como título
+            try {
+                const response = await fetch(`/api/buscar-capitulo?numero=${numero}`);
+                const conteudo = await response.text();
+
+                document.getElementById("conteudo-capitulo").value = conteudo || "";
+                atualizarListaCapitulos(numero);
+                mostrarMensagem(`Capítulo ${numero} carregado com sucesso`, "success");
+            } catch (e) {
+                mostrarMensagem("Erro ao carregar capítulo", "error");
+                console.error(e);
+            }
+        }
+
+        async function salvarCapitulo() {
+            const numero = parseInt(document.getElementById("numero-capitulo").value);
+            const conteudo = document.getElementById("conteudo-capitulo").value;
+
+            if (isNaN(numero) || numero <= 0) {
+                mostrarMensagem("Digite um número válido", "error");
+                return;
+            }
+
+            if (!conteudo.trim()) {
+                mostrarMensagem("O conteúdo não pode estar vazio", "error");
+                return;
+            }
 
             try {
-                const response = await fetch("/api/stories/save", {
+                const response = await fetch("/api/salvar-capitulo", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id: selectedChapterId, title, content }),
+                    body: JSON.stringify({ numero, conteudo })
                 });
-                if (!response.ok) {
-                    throw new Error(`Erro ao salvar capítulo: ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    // Atualiza o capítulo na lista local
-                    const index = allChapters.findIndex(c => c.id === selectedChapterId);
-                    if (index !== -1) {
-                        allChapters[index].title = title;
-                        allChapters[index].content = content;
-                    }
-                    renderChapterList(allChapters);
-                    showFeedback("Capítulo salvo com sucesso!", "success");
+
+                if (response.ok) {
+                    mostrarMensagem(`Capítulo ${numero} salvo com sucesso! 🎉`, "success");
+                    carregarListaCapitulos();
                 } else {
-                    showFeedback(`Erro ao salvar: ${data.error || "Erro desconhecido"}`, "error");
+                    mostrarMensagem("Erro ao salvar capítulo", "error");
                 }
-            } catch (error) {
-                console.error("Erro ao salvar capítulo:", error);
-                showFeedback("Erro ao salvar capítulo. Tente novamente.", "error");
+            } catch (e) {
+                mostrarMensagem("Erro ao salvar capítulo", "error");
+                console.error(e);
             }
         }
 
-        // Função para deletar o capítulo atual
-        async function deleteChapter() {
-            if (selectedChapterId === null) {
-                showFeedback("Nenhum capítulo selecionado para deletar.", "error");
-                return;
-            }
+        function limparFormulario() {
+            document.getElementById("numero-capitulo").value = "1";
+            document.getElementById("conteudo-capitulo").value = "";
+            mostrarMensagem("Formulário limpo", "success");
+        }
 
-            if (!confirm(`Tem certeza que deseja deletar o Capítulo ${selectedChapterId}?`)) {
-                return;
-            }
+        function novoCapitulo() {
+            const proxNum = parseInt(document.getElementById("proximo-numero").textContent);
+            document.getElementById("numero-capitulo").value = proxNum;
+            document.getElementById("conteudo-capitulo").value = "";
+            document.getElementById("conteudo-capitulo").focus();
+            mostrarMensagem(`Pronto para criar o Capítulo ${proxNum}`, "success");
+        }
 
+        function recarregarLista() {
+            carregarListaCapitulos();
+            mostrarMensagem("Lista recarregada", "success");
+        }
+
+        async function carregarListaCapitulos() {
             try {
-                const response = await fetch(`/api/stories/delete/${selectedChapterId}`, {
-                    method: "DELETE",
-                });
-                if (!response.ok) {
-                    throw new Error(`Erro ao deletar capítulo: ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.success) {
-                    allChapters = allChapters.filter(c => c.id !== selectedChapterId);
-                    selectedChapterId = null;
-                    DOM.currentChapterTitle.textContent = "Selecione ou Crie um Capítulo";
-                    DOM.chapterContentEditor.value = "";
-                    DOM.saveChapterBtn.disabled = true;
-                    DOM.deleteChapterBtn.disabled = true;
-                    updateEditorStats();
-                    renderChapterList(allChapters);
-                    showFeedback("Capítulo deletado com sucesso!", "success");
-                } else {
-                    showFeedback(`Erro ao deletar: ${data.error || "Erro desconhecido"}`, "error");
-                }
-            } catch (error) {
-                console.error("Erro ao deletar capítulo:", error);
-                showFeedback("Erro ao deletar capítulo. Tente novamente.", "error");
+                const response = await fetch("/api/capitulos");
+                const caps = await response.json();
+
+                const total = Array.isArray(caps) ? caps.length : 0;
+                document.getElementById("total-capitulos").textContent = total;
+                document.getElementById("total-capitulos-label").textContent = total;
+                document.getElementById("proximo-numero").textContent = total + 1;
+
+                atualizarListaCapitulos(parseInt(document.getElementById("numero-capitulo").value));
+            } catch (e) {
+                console.error("Erro ao carregar lista:", e);
             }
         }
 
-        // Função para atualizar contagem de palavras e caracteres
-        function updateEditorStats() {
-            const content = DOM.chapterContentEditor.value;
-            const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
-            const charCount = content.length;
-            DOM.wordCount.textContent = `${wordCount} palavras`;
-            DOM.charCount.textContent = `${charCount} caracteres`;
+        async function atualizarListaCapitulos(ativo) {
+            try {
+                const response = await fetch("/api/capitulos");
+                const caps = await response.json();
+
+                const lista = document.getElementById("chapter-list");
+                lista.innerHTML = "";
+
+                if (Array.isArray(caps) && caps.length > 0) {
+                    caps.forEach(cap => {
+                        const div = document.createElement("div");
+                        div.className = `chapter-item ${cap === ativo ? "active" : ""}`;
+                        div.textContent = `Cap. ${cap}`;
+                        div.onclick = () => {
+                            document.getElementById("numero-capitulo").value = cap;
+                            carregarCapitulo();
+                        };
+                        lista.appendChild(div);
+                    });
+                } else {
+                    lista.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #A0A0A0;'>Nenhum capítulo publicado ainda</p>";
+                }
+            } catch (e) {
+                console.error("Erro ao atualizar lista:", e);
+            }
         }
 
-        // Event Listeners
-        DOM.newChapterBtn.addEventListener("click", createNewChapter);
-        DOM.saveChapterBtn.addEventListener("click", saveChapter);
-        DOM.deleteChapterBtn.addEventListener("click", deleteChapter);
-        DOM.chapterContentEditor.addEventListener("input", () => {
-            updateEditorStats();
-            // Implementação de autosave simples
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(saveChapter, 5000); // Salva a cada 5 segundos de inatividade
-        });
-
-        // Inicialização do Estúdio do Autor
-        document.addEventListener("DOMContentLoaded", () => {
-            fetchUserInfo();
-            fetchAndRenderChapters();
-            updateEditorStats(); // Inicializa as estatísticas
-        });
+        carregarListaCapitulos();
     </script>
+
 </body>
 </html>
