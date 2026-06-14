@@ -63,6 +63,13 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+// Serve arquivos estáticos da pasta public (HTMLs de autenticação)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve o global.js que está na raiz
+app.get('/global.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'global.js'));
+});
 
 console.log('=== CREDENCIAIS CARREGADAS ===');
 console.log('CLIENT_ID:', CLIENT_ID);
@@ -195,16 +202,15 @@ const isAdmin = (req, res, next) => {
 // ==========================================
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) return res.redirect('/funcionalidades');
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/funcionalidades', isAuth, (req, res) => res.sendFile(path.join(__dirname, 'funcionalidades.html')));
-app.get('/capa',            isAuth, (req, res) => res.sendFile(path.join(__dirname, 'capa.html')));
-app.get('/trvida/:numero',  isAuth, (req, res) => res.sendFile(path.join(__dirname, 'capitulo.html')));
-app.get('/perfil',          isAuth, (req, res) => res.sendFile(path.join(__dirname, 'perfil.html')));
-app.get('/configuracoes',   isAuth, (req, res) => res.sendFile(path.join(__dirname, 'configuracoes.html')));
-app.get('/dashboard',      isAdmin, (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
-
+app.get('/funcionalidades', isAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'funcionalidades.html')));
+app.get('/capa',            isAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'capa.html')));
+app.get('/trvida/:numero',  isAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'capitulo.html')));
+app.get('/perfil',          isAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'perfil.html')));
+app.get('/configuracoes',   isAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'configuracoes.html')));
+app.get('/dashboard',      isAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 // ==========================================
 // 7. API
 // ==========================================
