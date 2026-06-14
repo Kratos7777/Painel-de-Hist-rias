@@ -2,7 +2,7 @@
  * ==============================================================================
  * TR: VIDA - ECOSSISTEMA SUPREMO (SERVER.JS)
  * ==============================================================================
- * Versão: 7.1.0 - Correção de Fluxo de Autenticação e Sincronização de .env
+ * Versão: 7.2.0 - Sincronização Final de Variáveis e Rotas de Compatibilidade
  * ==============================================================================
  */
 
@@ -15,12 +15,9 @@ const DiscordStrategy = require('passport-discord').Strategy;
 const path = require('path');
 const fs = require('fs');
 const helmet = require('helmet');
-const cors = require('cors');
 const compression = require('compression');
 const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
-const { URL } = require('url');
 
 const app = express();
 
@@ -30,30 +27,22 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// MAPEAMENTO DE VARIÁVEIS (Compatibilidade com seu .env)
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || process.env.CLIENT_ID;
-const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || process.env.CLIENT_SECRET;
-const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL || process.env.REDIRECT_URI;
-const DISCORD_ADMIN_ID = process.env.DISCORD_ID; // ID do Administrador
-const SESSION_SECRET = process.env.SESSION_SECRET || "trvida_secret_ancestral_key_2026";
+// MAPEAMENTO EXATO DO SEU .ENV
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const CALLBACK_URL = process.env.CALLBACK_URL; // 'https://hist-ria.onrender.com/auth/discord/callback'
+const DISCORD_ADMIN_ID = process.env.DISCORD_ID;
+const SESSION_SECRET = process.env.SESSION_SECRET || "trvida_secret_key_2026";
 
-// Extração dinâmica do PATH do Callback para registrar a rota corretamente
-let CALLBACK_PATH = "/auth/discord/callback"; // Fallback padrão
-if (DISCORD_CALLBACK_URL) {
-    try {
-        const parsedUrl = new URL(DISCORD_CALLBACK_URL);
-        CALLBACK_PATH = parsedUrl.pathname;
-    } catch (e) {
-        console.error("[CONFIG] URL de Callback inválida no .env. Usando padrão.");
-    }
-}
+// Rota de Callback fixa conforme seu log
+const CALLBACK_PATH = "/auth/discord/callback";
 
-console.log(`\n[DEBUG] Configurações de Autenticação:`);
-console.log(` > ID do Cliente: ${DISCORD_CLIENT_ID ? 'Configurado' : 'AUSENTE'}`);
-console.log(` > URL de Retorno: ${DISCORD_CALLBACK_URL}`);
-console.log(` > Rota Interna: ${CALLBACK_PATH}\n`);
+console.log(`\n[SISTEMA] Inicializando com as seguintes configurações:`);
+console.log(` > CLIENT_ID: ${CLIENT_ID ? 'OK' : 'AUSENTE'}`);
+console.log(` > CALLBACK_URL: ${CALLBACK_URL}`);
+console.log(` > CALLBACK_PATH: ${CALLBACK_PATH}\n`);
 
-// Caminhos do Sistema
+// Caminhos
 const PATHS = {
     PUBLIC: path.join(__dirname, 'public'),
     DATA: path.join(__dirname, 'data'),
@@ -65,7 +54,7 @@ Object.values(PATHS).forEach(dir => {
 });
 
 // ==========================================
-// 2. MIDDLEWARES DE SEGURANÇA & PERFORMANCE
+// 2. MIDDLEWARES
 // ==========================================
 app.set('trust proxy', 1);
 app.use(compression());
@@ -87,16 +76,8 @@ app.use(helmet({
     }
 }));
 
-app.use(cors({ origin: '*', credentials: true }));
-
 // ==========================================
-// 3. GESTÃO DE ARQUIVOS ESTÁTICOS
-// ==========================================
-app.use(express.static(PATHS.PUBLIC, { maxAge: '1d' }));
-app.use('/imagens', express.static(PATHS.IMAGENS, { maxAge: '7d' }));
-
-// ==========================================
-// 4. SISTEMA DE SESSÃO E AUTENTICAÇÃO
+// 3. SESSÃO E PASSPORT
 // ==========================================
 app.use(session({
     secret: SESSION_SECRET,
@@ -114,11 +95,11 @@ app.use(session({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-if (DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET) {
+if (CLIENT_ID && CLIENT_SECRET) {
     passport.use(new DiscordStrategy({
-        clientID: DISCORD_CLIENT_ID,
-        clientSecret: DISCORD_CLIENT_SECRET,
-        callbackURL: DISCORD_CALLBACK_URL,
+        clientID: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        callbackURL: CALLBACK_URL,
         scope: ['identify']
     }, (accessToken, refreshToken, profile, done) => {
         return done(null, profile);
@@ -129,32 +110,16 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ==========================================
-// 5. MIDDLEWARES DE CONTROLE DE ACESSO
-// ==========================================
-const checkAuth = (req, res, next) => {
-    if (req.isAuthenticated()) return next();
-    res.redirect('/');
-};
-
-const checkAdmin = (req, res, next) => {
-    if (req.isAuthenticated() && req.user.id === DISCORD_ADMIN_ID) return next();
-    res.status(403).send("Acesso negado.");
-};
-
-// ==========================================
-// 6. ROTAS DE NAVEGAÇÃO E AUTENTICAÇÃO
+// 4. ROTAS DE AUTENTICAÇÃO
 // ==========================================
 
-// Página Inicial
-app.get('/', (req, res) => {
-    if (req.isAuthenticated()) return res.redirect('/capa');
-    res.sendFile(path.join(PATHS.PUBLIC, 'index.html'));
+// Rota de compatibilidade para evitar o erro "Cannot GET /login"
+app.get('/login', (req, res) => {
+    res.redirect('/auth/discord');
 });
 
-// INÍCIO DO LOGIN DISCORD
 app.get('/auth/discord', passport.authenticate('discord'));
 
-// RETORNO DO DISCORD (Dinâmico com base no seu .env)
 app.get(CALLBACK_PATH,
     passport.authenticate('discord', { failureRedirect: '/' }),
     (req, res) => {
@@ -162,7 +127,28 @@ app.get(CALLBACK_PATH,
     }
 );
 
-// Páginas Protegidas
+app.get('/logout', (req, res) => {
+    req.logout(() => {
+        req.session.destroy(() => {
+            res.clearCookie('trvida.sid');
+            res.redirect('/');
+        });
+    });
+});
+
+// ==========================================
+// 5. ROTAS DE PÁGINAS (PROTEGIDAS)
+// ==========================================
+const checkAuth = (req, res, next) => {
+    if (req.isAuthenticated()) return next();
+    res.redirect('/');
+};
+
+app.get('/', (req, res) => {
+    if (req.isAuthenticated()) return res.redirect('/capa');
+    res.sendFile(path.join(PATHS.PUBLIC, 'index.html'));
+});
+
 app.get('/capa', checkAuth, (req, res) => {
     res.sendFile(path.join(PATHS.PUBLIC, 'capa.html'));
 });
@@ -171,12 +157,8 @@ app.get('/trvida/:numero', checkAuth, (req, res) => {
     res.sendFile(path.join(PATHS.PUBLIC, 'capitulo.html'));
 });
 
-app.get('/dashboard', checkAdmin, (req, res) => {
-    res.sendFile(path.join(PATHS.PUBLIC, 'dashboard.html'));
-});
-
 // ==========================================
-// 7. ENDPOINTS DA API
+// 6. API ENDPOINTS
 // ==========================================
 
 app.get('/api/me', (req, res) => {
@@ -222,19 +204,13 @@ app.get('/api/capitulo/:numero', checkAuth, (req, res) => {
     });
 });
 
-app.get('/logout', (req, res) => {
-    req.logout(() => {
-        req.session.destroy(() => {
-            res.clearCookie('trvida.sid');
-            res.redirect('/');
-        });
-    });
-});
+// ==========================================
+// 7. ARQUIVOS ESTÁTICOS E INICIALIZAÇÃO
+// ==========================================
+app.use(express.static(PATHS.PUBLIC, { maxAge: '1d' }));
+app.use('/imagens', express.static(path.join(__dirname, 'imagens'), { maxAge: '7d' }));
 
-// ==========================================
-// 8. INICIALIZAÇÃO
-// ==========================================
 app.listen(PORT, () => {
-    console.log(`\n🚀 SERVIDOR ONLINE: http://localhost:${PORT}`);
-    console.log(`🔗 CALLBACK CONFIGURADO: ${CALLBACK_PATH}\n`);
+    console.log(`\n🚀 SERVIDOR SINCRONIZADO: http://localhost:${PORT}`);
+    console.log(`🔗 CALLBACK ATIVO EM: ${CALLBACK_PATH}\n`);
 });
