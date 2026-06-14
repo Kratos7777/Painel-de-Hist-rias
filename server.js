@@ -1,6 +1,6 @@
 // ECOSSISTEMA PRIMORDIAL - SERVER.JS
 // O Tronco Inabalável: Gerencia o fluxo de vida do portal com APIs robustas e autenticação resiliente.
-// Versão 2.0 - Expansão Máxima e Resiliência Absoluta
+// Versão 3.0 - Limpeza Absoluta e Diagnóstico Profundo
 
 // Módulos Essenciais: As raízes profundas do sistema
 const express = require("express");
@@ -50,11 +50,36 @@ Object.values(PATHS).forEach(dirPath => {
 });
 
 // Variáveis de Ambiente para Segredos: Protegendo as sementes
-const SESSION_SECRET = process.env.SESSION_SECRET || "trvida_ecosistema_secreto_ancestral_2026_super_seguro";
-const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID; // Valor bruto do .env
-const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW ? DISCORD_CLIENT_ID_RAW.replace(/\D/g, "") : null; // Limpa para deixar apenas números (snowflake)314353266555293758";
-const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || "H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X"; // Substitua pelo seu segredo real
-const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL || `http://localhost:${PORT}/callback`;
+// ATENÇÃO: VOCÊ PRECISA CONFIGURAR ESTAS VARIÁVEIS NO SEU ARQUIVO .env
+// Crie um arquivo chamado .env na raiz do seu projeto com o seguinte conteúdo:
+// SESSION_SECRET="SUA_CHAVE_SECRETA_UNICA_E_FORTE"
+// DISCORD_CLIENT_ID="SEU_CLIENT_ID_DO_DISCORD" (APENAS NÚMEROS! Ex: 123456789012345678)
+// DISCORD_CLIENT_SECRET="SEU_CLIENT_SECRET_DO_DISCORD"
+// DISCORD_CALLBACK_URL="SUA_URL_DE_CALLBACK_DO_DISCORD" (Ex: http://localhost:3000/callback)
+
+const SESSION_SECRET_RAW = process.env.SESSION_SECRET;
+const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID;
+const DISCORD_CLIENT_SECRET_RAW = process.env.DISCORD_CLIENT_SECRET;
+const DISCORD_CALLBACK_URL_RAW = process.env.DISCORD_CALLBACK_URL;
+
+// Limpeza e Validação Absoluta do CLIENT_ID: Garante que seja um snowflake puro
+const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW ? DISCORD_CLIENT_ID_RAW.replace(/\D/g, "") : null; // Remove tudo que não for dígito
+
+// Aplica valores padrão se não estiverem definidos no .env (apenas para desenvolvimento/teste)
+const SESSION_SECRET = SESSION_SECRET_RAW || "trvida_ecosistema_secreto_ancestral_2026_super_seguro";
+const DISCORD_CLIENT_SECRET = DISCORD_CLIENT_SECRET_RAW || "H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X"; // Substitua pelo seu segredo real
+const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_RAW || `http://localhost:${PORT}/callback`;
+
+// VERIFICAÇÃO CRÍTICA: Garante que as credenciais do Discord foram fornecidas e são válidas
+if (!DISCORD_CLIENT_ID || isNaN(DISCORD_CLIENT_ID) || !DISCORD_CLIENT_SECRET) {
+    console.error("\n--- ERRO CRÍTICO DE CONFIGURAÇÃO DO DISCORD ---");
+    console.error("As variáveis DISCORD_CLIENT_ID (deve ser um número válido) e DISCORD_CLIENT_SECRET não foram definidas ou estão incorretas no seu arquivo .env.");
+    console.error("Por favor, verifique o Portal do Desenvolvedor do Discord e seu arquivo .env.");
+    console.error(`DISCORD_CLIENT_ID (limpo): '${DISCORD_CLIENT_ID}'`);
+    console.error(`DISCORD_CLIENT_SECRET (presente): ${!!DISCORD_CLIENT_SECRET}`);
+    console.error("------------------------------------\n");
+    process.exit(1); // Encerra o processo do servidor para forçar a correção
+}
 
 // Stream para logs de acesso
 const accessLogStream = fs.createWriteStream(PATHS.ACCESS_LOG, { flags: "a" });
@@ -84,7 +109,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
             imgSrc: ["'self'", "data:", "https://via.placeholder.com"],
-            connectSrc: ["'self'"],
+            connectSrc: ["'self'", "https://discord.com"], // Adicionado para permitir conexão com Discord
         },
     },
     crossOriginEmbedderPolicy: false, // Necessário para alguns embeds
@@ -420,7 +445,7 @@ app.get("/health", (req, res) => {
         memory: process.memoryUsage(),
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
-        version: "2.0.0",
+        version: "3.0.0",
     });
 });
 
@@ -496,6 +521,6 @@ app.listen(PORT, () => {
     console.log(`📝 LOGS DE ERRO: ${PATHS.ERROR_LOG}`);
     console.log(`📜 LOGS DE ACESSO: ${PATHS.ACCESS_LOG}\n`);
     console.log(`Acesse o portal: http://localhost:${PORT}`);
-    console.log(`Autenticação Discord CLIENT_ID: ${DISCORD_CLIENT_ID}`);
+    console.log(`Autenticação Discord CLIENT_ID (limpo): '${DISCORD_CLIENT_ID}'`); // Log explícito do ID limpo
     console.log(`Autenticação Discord CALLBACK_URL: ${DISCORD_CALLBACK_URL}\n`);
 });
