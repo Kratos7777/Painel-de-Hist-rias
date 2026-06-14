@@ -2,7 +2,7 @@
  * ==============================================================================
  * TR: VIDA - ECOSSISTEMA SUPREMO (SERVER.JS)
  * ==============================================================================
- * Versão: 7.4.0 - Diagnóstico Profundo e Resiliência de Variáveis
+ * Versão: 7.5.0 - Blindagem de Autenticação e Debug de Estratégia
  * ==============================================================================
  */
 
@@ -22,12 +22,11 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 // ==========================================
-// 1. CONFIGURAÇÕES E LIMPEZA DE VARIÁVEIS
+// 1. CONFIGURAÇÕES E LIMPEZA
 // ==========================================
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Limpeza agressiva de espaços e caracteres invisíveis nas variáveis
 const cleanEnv = (val) => val ? val.trim().replace(/['"]/g, '') : null;
 
 const CLIENT_ID = cleanEnv(process.env.CLIENT_ID);
@@ -38,15 +37,12 @@ const SESSION_SECRET = cleanEnv(process.env.SESSION_SECRET) || "trvida_secret_ke
 
 const CALLBACK_PATH = "/auth/discord/callback";
 
-console.log("\n" + "=".repeat(40));
-console.log("🔍 DIAGNÓSTICO DE INICIALIZAÇÃO:");
-console.log(` > CLIENT_ID: ${CLIENT_ID ? 'OK (Verificado)' : '❌ AUSENTE'}`);
-console.log(` > CALLBACK_URL: ${CALLBACK_URL}`);
-console.log(` > MODO: ${NODE_ENV}`);
-console.log("=".repeat(40) + "\n");
+console.log("\n[SISTEMA] Iniciando v7.5.0...");
+console.log(` > ID: ${CLIENT_ID ? CLIENT_ID.substring(0, 5) + '...' : '❌'}`);
+console.log(` > URL: ${CALLBACK_URL}\n`);
 
 // ==========================================
-// 2. MIDDLEWARES DE BASE
+// 2. MIDDLEWARES
 // ==========================================
 app.set('trust proxy', 1);
 app.use(compression());
@@ -55,9 +51,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(SESSION_SECRET));
 
-// Helmet configurado para não bloquear o fluxo de login em desenvolvimento
 app.use(helmet({
-    contentSecurityPolicy: false, // Desativado temporariamente para debugar o Erro 500
+    contentSecurityPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
@@ -80,49 +75,67 @@ app.use(session({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-if (CLIENT_ID && CLIENT_SECRET) {
+if (CLIENT_ID && CLIENT_SECRET && CALLBACK_URL) {
     passport.use(new DiscordStrategy({
         clientID: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
         callbackURL: CALLBACK_URL,
         scope: ['identify']
     }, (accessToken, refreshToken, profile, done) => {
+        console.log(`[AUTH] Perfil recebido com sucesso: ${profile.username}`);
         return done(null, profile);
     }));
-} else {
-    console.error("❌ ERRO: CLIENT_ID ou CLIENT_SECRET não configurados no .env!");
 }
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 // ==========================================
-// 4. ROTAS DE LOGIN
+// 4. ROTAS DE LOGIN E CALLBACK
 // ==========================================
 
 app.get('/login', (req, res) => res.redirect('/auth/discord'));
 
 app.get('/auth/discord', (req, res, next) => {
-    console.log("[AUTH] Iniciando redirecionamento para o Discord...");
+    console.log("[AUTH] Redirecionando usuário para o Discord...");
     passport.authenticate('discord')(req, res, next);
 });
 
 app.get(CALLBACK_PATH, (req, res, next) => {
-    console.log("[AUTH] Recebendo retorno do Discord...");
+    console.log("[AUTH] Callback recebido. Validando credenciais...");
+    
     passport.authenticate('discord', (err, user, info) => {
+        // TRATAMENTO DE ERRO DETALHADO
         if (err) {
-            console.error("[AUTH ERROR] Falha na estratégia:", err);
-            return res.status(500).send(`Erro de Autenticação: ${err.message}`);
+            console.error("\x1b[31m[ERRO CRÍTICO DISCORD]\x1b[0m");
+            console.error("Mensagem:", err.message);
+            if (err.oauthError) {
+                console.error("Detalhes OAuth:", JSON.stringify(err.oauthError));
+            }
+            
+            return res.status(500).send(`
+                <div style="font-family:sans-serif; padding:40px; line-height:1.6;">
+                    <h1 style="color:#ef4444;">Erro na Autenticação com o Discord</h1>
+                    <p>O servidor do Discord retornou um erro ao tentar validar seu acesso.</p>
+                    <div style="background:#f4f4f4; padding:20px; border-radius:8px; border-left:4px solid #ef4444;">
+                        <strong>Código do Erro:</strong> ${err.message || 'Desconhecido'}<br>
+                        <strong>Dica:</strong> Verifique se a sua <strong>Redirect URI</strong> no Painel do Discord é EXATAMENTE igual a:<br>
+                        <code>${CALLBACK_URL}</code>
+                    </div>
+                    <br>
+                    <a href="/" style="display:inline-block; padding:10px 20px; background:#11CAA0; color:white; text-decoration:none; border-radius:5px;">Tentar Novamente</a>
+                </div>
+            `);
         }
+
         if (!user) {
-            console.error("[AUTH ERROR] Nenhum usuário retornado:", info);
+            console.warn("[AUTH] Login falhou: Nenhum usuário retornado.");
             return res.redirect('/');
         }
+
         req.logIn(user, (loginErr) => {
-            if (loginErr) {
-                console.error("[AUTH ERROR] Erro ao logar na sessão:", loginErr);
-                return res.status(500).send("Erro ao criar sessão de login.");
-            }
+            if (loginErr) return next(loginErr);
+            console.log(`[AUTH] Sessão criada para: ${user.username}`);
             req.session.save(() => res.redirect('/capa'));
         });
     })(req, res, next);
@@ -152,6 +165,10 @@ app.get('/', (req, res) => {
 
 app.get('/capa', checkAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'capa.html'));
+});
+
+app.get('/trvida/:numero', checkAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'capitulo.html'));
 });
 
 app.get('/api/me', (req, res) => {
@@ -184,13 +201,14 @@ app.get('/api/capitulos', checkAuth, async (req, res) => {
     }
 });
 
-// ==========================================
-// 6. TRATAMENTO DE ERROS GLOBAL
-// ==========================================
-app.use((err, req, res, next) => {
-    console.error("\x1b[31m[ERRO 500]\x1b[0m", err.message);
-    console.error(err.stack);
-    res.status(500).send(`<h1>Erro Interno do Servidor</h1><p>${err.message}</p><pre>${err.stack}</pre>`);
+app.get('/api/capitulo/:numero', checkAuth, (req, res) => {
+    const num = parseInt(req.params.numero, 10);
+    const filePath = path.join(__dirname, `trvida${num}.txt`);
+    if (!fs.existsSync(filePath)) return res.status(404).send("Capítulo não encontrado.");
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) return res.status(500).send("Erro na leitura.");
+        res.send(data);
+    });
 });
 
 // Arquivos Estáticos
@@ -198,5 +216,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/imagens', express.static(path.join(__dirname, 'imagens')));
 
 app.listen(PORT, () => {
-    console.log(`\n🚀 SERVIDOR EM MODO DIAGNÓSTICO: http://localhost:${PORT}\n`);
+    console.log(`\n🚀 SERVIDOR v7.5.0 ONLINE: http://localhost:${PORT}\n`);
 });
