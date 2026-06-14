@@ -51,7 +51,8 @@ Object.values(PATHS).forEach(dirPath => {
 
 // Variáveis de Ambiente para Segredos: Protegendo as sementes
 const SESSION_SECRET = process.env.SESSION_SECRET || "trvida_ecosistema_secreto_ancestral_2026_super_seguro";
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || "1314353266555293758";
+const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID; // Valor bruto do .env
+const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW ? DISCORD_CLIENT_ID_RAW.replace(/\D/g, "") : null; // Limpa para deixar apenas números (snowflake)314353266555293758";
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || "H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X"; // Substitua pelo seu segredo real
 const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL || `http://localhost:${PORT}/callback`;
 
