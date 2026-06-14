@@ -2,7 +2,7 @@
  * ==============================================================================
  * TR: VIDA - ECOSSISTEMA SUPREMO (SERVER.JS)
  * ==============================================================================
- * Versão: 7.2.0 - Sincronização Final de Variáveis e Rotas de Compatibilidade
+ * Versão: 7.3.0 - Estabilização de Rotas e Sincronia de API
  * ==============================================================================
  */
 
@@ -30,17 +30,12 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 // MAPEAMENTO EXATO DO SEU .ENV
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const CALLBACK_URL = process.env.CALLBACK_URL; // 'https://hist-ria.onrender.com/auth/discord/callback'
+const CALLBACK_URL = process.env.CALLBACK_URL;
 const DISCORD_ADMIN_ID = process.env.DISCORD_ID;
 const SESSION_SECRET = process.env.SESSION_SECRET || "trvida_secret_key_2026";
 
 // Rota de Callback fixa conforme seu log
 const CALLBACK_PATH = "/auth/discord/callback";
-
-console.log(`\n[SISTEMA] Inicializando com as seguintes configurações:`);
-console.log(` > CLIENT_ID: ${CLIENT_ID ? 'OK' : 'AUSENTE'}`);
-console.log(` > CALLBACK_URL: ${CALLBACK_URL}`);
-console.log(` > CALLBACK_PATH: ${CALLBACK_PATH}\n`);
 
 // Caminhos
 const PATHS = {
@@ -49,12 +44,13 @@ const PATHS = {
     IMAGENS: path.join(__dirname, 'imagens')
 };
 
+// Garantir pastas
 Object.values(PATHS).forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
 // ==========================================
-// 2. MIDDLEWARES
+// 2. MIDDLEWARES ESSENCIAIS
 // ==========================================
 app.set('trust proxy', 1);
 app.use(compression());
@@ -63,6 +59,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(SESSION_SECRET));
 
+// Helmet ajustado para permitir imagens do Discord e scripts externos
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -70,10 +67,11 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https://cdn.discordapp.com", "https://via.placeholder.com"],
+            imgSrc: ["'self'", "data:", "https://cdn.discordapp.com", "https://via.placeholder.com", "https://hist-ria.onrender.com"],
             connectSrc: ["'self'"]
         }
-    }
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 // ==========================================
@@ -81,13 +79,13 @@ app.use(helmet({
 // ==========================================
 app.use(session({
     secret: SESSION_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: false,
     name: 'trvida.sid',
     cookie: {
         httpOnly: true,
         secure: NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 30
     }
 }));
@@ -113,17 +111,16 @@ app.use(passport.session());
 // 4. ROTAS DE AUTENTICAÇÃO
 // ==========================================
 
-// Rota de compatibilidade para evitar o erro "Cannot GET /login"
-app.get('/login', (req, res) => {
-    res.redirect('/auth/discord');
-});
-
+app.get('/login', (req, res) => res.redirect('/auth/discord'));
 app.get('/auth/discord', passport.authenticate('discord'));
 
 app.get(CALLBACK_PATH,
     passport.authenticate('discord', { failureRedirect: '/' }),
     (req, res) => {
-        req.session.save(() => res.redirect('/capa'));
+        req.session.save((err) => {
+            if (err) return res.redirect('/');
+            res.redirect('/capa');
+        });
     }
 );
 
@@ -212,5 +209,4 @@ app.use('/imagens', express.static(path.join(__dirname, 'imagens'), { maxAge: '7
 
 app.listen(PORT, () => {
     console.log(`\n🚀 SERVIDOR SINCRONIZADO: http://localhost:${PORT}`);
-    console.log(`🔗 CALLBACK ATIVO EM: ${CALLBACK_PATH}\n`);
 });
