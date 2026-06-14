@@ -156,77 +156,83 @@
         </div>
     </div>
 
-    <script>
-        function obterNumeroCapitulo() {
-            const match = window.location.pathname.match(/\/trvida\/(\d+)/);
-            return match ? parseInt(match[1]) : 1;
-        }
+<script>
+    function obterNumeroCapitulo() {
+        const match = window.location.pathname.match(/\/trvida\/(\d+)/);
+        return match ? parseInt(match[1]) : 1;
+    }
 
-        let numeroAtual    = obterNumeroCapitulo();
-        let totalCapitulos = 0;
+    let numeroAtual = obterNumeroCapitulo();
+    let totalCapitulos = 0;
 
-        // CORRIGIDO: response.text() trocado por response.json() + data.conteudo
-        async function carregarCapitulo(numero) {
-            const contentDiv = document.getElementById('chapter-content');
-            contentDiv.innerHTML = '<div class="loading">Carregando capítulo...</div>';
+    async function carregarCapitulo(numero) {
+        try {
+            const response = await fetch(`/api/capitulo/${numero}`);
 
-            try {
-                const response = await fetch(`/api/capitulo/${numero}`);
-
-                if (!response.ok) {
-                    const err = await response.json().catch(() => ({ error: 'Erro desconhecido.' }));
-                    contentDiv.innerHTML = `<div class="error">${err.error || 'Capítulo não encontrado.'}</div>`;
-                    return;
-                }
-
-                const data = await response.json();
-
-                window.history.pushState({}, '', `/trvida/${numero}`);
-                numeroAtual = numero;
-
-                document.getElementById('cap-numero').textContent    = numero;
-                document.getElementById('current-cap').textContent   = numero;
-                document.getElementById('chapter-title').textContent = `Capítulo ${numero}`;
-
-                contentDiv.style.whiteSpace = 'pre-wrap';
-                contentDiv.textContent = data.conteudo;
-
-                atualizarBotoesNavegacao();
-                window.scrollTo(0, 0);
-            } catch (e) {
-                contentDiv.innerHTML = '<div class="error">Erro ao carregar o capítulo. Tente novamente.</div>';
-                console.error('Erro:', e);
+            if (!response.ok) {
+                const erro = await response.json().catch(() => ({ error: "Capítulo não encontrado." }));
+                throw new Error(erro.error || "Capítulo não encontrado.");
             }
+
+            const data = await response.json();
+            const conteudo = data.conteudo || "";
+
+            window.history.pushState({}, '', `/trvida/${numero}`);
+
+            numeroAtual = numero;
+            document.getElementById("cap-numero").textContent = numero;
+            document.getElementById("current-cap").textContent = numero;
+            document.getElementById("chapter-title").textContent = `Capítulo ${numero}`;
+
+            const contentDiv = document.getElementById("chapter-content");
+            contentDiv.innerHTML = "";
+            contentDiv.style.whiteSpace = "pre-wrap";
+            contentDiv.textContent = conteudo;
+
+            atualizarBotoesNavegacao();
+            window.scrollTo(0, 0);
+        } catch (e) {
+            document.getElementById("chapter-content").innerHTML = `
+                <div class="error">
+                    ${e.message || "Erro ao carregar o capítulo."}
+                </div>
+            `;
+            console.error("Erro:", e);
         }
+    }
 
-        function atualizarBotoesNavegacao() {
-            document.getElementById('btn-anterior').disabled = (numeroAtual <= 1);
-            document.getElementById('btn-proximo').disabled  = (numeroAtual >= totalCapitulos);
+    function atualizarBotoesNavegacao() {
+        const btnAnterior = document.getElementById("btn-anterior");
+        const btnProximo = document.getElementById("btn-proximo");
+
+        btnAnterior.disabled = numeroAtual <= 1;
+        btnProximo.disabled = numeroAtual >= totalCapitulos;
+    }
+
+    function irParaCapitulo(direcao) {
+        const novoNumero = numeroAtual + direcao;
+
+        if (novoNumero >= 1 && novoNumero <= totalCapitulos) {
+            carregarCapitulo(novoNumero);
         }
+    }
 
-        function irParaCapitulo(direcao) {
-            const novoNumero = numeroAtual + direcao;
-            if (novoNumero >= 1 && novoNumero <= totalCapitulos) {
-                carregarCapitulo(novoNumero);
-            }
+    async function carregarDados() {
+        try {
+            const respCaps = await fetch('/api/capitulos');
+            const caps = await respCaps.json();
+
+            totalCapitulos = Array.isArray(caps) ? caps.length : 0;
+            document.getElementById("total-capitulos").textContent = totalCapitulos;
+
+            carregarCapitulo(numeroAtual);
+        } catch (e) {
+            console.error("Erro ao carregar dados:", e);
         }
+    }
 
-        async function carregarDados() {
-            try {
-                const respCaps = await fetch('/api/capitulos');
-                const caps     = await respCaps.json();
-
-                totalCapitulos = Array.isArray(caps) ? caps.length : 0;
-                document.getElementById('total-capitulos').textContent = totalCapitulos;
-
-                carregarCapitulo(numeroAtual);
-            } catch (e) {
-                console.error('Erro ao carregar dados:', e);
-            }
-        }
-
-        carregarDados();
-    </script>
+    carregarDados();
+</script>
 
 </body>
 </html>

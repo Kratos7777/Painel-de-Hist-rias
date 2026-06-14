@@ -1,3 +1,5 @@
+Claro! Aqui está o dashboard.html completo e corrigido, pronto para colar inteiro no VS Code:
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,7 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Painel de Controle</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background-color: #121212;
@@ -17,28 +23,44 @@
         .navbar {
             background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
             padding: 15px 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
         }
-        .navbar h1 { color: white; font-size: 1.5rem; }
 
-        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .navbar h1 {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         .nav-links a {
             color: white;
             text-decoration: none;
             padding: 8px 16px;
             border-radius: 4px;
             transition: 0.3s;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             font-size: 0.9rem;
         }
-        .nav-links a:hover { background: rgba(255,255,255,0.2); }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
 
         .stats-grid {
             display: grid;
@@ -48,17 +70,30 @@
         }
 
         .stat-card {
-            background: rgba(24,28,37,0.7);
-            border: 1px solid rgba(17,202,160,0.2);
+            background: rgba(24, 28, 37, 0.7);
+            border: 1px solid rgba(17, 202, 160, 0.2);
             border-radius: 8px;
             padding: 20px;
             text-align: center;
             transition: 0.3s;
         }
-        .stat-card:hover { border-color: #11CAA0; background: rgba(24,28,37,0.9); }
 
-        .stat-number { font-size: 2.5rem; color: #11CAA0; font-weight: bold; margin-bottom: 10px; }
-        .stat-label  { color: #A0A0A0; font-size: 0.9rem; }
+        .stat-card:hover {
+            border-color: #11CAA0;
+            background: rgba(24, 28, 37, 0.9);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            color: #11CAA0;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #A0A0A0;
+            font-size: 0.9rem;
+        }
 
         .main-content {
             display: grid;
@@ -68,41 +103,61 @@
         }
 
         .section {
-            background: rgba(24,28,37,0.7);
-            border: 1px solid rgba(17,202,160,0.2);
+            background: rgba(24, 28, 37, 0.7);
+            border: 1px solid rgba(17, 202, 160, 0.2);
             border-radius: 8px;
             padding: 30px;
         }
+
         .section h2 {
             color: #11CAA0;
             margin-bottom: 20px;
             font-size: 1.5rem;
-            border-bottom: 2px solid rgba(17,202,160,0.3);
+            border-bottom: 2px solid rgba(17, 202, 160, 0.3);
             padding-bottom: 10px;
         }
 
-        .form-group { margin-bottom: 20px; }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-        label { display: block; margin-bottom: 8px; color: #A0A0A0; font-weight: bold; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #A0A0A0;
+            font-weight: bold;
+        }
 
-        input[type="number"], textarea {
+        input[type="number"],
+        textarea {
             width: 100%;
             padding: 12px;
-            background: rgba(15,17,21,0.8);
-            border: 1px solid rgba(17,202,160,0.3);
+            background: rgba(15, 17, 21, 0.8);
+            border: 1px solid rgba(17, 202, 160, 0.3);
             color: #F3F0DF;
             border-radius: 6px;
             font-family: 'Courier New', monospace;
             font-size: 1rem;
         }
-        input[type="number"]:focus, textarea:focus {
+
+        input[type="number"]:focus,
+        textarea:focus {
             outline: none;
             border-color: #11CAA0;
-            box-shadow: 0 0 10px rgba(17,202,160,0.2);
+            box-shadow: 0 0 10px rgba(17, 202, 160, 0.2);
         }
-        textarea { min-height: 300px; resize: vertical; }
 
-        .button-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
 
         button {
             padding: 12px 24px;
@@ -113,15 +168,329 @@
             transition: 0.3s;
             font-size: 1rem;
         }
-        .btn-primary   { background: #11CAA0; color: #121212; }
-        .btn-primary:hover { background: #0a9d7f; }
 
-        .btn-secondary { background: rgba(17,202,160,0.2); color: #11CAA0; border: 1px solid #11CAA0; }
-        .btn-secondary:hover { background: rgba(17,202,160,0.3); }
+        .btn-primary {
+            background: #11CAA0;
+            color: #121212;
+        }
 
-        .btn-danger    { background: rgba(255,107,107,0.2); color: #FF6B6B; border: 1px solid #FF6B6B; }
-        .btn-danger:hover { background: rgba(255,107,107,0.3); }
+        .btn-primary:hover {
+            background: #0a9d7f;
+        }
 
-        .message { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
-        .message.success { background: rgba(17,202,160,0.2); color: #11CAA0; border: 1px solid #11CAA0; display: block; }
-        .message.error   { background: rgba(255,107,107,0.2); color: #FF6B6B; border: 1px solid #FF6B
+        .btn-secondary {
+            background: rgba(17, 202, 160, 0.2);
+            color: #11CAA0;
+            border: 1px solid #11CAA0;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(17, 202, 160, 0.3);
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(17, 202, 160, 0.2);
+            color: #11CAA0;
+            border: 1px solid #11CAA0;
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
+            display: block;
+        }
+
+        .chapter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .chapter-item {
+            padding: 15px;
+            background: rgba(17, 202, 160, 0.1);
+            border: 1px solid rgba(17, 202, 160, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .chapter-item:hover {
+            background: rgba(17, 202, 160, 0.2);
+            border-color: #11CAA0;
+        }
+
+        .chapter-item.active {
+            background: rgba(17, 202, 160, 0.3);
+            border-color: #11CAA0;
+            color: #11CAA0;
+        }
+
+        .info-box {
+            background: rgba(17, 202, 160, 0.1);
+            border-left: 3px solid #11CAA0;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .info-box strong {
+            color: #11CAA0;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            textarea {
+                min-height: 200px;
+            }
+        }
+    </style>
+    <script src="/global.js"></script>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <h1>🎛️ Dashboard de Controle</h1>
+        <div class="nav-links">
+            <a href="/capa">← Voltar</a>
+            <a href="/logout">Sair</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-capitulos">0</div>
+                <div class="stat-label">Capítulos Publicados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="proximo-numero">1</div>
+                <div class="stat-label">Próximo Capítulo</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">👑</div>
+                <div class="stat-label">Modo Admin</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+
+            <div class="section">
+                <h2>Editar Capítulo</h2>
+
+                <div class="message" id="message"></div>
+
+                <div class="info-box">
+                    <strong>Dica:</strong> Selecione um capítulo da lista abaixo ou digite o número para editar.
+                </div>
+
+                <div class="form-group">
+                    <label for="numero-capitulo">Número do Capítulo:</label>
+                    <input type="number" id="numero-capitulo" min="1" value="1" placeholder="Digite o número">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="carregarCapitulo()">📖 Carregar</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="conteudo-capitulo">Conteúdo:</label>
+                    <textarea id="conteudo-capitulo" placeholder="Cole o conteúdo do capítulo aqui..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="salvarCapitulo()">💾 Salvar Capítulo</button>
+                    <button class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Capítulos Disponíveis</h2>
+
+                <div class="info-box">
+                    <strong id="total-capitulos-label">0</strong> capítulo(s) publicado(s)
+                </div>
+
+                <div class="chapter-list" id="chapter-list">
+                    <p style="color: #A0A0A0; grid-column: 1/-1;">Nenhum capítulo publicado ainda</p>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(17, 202, 160, 0.2);">
+                    <h3 style="color: #11CAA0; margin-bottom: 15px;">Ações Rápidas</h3>
+                    <div class="button-group">
+                        <button class="btn-secondary" onclick="novoCapitulo()">➕ Novo Capítulo</button>
+                        <button class="btn-secondary" onclick="recarregarLista()">🔄 Recarregar</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function mostrarMensagem(texto, tipo) {
+            const msg = document.getElementById("message");
+            msg.textContent = texto;
+            msg.className = `message ${tipo}`;
+            setTimeout(() => {
+                msg.className = "message";
+            }, 4000);
+        }
+
+        async function carregarCapitulo() {
+            const numero = parseInt(document.getElementById("numero-capitulo").value);
+
+            if (isNaN(numero) || numero <= 0) {
+                mostrarMensagem("Digite um número válido", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/capitulo/${numero}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById("conteudo-capitulo").value = data.conteudo || "";
+                    atualizarListaCapitulos(numero);
+                    mostrarMensagem(`Capítulo ${numero} carregado com sucesso`, "success");
+                } else if (response.status === 404) {
+                    document.getElementById("conteudo-capitulo").value = "";
+                    atualizarListaCapitulos(numero);
+                    mostrarMensagem(`Capítulo ${numero} ainda não existe. Você pode criá-lo!`, "success");
+                } else {
+                    mostrarMensagem("Erro ao carregar capítulo", "error");
+                }
+            } catch (e) {
+                mostrarMensagem("Erro ao carregar capítulo", "error");
+                console.error(e);
+            }
+        }
+
+        async function salvarCapitulo() {
+            const numero = parseInt(document.getElementById("numero-capitulo").value);
+            const conteudo = document.getElementById("conteudo-capitulo").value;
+
+            if (isNaN(numero) || numero <= 0) {
+                mostrarMensagem("Digite um número válido", "error");
+                return;
+            }
+
+            if (!conteudo.trim()) {
+                mostrarMensagem("O conteúdo não pode estar vazio", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/salvar-capitulo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ numero, conteudo })
+                });
+
+                if (response.ok) {
+                    mostrarMensagem(`Capítulo ${numero} salvo com sucesso! 🎉`, "success");
+                    carregarListaCapitulos();
+                } else {
+                    mostrarMensagem("Erro ao salvar capítulo", "error");
+                }
+            } catch (e) {
+                mostrarMensagem("Erro ao salvar capítulo", "error");
+                console.error(e);
+            }
+        }
+
+        function limparFormulario() {
+            document.getElementById("numero-capitulo").value = "1";
+            document.getElementById("conteudo-capitulo").value = "";
+            mostrarMensagem("Formulário limpo", "success");
+        }
+
+        function novoCapitulo() {
+            const proxNum = parseInt(document.getElementById("proximo-numero").textContent);
+            document.getElementById("numero-capitulo").value = proxNum;
+            document.getElementById("conteudo-capitulo").value = "";
+            document.getElementById("conteudo-capitulo").focus();
+            mostrarMensagem(`Pronto para criar o Capítulo ${proxNum}`, "success");
+        }
+
+        function recarregarLista() {
+            carregarListaCapitulos();
+            mostrarMensagem("Lista recarregada", "success");
+        }
+
+        async function carregarListaCapitulos() {
+            try {
+                const response = await fetch("/api/capitulos");
+                const caps = await response.json();
+
+                const total = Array.isArray(caps) ? caps.length : 0;
+                document.getElementById("total-capitulos").textContent = total;
+                document.getElementById("total-capitulos-label").textContent = total;
+                document.getElementById("proximo-numero").textContent = total + 1;
+
+                atualizarListaCapitulos(parseInt(document.getElementById("numero-capitulo").value));
+            } catch (e) {
+                console.error("Erro ao carregar lista:", e);
+            }
+        }
+
+        async function atualizarListaCapitulos(ativo) {
+            try {
+                const response = await fetch("/api/capitulos");
+                const caps = await response.json();
+
+                const lista = document.getElementById("chapter-list");
+                lista.innerHTML = "";
+
+                if (Array.isArray(caps) && caps.length > 0) {
+                    caps.forEach(cap => {
+                        const div = document.createElement("div");
+                        div.className = `chapter-item ${cap.numero === ativo ? "active" : ""}`;
+                        div.textContent = `Cap. ${cap.numero}`;
+                        div.onclick = () => {
+                            document.getElementById("numero-capitulo").value = cap.numero;
+                            carregarCapitulo();
+                        };
+                        lista.appendChild(div);
+                    });
+                } else {
+                    lista.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #A0A0A0;'>Nenhum capítulo publicado ainda</p>";
+                }
+            } catch (e) {
+                console.error("Erro ao atualizar lista:", e);
+            }
+        }
+
+        carregarListaCapitulos();
+    </script>
+
+</body>
+</html>

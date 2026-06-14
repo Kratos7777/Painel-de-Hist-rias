@@ -1,10 +1,7 @@
 /**
  * GLOBAL.JS - Sistema Central de Potencialização do Portal
+ * Este arquivo centraliza toda a lógica compartilhada entre as páginas
  * Inclua este arquivo em todos os HTML: <script src="/global.js"></script>
- *
- * CORREÇÕES v11:
- * - Toda manipulação de DOM adiada para DOMContentLoaded (evita erros no <head>)
- * - URL do avatar lida diretamente de /api/user (não mais reconstruída)
  */
 
 // =====================
@@ -40,9 +37,9 @@ class NotificationSystem {
 
         const colors = {
             success: { bg: 'rgba(17, 202, 160, 0.2)', border: '#11CAA0', text: '#11CAA0' },
-            error:   { bg: 'rgba(255, 107, 107, 0.2)', border: '#FF6B6B', text: '#FF6B6B' },
-            info:    { bg: 'rgba(88, 101, 242, 0.2)',  border: '#5865F2', text: '#5865F2' },
-            warning: { bg: 'rgba(255, 193, 7, 0.2)',   border: '#FFC107', text: '#FFC107' }
+            error: { bg: 'rgba(255, 107, 107, 0.2)', border: '#FF6B6B', text: '#FF6B6B' },
+            info: { bg: 'rgba(88, 101, 242, 0.2)', border: '#5865F2', text: '#5865F2' },
+            warning: { bg: 'rgba(255, 193, 7, 0.2)', border: '#FFC107', text: '#FFC107' }
         };
 
         const color = colors[type] || colors.info;
@@ -90,11 +87,11 @@ class ThemeSystem {
             style.textContent = `
                 @keyframes slideInRight {
                     from { opacity: 0; transform: translateX(20px); }
-                    to   { opacity: 1; transform: translateX(0); }
+                    to { opacity: 1; transform: translateX(0); }
                 }
                 @keyframes slideOutRight {
                     from { opacity: 1; transform: translateX(0); }
-                    to   { opacity: 0; transform: translateX(20px); }
+                    to { opacity: 0; transform: translateX(20px); }
                 }
                 body.theme-sepia {
                     background: #f4ecd8 !important;
@@ -120,6 +117,7 @@ class ThemeSystem {
     applyTheme(theme) {
         this.currentTheme = theme;
         localStorage.setItem('tema', theme);
+
         document.body.classList.remove('theme-dark', 'theme-sepia', 'theme-light');
         document.body.classList.add(`theme-${theme}`);
     }
@@ -138,8 +136,8 @@ class ThemeSystem {
 // =====================
 class ReadingPreferences {
     constructor() {
-        this.fontSize   = parseInt(localStorage.getItem('fontSize'))      || 16;
-        this.lineHeight = parseFloat(localStorage.getItem('lineHeight'))  || 1.8;
+        this.fontSize = parseInt(localStorage.getItem('fontSize')) || 16;
+        this.lineHeight = parseFloat(localStorage.getItem('lineHeight')) || 1.8;
         this.init();
     }
 
@@ -148,16 +146,21 @@ class ReadingPreferences {
     }
 
     applyPreferences() {
-        let style = document.getElementById('reading-prefs');
-        if (!style) {
-            style = document.createElement('style');
-            style.id = 'reading-prefs';
+        const style = document.getElementById('reading-prefs') || document.createElement('style');
+        style.id = 'reading-prefs';
+        style.textContent = `
+            body {
+                font-size: ${this.fontSize}px;
+                line-height: ${this.lineHeight};
+            }
+            .chapter-content {
+                font-size: ${this.fontSize}px;
+                line-height: ${this.lineHeight};
+            }
+        `;
+        if (!document.getElementById('reading-prefs')) {
             document.head.appendChild(style);
         }
-        style.textContent = `
-            body { font-size: ${this.fontSize}px; line-height: ${this.lineHeight}; }
-            .chapter-content { font-size: ${this.fontSize}px; line-height: ${this.lineHeight}; }
-        `;
     }
 
     setFontSize(size) {
@@ -184,26 +187,31 @@ class NavigationSystem {
 
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Seta esquerda = capitulo anterior
+            // Ignora atalhos quando o usuário está digitando em um campo
+            const tag = (e.target && e.target.tagName) || '';
+            const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target && e.target.isContentEditable);
+            if (isEditable) return;
+
             if (e.key === 'ArrowLeft') {
-                const btn = document.getElementById('btn-anterior');
-                if (btn && !btn.disabled) btn.click();
+                const btnAnterior = document.getElementById('btn-anterior');
+                if (btnAnterior && !btnAnterior.disabled) {
+                    btnAnterior.click();
+                }
             }
-            // Seta direita = proximo capitulo
             if (e.key === 'ArrowRight') {
-                const btn = document.getElementById('btn-proximo');
-                if (btn && !btn.disabled) btn.click();
+                const btnProximo = document.getElementById('btn-proximo');
+                if (btnProximo && !btnProximo.disabled) {
+                    btnProximo.click();
+                }
             }
-            // T = alternar tema
             if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
                 const novoTema = window.themeSystem.toggle();
-                window.notify.show(`Tema: ${novoTema}`, 'info', 2000);
+                window.notify.show(`Tema alterado para: ${novoTema}`, 'info', 2000);
             }
         });
     }
 
     setupNavbar() {
-        // Cria navbar dinamica apenas se a pagina nao tiver uma propria
         if (!document.querySelector('.navbar')) {
             this.createDynamicNavbar();
         }
@@ -218,28 +226,30 @@ class NavigationSystem {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             flex-wrap: wrap;
             gap: 15px;
             position: sticky;
             top: 0;
             z-index: 100;
         `;
+
         navbar.innerHTML = `
-            <h1 style="color:white;font-size:1.5rem;margin:0;">TR: Vida</h1>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <a href="/capa"          style="color:white;text-decoration:none;padding:8px 16px;border-radius:4px;background:rgba(255,255,255,0.1);">📖 Capa</a>
-                <a href="/perfil"        style="color:white;text-decoration:none;padding:8px 16px;border-radius:4px;background:rgba(255,255,255,0.1);">👤 Perfil</a>
-                <a href="/configuracoes" style="color:white;text-decoration:none;padding:8px 16px;border-radius:4px;background:rgba(255,255,255,0.1);">⚙️ Config</a>
-                <a href="/logout"        style="color:white;text-decoration:none;padding:8px 16px;border-radius:4px;background:rgba(255,255,255,0.1);">Sair</a>
+            <h1 style="color: white; font-size: 1.5rem; margin: 0;">TR: Vida</h1>
+            <div class="nav-links" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="/capa" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">📖 Capa</a>
+                <a href="/perfil" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">👤 Perfil</a>
+                <a href="/configuracoes" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">⚙️ Config</a>
+                <a href="/logout" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">Sair</a>
             </div>
         `;
+
         document.body.insertBefore(navbar, document.body.firstChild);
     }
 }
 
 // =====================
-// BARRA DE CARREGAMENTO
+// SISTEMA DE CARREGAMENTO
 // =====================
 class LoadingBar {
     constructor() {
@@ -295,7 +305,6 @@ class UserSystem {
     async loadUser() {
         try {
             const response = await fetch('/api/user');
-            if (!response.ok) return;
             this.user = await response.json();
             this.updateUserDisplay();
         } catch (e) {
@@ -304,44 +313,39 @@ class UserSystem {
     }
 
     updateUserDisplay() {
-        if (!this.user || !this.user.username) return;
+        if (this.user && this.user.username) {
+            const userElements = document.querySelectorAll('[data-user-name]');
+            userElements.forEach(el => {
+                el.textContent = this.user.username;
+            });
 
-        document.querySelectorAll('[data-user-name]').forEach(el => {
-            el.textContent = this.user.username;
-        });
-
-        // avatar já vem como URL completa de /api/user
-        document.querySelectorAll('[data-user-avatar]').forEach(el => {
-            el.src = this.user.avatar;
-        });
+            const avatarElements = document.querySelectorAll('[data-user-avatar]');
+            avatarElements.forEach(el => {
+                el.src = this.user.avatar;
+            });
+        }
     }
 }
 
 // =====================
 // INICIALIZAÇÃO GLOBAL
-// Adiada para DOMContentLoaded — garante que o body existe
-// antes de qualquer manipulação de DOM (script está no <head>).
 // =====================
-document.addEventListener('DOMContentLoaded', () => {
-    window.notify       = new NotificationSystem();
-    window.themeSystem  = new ThemeSystem();
-    window.readingPrefs = new ReadingPreferences();
-    window.navigation   = new NavigationSystem();
-    window.loadingBar   = new LoadingBar();
-    window.userSystem   = new UserSystem();
+window.notify = new NotificationSystem();
+window.themeSystem = new ThemeSystem();
+window.readingPrefs = new ReadingPreferences();
+window.navigation = new NavigationSystem();
+window.loadingBar = new LoadingBar();
+window.userSystem = new UserSystem();
 
-    // Mostra a barra de loading ao clicar em links internos
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('a[href^="/"]');
-        if (link && !link.target) {
-            window.loadingBar.start();
-        }
-    });
-
-    console.log('Global.js carregado. Sistema potencializado.');
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href^="/"]');
+    if (link && !link.target) {
+        window.loadingBar.start();
+    }
 });
 
-// Finaliza a barra quando a pagina terminar de carregar
 window.addEventListener('load', () => {
-    if (window.loadingBar) window.loadingBar.finish();
+    window.loadingBar.finish();
 });
+
+console.log('✅ Global.js carregado com sucesso! Sistema potencializado.');
