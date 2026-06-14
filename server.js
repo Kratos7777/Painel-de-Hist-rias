@@ -114,21 +114,24 @@ app.get('/auth/discord/callback', (req, res, next) => {
 
     passport.authenticate('discord', (err, user) => {
         if (err) {
-            console.error('[AUTH] Erro:', err.message);
-            return res.status(500).send(`
-                <div style="font-family:'Segoe UI',sans-serif;padding:50px;text-align:center;background:#0f1115;color:white;height:100vh;">
-                    <h1 style="color:#ff4757;">Erro de Conexão com o Discord</h1>
-                    <p style="color:#a4b0be;max-width:600px;margin:20px auto;">
-                        Ocorreu um erro ao validar sua conta. Verifique a Redirect URI e o Client Secret.
-                    </p>
-                    <div style="background:#1e2124;padding:20px;border-radius:10px;display:inline-block;text-align:left;border-left:5px solid #ff4757;">
-                        <code style="color:#ffa502;">ERRO: ${err.message}</code>
-                    </div>
-                    <br><br>
-                    <a href="/" style="background:#5865F2;color:white;padding:12px 25px;text-decoration:none;border-radius:5px;font-weight:bold;">Voltar ao Início</a>
-                </div>
-            `);
-        }
+    // Captura a mensagem real independente do formato do erro
+    const mensagem = err.message || err.description || (typeof err === 'string' ? err : JSON.stringify(err));
+    console.error('[AUTH] Erro completo:', err);
+
+    return res.status(500).send(`
+        <div style="font-family:'Segoe UI',sans-serif;padding:50px;text-align:center;background:#0f1115;color:white;min-height:100vh;">
+            <h1 style="color:#ff4757;">Erro de Conexão com o Discord</h1>
+            <p style="color:#a4b0be;max-width:600px;margin:20px auto;">
+                Ocorreu um erro ao validar sua conta. Verifique a Redirect URI e o Client Secret.
+            </p>
+            <div style="background:#1e2124;padding:20px;border-radius:10px;display:inline-block;text-align:left;border-left:5px solid #ff4757;">
+                <code style="color:#ffa502;">ERRO: ${mensagem}</code>
+            </div>
+            <br><br>
+            <a href="/" style="background:#5865F2;color:white;padding:12px 25px;text-decoration:none;border-radius:5px;font-weight:bold;">Voltar ao Início</a>
+        </div>
+    `);
+}
 
         if (!user) {
             console.warn('[AUTH] Login cancelado ou não autorizado.');
@@ -146,11 +149,6 @@ app.get('/auth/discord/callback', (req, res, next) => {
     })(req, res, next);
 });
 
-    // Redireciona /login para o fluxo correto do Discord
-app.get('/login', (req, res) => {
-    res.redirect('/auth/discord');
-});
-
 app.get('/logout', (req, res) => {
     console.log(`[AUTH] Logout: ${req.user ? req.user.username : 'desconhecido'}`);
     req.logout(() => {
@@ -162,6 +160,15 @@ app.get('/logout', (req, res) => {
     });
 });
 
+    // Redireciona /login para o fluxo correto do Discord
+app.get('/login', (req, res) => {
+    res.redirect('/auth/discord');
+});
+
+*.js
+app.get('/entrar', (req, res) => {
+    res.redirect('/auth/discord');
+});
 // ==========================================
 // 5. MIDDLEWARES DE PROTEÇÃO
 // ==========================================
