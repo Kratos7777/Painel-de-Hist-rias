@@ -165,7 +165,7 @@ app.get('/login', (req, res) => {
     res.redirect('/auth/discord');
 });
 
-js
+
 app.get('/entrar', (req, res) => {
     res.redirect('/auth/discord');
 });
