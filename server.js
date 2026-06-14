@@ -22,7 +22,35 @@ const { URL } = require("url"); // Para parsear URLs de forma robusta e dinâmic
 const { exec } = require('child_process'); // Para comandos de shell, se necessário para setup avançado
 
 // Carrega variáveis de ambiente do arquivo .env
-dotenv.config();
+const dotenvResult = dotenv.config({ path: path.resolve(__dirname, ".env") });
+
+if (dotenvResult.error) {
+    console.error("[ERRO CRÍTICO DOTENV] Falha ao carregar .env:", dotenvResult.error);
+    process.exit(1);
+}
+
+// [DEBUG] Verificação de variáveis de ambiente após carregamento
+console.log("\n[DEBUG .ENV] Verificando variáveis de ambiente (pós-dotenv.config()):");
+console.log(`[DEBUG .ENV] process.env.DISCORD_CLIENT_ID: ${process.env.DISCORD_CLIENT_ID}`);
+console.log(`[DEBUG .ENV] process.env.DISCORD_CLIENT_SECRET: ${process.env.DISCORD_CLIENT_SECRET}`);
+console.log(`[DEBUG .ENV] process.env.DISCORD_CALLBACK_URL: ${process.env.DISCORD_CALLBACK_URL}`);
+console.log("--------------------------------------------------\n");
+
+// Adiciona um log completo do process.env para depuração profunda
+console.log("\n[DEBUG .ENV] Conteúdo completo de process.env (filtrado para Discord/Session):");
+for (const key in process.env) {
+    if (key.startsWith("DISCORD_") || key.startsWith("SESSION_") || key === "PORT") {
+        console.log(`  ${key}: ${process.env[key]}`);
+    }
+}
+console.log("--------------------------------------------------\n");
+
+// [DEBUG] Verificação de variáveis de ambiente após carregamento
+console.log("\n[DEBUG .ENV] Verificando variáveis de ambiente (pós-dotenv.config()):");
+console.log(`[DEBUG .ENV] process.env.DISCORD_CLIENT_ID: ${process.env.DISCORD_CLIENT_ID}`);
+console.log(`[DEBUG .ENV] process.env.DISCORD_CLIENT_SECRET: ${process.env.DISCORD_CLIENT_SECRET}`);
+console.log(`[DEBUG .ENV] process.env.DISCORD_CALLBACK_URL: ${process.env.DISCORD_CALLBACK_URL}`);
+console.log("--------------------------------------------------\n");
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Porta padrão 3000, configurável via .env
@@ -70,7 +98,32 @@ Object.values(PATHS).forEach(dirPath => {
 // CORS_ORIGIN="*" ou "http://localhost:3000" (Para controle de CORS)
 
 const SESSION_SECRET_RAW = process.env.SESSION_SECRET;
-const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID;
+const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID || ""; // Garante que seja string vazia, não undefined
+const DISCORD_CLIENT_SECRET_RAW = process.env.DISCORD_CLIENT_SECRET || ""; // Garante que seja string vazia, não undefined
+const DISCORD_CALLBACK_URL_FULL_RAW = process.env.DISCORD_CALLBACK_URL || ""; // Garante que seja string vazia, não undefined
+
+// Purificação Atômica do CLIENT_ID: Garante que seja um snowflake puro e limpo de qualquer contaminação
+// Remove tudo que não for dígito, espaços e caracteres de controle invisíveis.
+const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW.replace(/[^0-9]/g, "").trim();
+
+// Extrai o PATH da CALLBACK_URL para uso dinâmico nas rotas do Express
+let DISCORD_CALLBACK_PATH = "/callback"; // Default fallback para compatibilidade
+let DISCORD_CALLBACK_URL_FULL = DISCORD_CALLBACK_URL_FULL_RAW.trim(); // URL completa para a estratégia
+let DISCORD_CALLBACK_URL_ENCODED = DISCORD_CALLBACK_URL_FULL; // Valor padrão, pode ser ajustado
+
+if (DISCORD_CALLBACK_URL_FULL) {
+    try {
+        const parsedUrl = new URL(DISCORD_CALLBACK_URL_FULL);
+        DISCORD_CALLBACK_PATH = parsedUrl.pathname; // Pega apenas o /caminho/da/url
+        // Codifica a URL para garantir que caracteres especiais sejam tratados corretamente pelo Discord
+        // e reconstrói a URL completa para a estratégia do Passport
+        DISCORD_CALLBACK_URL_ENCODED = `${parsedUrl.protocol}//${parsedUrl.host}${encodeURIComponent(parsedUrl.pathname)}${parsedUrl.search}${parsedUrl.hash}`;
+    } catch (e) {
+        console.error(`[SETUP ERROR] DISCORD_CALLBACK_URL inválida no .env: ${e.message}. Usando default /callback.`);
+        // Se a URL for inválida, voltamos para a RAW para o diagnóstico, mas o path será o default
+        DISCORD_CALLBACK_URL_ENCODED = DISCORD_CALLBACK_URL_FULL_RAW; 
+    }
+}
 const DISCORD_CLIENT_SECRET_RAW = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL_FULL = process.env.DISCORD_CALLBACK_URL;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
@@ -100,17 +153,32 @@ if (DISCORD_CALLBACK_URL_FULL) {
 
 // Aplica valores padrão se não estiverem definidos no .env (apenas para desenvolvimento/teste)
 const SESSION_SECRET = SESSION_SECRET_RAW || "trvida_ecosistema_secreto_ancestral_2026_super_seguro_e_longo_demais_para_ser_quebrado_facilmente";
-const DISCORD_CLIENT_SECRET = DISCORD_CLIENT_SECRET_RAW || "H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X_um_segredo_muito_forte_e_complexo"; // Substitua pelo seu segredo real
-const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_ENCODED || `http://localhost:${PORT}${DISCORD_CALLBACK_PATH}`; // Usa o caminho extraído e codificado
+const DISCORD_CLIENT_SECRET = DISCORD_CLIENT_SECRET_RAW.trim(); // Garante que não haja espaços extras
+const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_ENCODED; // A URL já está purificada e codificada
 
 // VERIFICAÇÃO CRÍTICA: Garante que as credenciais do Discord foram fornecidas e são válidas
 // Este bloco é um Raio-X completo das suas credenciais antes de iniciar o servidor.
-if (!DISCORD_CLIENT_ID || isNaN(DISCORD_CLIENT_ID) || !DISCORD_CLIENT_SECRET) {
+if (!DISCORD_CLIENT_ID || DISCORD_CLIENT_ID.length === 0 || isNaN(parseInt(DISCORD_CLIENT_ID, 10)) || !DISCORD_CLIENT_SECRET || DISCORD_CLIENT_SECRET.length === 0 || !DISCORD_CALLBACK_URL_FULL || DISCORD_CALLBACK_URL_FULL.length === 0) {
+    // Verifica se o erro é devido a variáveis undefined, o que indica falha na leitura do .env
+    if (DISCORD_CLIENT_ID_RAW === undefined || DISCORD_CLIENT_SECRET_RAW === undefined || DISCORD_CALLBACK_URL_FULL_RAW === undefined) {
+        console.error("\n--- ERRO CRÍTICO: VARIÁVEIS DE AMBIENTE NÃO CARREGADAS DO .ENV --- ");
+        console.error("Isso geralmente indica que o arquivo .env não foi encontrado ou está mal formatado.");
+        console.error("1. Certifique-se de que o arquivo .env está na raiz do projeto (mesma pasta do server.js).");
+        console.error("2. Verifique se os nomes das variáveis (DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_CALLBACK_URL) estão EXATAMENTE corretos no .env.");
+        console.error("3. Verifique se não há erros de sintaxe no .env (ex: aspas duplas em valores numéricos).");
+        console.error("------------------------------------------------------------------\n");
+    }
     console.error("\n--- ERRO CRÍTICO DE CONFIGURAÇÃO DO DISCORD ---");
     console.error("As variáveis DISCORD_CLIENT_ID (deve ser um número válido) e DISCORD_CLIENT_SECRET não foram definidas ou estão incorretas no seu arquivo .env.");
     console.error("Por favor, verifique o Portal do Desenvolvedor do Discord e seu arquivo .env.");
     console.error("--------------------------------------------------");
     console.error(`DIAGNÓSTICO CLIENT_ID RAW: ${util.inspect(DISCORD_CLIENT_ID_RAW)}`);
+console.error(`DIAGNÓSTICO CLIENT_ID PURIFICADO: ${util.inspect(DISCORD_CLIENT_ID)}`);
+console.error(`É um número válido (isNaN): ${!isNaN(parseInt(DISCORD_CLIENT_ID, 10))}`);
+console.error(`CLIENT_SECRET (PRESENTE): ${!!DISCORD_CLIENT_SECRET && DISCORD_CLIENT_SECRET.length > 0}`);
+console.error(`CALLBACK_URL (RAW): ${util.inspect(DISCORD_CALLBACK_URL_FULL_RAW)}`);
+console.error(`CALLBACK_URL (USADA NA ESTRATÉGIA): ${util.inspect(DISCORD_CALLBACK_URL)}`);
+console.error(`CALLBACK_PATH (EXTRAÍDO PARA ROTA): ${util.inspect(DISCORD_CALLBACK_PATH)}`);
     console.error(`DIAGNÓSTICO CLIENT_ID PURIFICADO: ${util.inspect(DISCORD_CLIENT_ID)}`);
     console.error(`É um número válido (isNaN): ${!isNaN(DISCORD_CLIENT_ID)}`);
     console.error(`CLIENT_SECRET (PRESENTE): ${!!DISCORD_CLIENT_SECRET}`);
@@ -256,6 +324,28 @@ app.get("/login", passport.authenticate("discord"));
 // Rota de Callback: Recebe a resposta do Discord após a autenticação
 // Usa o caminho extraído dinamicamente da DISCORD_CALLBACK_URL para sincronização absoluta
 app.get(DISCORD_CALLBACK_PATH, (req, res, next) => {
+    console.log(`[FLUXO AUTENTICAÇÃO] Recebida requisição em ${DISCORD_CALLBACK_PATH}`);
+    passport.authenticate("discord", (err, user, info) => {
+        if (err) {
+            console.error("[FLUXO AUTENTICAÇÃO] Erro durante autenticação:", err);
+            return res.redirect("/?error=auth_failed");
+        }
+        if (!user) {
+            console.warn("[FLUXO AUTENTICAÇÃO] Usuário não autenticado:", info);
+            return res.redirect("/?error=auth_denied");
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                console.error("[FLUXO AUTENTICAÇÃO] Erro ao fazer login:", err);
+                return res.redirect("/?error=login_failed");
+            }
+            req.session.save(() => {
+                console.log(`[FLUXO AUTENTICAÇÃO] Usuário ${user.username} logado e sessão salva. Redirecionando para /capa.`);
+                res.redirect("/capa");
+            });
+        });
+    })(req, res, next);
+});
     passport.authenticate("discord", (err, user, info) => {
         if (err) {
             console.error(`[AUTH ERROR] Erro no callback do Discord: ${err.message}`);
