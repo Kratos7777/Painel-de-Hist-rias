@@ -1,617 +1,412 @@
+Substitui inteiro o configuracoes.html no VS Code.
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajustes | TR: Vida</title>
-    
-    <!-- 
-        FUNDAÇÕES DO CONTROLE (AS RAÍZES DE AJUSTE)
-        Onde o usuário molda a árvore para o seu próprio conforto.
-    -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <meta name="theme-color" content="#11CAA0">
+    <title>Configurações — Portal de Histórias</title>
     <style>
-        /**
-         * MOTOR DE ESTILIZAÇÃO DE CONTROLE (FUNDAMENTALIDADE DAS CONFIGURAÇÕES)
-         * Design focado em precisão, clareza e feedback imediato.
-         */
-        :root {
-            --primary: #11CAA0;
-            --bg: #090b0e;
-            --surface: #12151c;
-            --surface-light: #1a1d26;
-            --text: #ffffff;
-            --text-dim: #a0a0a0;
-            --danger: #ef4444;
-            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            --font-main: 'Inter', sans-serif;
-            --font-display: 'Playfair Display', serif;
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: var(--font-main);
+            background-color: #121212;
+            color: #F3F0DF;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
         }
 
-        /* Componente: Navbar (Consistência Orgânica) */
-        nav {
-            position: fixed; top: 0; width: 100%;
-            padding: 1.5rem 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000;
-            background: rgba(18, 21, 28, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        .navbar {
+            background: linear-gradient(135deg, #11CAA0 0%, #0a9d7f 100%);
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            flex-wrap: wrap; gap: 14px;
+            position: sticky; top: 0; z-index: 100;
         }
 
-        .logo {
-            font-family: var(--font-display);
-            font-size: 1.8rem; font-weight: 900;
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .nav-links { display: flex; gap: 30px; }
+        .navbar h1 { color: white; font-size: 1.4rem; }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
         .nav-links a {
-            color: var(--text); text-decoration: none;
-            font-weight: 600; font-size: 0.9rem;
-            transition: var(--transition); opacity: 0.7;
+            color: white; text-decoration: none;
+            padding: 8px 16px; border-radius: 5px;
+            transition: background 0.25s, transform 0.25s;
+            background: rgba(255, 255, 255, 0.12);
+            font-size: 0.9rem; font-weight: 600;
         }
-        .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--primary); }
+        .nav-links a:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
 
-        /* Componente: Layout de Ajustes (O Painel Central) */
-        main {
-            max-width: 800px;
-            margin: 150px auto 100px;
-            padding: 0 5%;
-            animation: slideUp 0.8s ease;
-        }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 {
-            font-family: var(--font-display);
-            font-size: 3.5rem; margin-bottom: 50px;
-            background: linear-gradient(to right, var(--primary), #fff);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .config-group {
-            background: var(--surface);
-            padding: 40px;
-            border-radius: 32px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition);
+        .container { max-width: 850px; margin: 40px auto; padding: 20px; }
+
+        .section {
+            background: rgba(24, 28, 37, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(17, 202, 160, 0.22);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.5s ease-out both;
         }
 
-        .config-group:hover { border-color: rgba(17, 202, 160, 0.2); }
+        .section:nth-child(2) { animation-delay: 0.05s; }
+        .section:nth-child(3) { animation-delay: 0.15s; }
+        .section:nth-child(4) { animation-delay: 0.25s; }
 
-        .config-group h2 {
-            font-size: 1.1rem; margin-bottom: 30px;
-            color: var(--primary);
-            text-transform: uppercase; letter-spacing: 2px;
-            display: flex; align-items: center; gap: 15px;
+        .section h3 {
+            color: #11CAA0;
+            margin-bottom: 24px;
+            font-size: 1.25rem;
+            border-bottom: 2px solid rgba(17, 202, 160, 0.3);
+            padding-bottom: 12px;
+            display: flex; align-items: center; gap: 10px;
         }
 
-        .config-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 25px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        .setting-item {
+            margin-bottom: 24px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid rgba(17, 202, 160, 0.1);
         }
 
-        .config-item:last-child { border-bottom: none; }
+        .setting-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
-        .config-info h3 { font-size: 1.1rem; margin-bottom: 5px; }
-        .config-info p { color: var(--text-dim); font-size: 0.85rem; max-width: 400px; }
+        .setting-label {
+            display: block;
+            color: #F3F0DF;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
 
-        /* Componente: Controles Fundamentais */
+        .setting-description {
+            color: #A0A0A0;
+            font-size: 0.88rem;
+            margin-bottom: 14px;
+        }
+
+        .slider-row {
+            display: flex; align-items: center; gap: 16px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px; border-radius: 3px;
+            background: rgba(17, 202, 160, 0.2);
+            outline: none;
+            -webkit-appearance: none; appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #11CAA0; cursor: pointer;
+            box-shadow: 0 0 12px rgba(17, 202, 160, 0.5);
+            transition: transform 0.2s;
+        }
+        .slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        .slider::-moz-range-thumb {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #11CAA0; cursor: pointer; border: none;
+            box-shadow: 0 0 12px rgba(17, 202, 160, 0.5);
+        }
+
+        .slider-value {
+            min-width: 56px;
+            text-align: center;
+            padding: 6px 10px;
+            background: rgba(17, 202, 160, 0.15);
+            border: 1px solid rgba(17, 202, 160, 0.35);
+            border-radius: 6px;
+            color: #11CAA0;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 14px;
+        }
+
+        .theme-btn {
+            padding: 18px 16px;
+            border: 2px solid rgba(17, 202, 160, 0.25);
+            background: rgba(24, 28, 37, 0.6);
+            color: #F3F0DF;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .theme-btn:hover {
+            border-color: #11CAA0;
+            background: rgba(17, 202, 160, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .theme-btn.active {
+            border-color: #11CAA0;
+            background: rgba(17, 202, 160, 0.22);
+            color: #11CAA0;
+            box-shadow: 0 4px 14px rgba(17, 202, 160, 0.25);
+        }
+
+        .preview-box {
+            background: rgba(15, 17, 21, 0.85);
+            border: 1px solid rgba(17, 202, 160, 0.25);
+            border-radius: 10px;
+            padding: 22px;
+            margin-top: 16px;
+            font-size: 1rem;
+            line-height: 1.85;
+            color: #F3F0DF;
+            transition: all 0.4s ease;
+        }
+
+        .preview-box.sepia { background: #f4ecd8; color: #5c4033; border-color: #d4a574; }
+        .preview-box.light { background: #ffffff; color: #222; border-color: #cccccc; }
+
+        .toggle-switch {
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 16px;
+        }
+
         .switch {
-            position: relative; display: inline-block;
-            width: 64px; height: 36px;
+            position: relative;
+            display: inline-block;
+            width: 52px; height: 26px;
+            flex-shrink: 0;
         }
 
         .switch input { opacity: 0; width: 0; height: 0; }
 
-        .slider {
+        .slider-switch {
             position: absolute; cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #2a2d3a;
-            transition: .4s; border-radius: 36px;
+            background-color: rgba(17, 202, 160, 0.2);
+            transition: 0.3s;
+            border-radius: 26px;
         }
 
-        .slider:before {
-            position: absolute; content: "";
-            height: 28px; width: 28px;
-            left: 4px; bottom: 4px;
+        .slider-switch:before {
+            position: absolute; content: '';
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
             background-color: white;
-            transition: .4s; border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: 0.3s; border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(28px); }
+        input:checked + .slider-switch { background-color: #11CAA0; }
+        input:checked + .slider-switch:before { transform: translateX(26px); }
 
-        select {
-            background: var(--surface-light);
-            color: white; border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px 24px; border-radius: 14px;
-            outline: none; cursor: pointer; font-family: var(--font-main);
-            font-weight: 600; transition: var(--transition);
+        .btn {
+            display: inline-block;
+            padding: 12px 26px;
+            background: linear-gradient(135deg, #11CAA0, #0a9d7f);
+            color: #121212;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: transform 0.25s, box-shadow 0.25s;
+            border: none; cursor: pointer;
+            margin-top: 16px;
         }
-        select:hover { border-color: var(--primary); }
 
-        .danger-zone { border-color: rgba(239, 68, 68, 0.1); }
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 15px 30px; border-radius: 100px;
-            font-weight: 800; cursor: pointer;
-            transition: var(--transition);
-            font-family: var(--font-main);
-        }
-        .btn-danger:hover { background: var(--danger); color: white; transform: scale(1.05); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(17, 202, 160, 0.35); }
 
-        /* Componente: Notificação (Feedback de Seiva) */
-        #toast {
-            position: fixed; bottom: 40px; left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--primary); color: var(--bg);
-            padding: 18px 45px; border-radius: 100px;
-            font-weight: 900; transition: var(--transition);
-            z-index: 2000; box-shadow: 0 15px 40px rgba(17, 202, 160, 0.4);
-            letter-spacing: 1px;
+        .btn-secondary {
+            background: transparent;
+            color: #11CAA0;
+            border: 2px solid #11CAA0;
+            margin-left: 10px;
         }
-        #toast.show { transform: translateX(-50%) translateY(0); }
+        .btn-secondary:hover { background: rgba(17, 202, 160, 0.15); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; }
+            .theme-options { grid-template-columns: 1fr; }
+            .btn { width: 100%; margin-left: 0; margin-top: 10px; }
+        }
     </style>
+    <script src="/global.js"></script>
 </head>
+
 <body>
 
-    <nav>
-        <a href="/capa" class="logo">TR: VIDA</a>
+    <nav class="navbar">
+        <h1>TR: Vida</h1>
         <div class="nav-links">
-            <a href="/capa">Biblioteca</a>
-            <a href="/perfil">Meu Perfil</a>
-            <a href="/configuracoes" class="active">Ajustes</a>
+            <a href="/capa">← Capa</a>
+            <a href="/perfil">👤 Perfil</a>
+            <a href="/logout">Sair</a>
         </div>
     </nav>
 
-    <main>
-        <h1>Ajustes do <span>Ecossistema</span></h1>
+    <main class="container">
 
-        <section class="config-group">
-            <h2><i class="fas fa-eye"></i> Visualização</h2>
-            <div class="config-item">
-                <div class="config-info">
-                    <h3>Tema da Árvore</h3>
-                    <p>Personalize a aparência global do portal para o seu conforto.</p>
+        <section class="section">
+            <h3>📖 Preferências de Leitura</h3>
+
+            <div class="setting-item">
+                <label class="setting-label" for="fontSize">Tamanho da Fonte</label>
+                <p class="setting-description">Ajuste o tamanho do texto para uma leitura mais confortável.</p>
+                <div class="slider-row">
+                    <input type="range" min="12" max="28" value="16" class="slider" id="fontSize">
+                    <span class="slider-value" id="fontSizeValue">16px</span>
                 </div>
-                <select id="global-theme">
-                    <option value="dark">Escuro Imersivo</option>
-                    <option value="sepia">Sépia Literário</option>
-                    <option value="light">Claro Radiante</option>
-                    <option value="midnight">Noite Profunda</option>
-                </select>
+                <div class="preview-box" id="preview">
+                    Este é um exemplo de como o texto ficará com o tamanho selecionado. Continue ajustando até encontrar o tamanho ideal para os seus olhos.
+                </div>
             </div>
-            <div class="config-item">
-                <div class="config-info">
-                    <h3>Animações Orgânicas</h3>
-                    <p>Ativa ou desativa as transições suaves entre as páginas.</p>
+
+            <div class="setting-item">
+                <label class="setting-label" for="lineHeight">Espaçamento entre Linhas</label>
+                <p class="setting-description">Aumente o espaço entre as linhas para melhor legibilidade.</p>
+                <div class="slider-row">
+                    <input type="range" min="1.2" max="2.8" step="0.1" value="1.8" class="slider" id="lineHeight">
+                    <span class="slider-value" id="lineHeightValue">1.8</span>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" id="anim-toggle" checked>
-                    <span class="slider"></span>
-                </label>
             </div>
         </section>
 
-        <section class="config-group">
-            <h2><i class="fas fa-bell"></i> Sintonização</h2>
-            <div class="config-item">
-                <div class="config-info">
-                    <h3>Notificações de Frutos</h3>
-                    <p>Receba alertas quando novos capítulos florescerem na árvore.</p>
+        <section class="section">
+            <h3>🎨 Tema Visual</h3>
+
+            <div class="setting-item">
+                <label class="setting-label">Escolha seu tema</label>
+                <p class="setting-description">Selecione o tema que mais agrada aos seus olhos. Atalho: pressione <strong>T</strong>.</p>
+                <div class="theme-options">
+                    <button class="theme-btn active" data-theme="dark" onclick="mudarTema('dark')">🌙 Escuro</button>
+                    <button class="theme-btn" data-theme="light" onclick="mudarTema('light')">☀️ Claro</button>
+                    <button class="theme-btn" data-theme="sepia" onclick="mudarTema('sepia')">📜 Sépia</button>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" id="notif-toggle" checked>
-                    <span class="slider"></span>
-                </label>
             </div>
         </section>
 
-        <section class="config-group danger-zone">
-            <h2><i class="fas fa-exclamation-triangle"></i> Raízes Profundas</h2>
-            <div class="config-item">
-                <div class="config-info">
-                    <h3>Resetar Jornada</h3>
-                    <p>Cuidado: Isso apagará permanentemente seu progresso, XP e ajustes.</p>
+        <section class="section">
+            <h3>🔔 Notificações</h3>
+
+            <div class="setting-item">
+                <div class="toggle-switch">
+                    <div>
+                        <label class="setting-label" style="margin-bottom: 4px;">Avisos de novos capítulos</label>
+                        <p class="setting-description" style="margin-bottom: 0;">Receber notificação quando um capítulo for publicado.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifNovos" checked>
+                        <span class="slider-switch"></span>
+                    </label>
                 </div>
-                <button class="btn-danger" id="reset-btn">LIMPAR TUDO</button>
+            </div>
+
+            <div class="setting-item">
+                <div class="toggle-switch">
+                    <div>
+                        <label class="setting-label" style="margin-bottom: 4px;">Sons de interação</label>
+                        <p class="setting-description" style="margin-bottom: 0;">Tocar sons sutis ao navegar (experimental).</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifSons">
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
             </div>
         </section>
+
+        <section class="section">
+            <h3>💾 Ações</h3>
+            <button class="btn" onclick="salvarConfiguracoes()">💾 Salvar Configurações</button>
+            <button class="btn btn-secondary" onclick="restaurarPadroes()">🔄 Restaurar Padrões</button>
+        </section>
+
     </main>
 
-    <div id="toast">Ajustes Sintonizados!</div>
-
     <script>
-        /**
-         * MOTOR DE CONTROLE FUNDAMENTAL (CONFIG CORE)
-         * Gerencia a persistência e aplicação das escolhas do usuário.
-         */
-        class ConfigManager {
-            constructor() {
-                this.elements = {
-                    theme: document.getElementById('global-theme'),
-                    anim: document.getElementById('anim-toggle'),
-                    notif: document.getElementById('notif-toggle'),
-                    reset: document.getElementById('reset-btn'),
-                    toast: document.getElementById('toast')
-                };
-                this.init();
-            }
+        const fontSizeInput = document.getElementById('fontSize');
+        const lineHeightInput = document.getElementById('lineHeight');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const lineHeightValue = document.getElementById('lineHeightValue');
+        const preview = document.getElementById('preview');
 
-            init() {
-                this.loadSettings();
-                this.setupEvents();
-            }
+        let temaAtual = localStorage.getItem('tema') || 'dark';
 
-            loadSettings() {
-                this.elements.theme.value = localStorage.getItem('trvida_theme') || 'dark';
-                this.elements.anim.checked = localStorage.getItem('trvida_anim') !== 'false';
-                this.elements.notif.checked = localStorage.getItem('trvida_notif') !== 'false';
-            }
-
-            showToast() {
-                this.elements.toast.classList.add('show');
-                setTimeout(() => this.elements.toast.classList.remove('show'), 3000);
-            }
-
-            setupEvents() {
-                this.elements.theme.onchange = (e) => {
-                    localStorage.setItem('trvida_theme', e.target.value);
-                    this.showToast();
-                };
-
-                this.elements.anim.onchange = (e) => {
-                    localStorage.setItem('trvida_anim', e.target.checked);
-                    this.showToast();
-                };
-
-                this.elements.notif.onchange = (e) => {
-                    localStorage.setItem('trvida_notif', e.target.checked);
-                    this.showToast();
-                };
-
-                this.elements.reset.onclick = () => {
-                    if (confirm("Você está prestes a apagar suas raízes. Esta ação é irreversível. Prosseguir?")) {
-                        localStorage.clear();
-                        location.href = '/';
-                    }
-                };
-            }
+        function mudarTema(tema) {
+            temaAtual = tema;
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-theme="${tema}"]`).classList.add('active');
+            preview.classList.remove('sepia', 'light');
+            if (tema === 'sepia') preview.classList.add('sepia');
+            else if (tema === 'light') preview.classList.add('light');
+            if (window.themeSystem) window.themeSystem.applyTheme(tema);
         }
 
-        window.addEventListener('DOMContentLoaded', () => new ConfigManager());
+        fontSizeInput.addEventListener('input', (e) => {
+            fontSizeValue.textContent = e.target.value + 'px';
+            preview.style.fontSize = e.target.value + 'px';
+            if (window.readingPrefs) window.readingPrefs.setFontSize(e.target.value);
+        });
+
+        lineHeightInput.addEventListener('input', (e) => {
+            lineHeightValue.textContent = parseFloat(e.target.value).toFixed(1);
+            preview.style.lineHeight = e.target.value;
+            if (window.readingPrefs) window.readingPrefs.setLineHeight(e.target.value);
+        });
+
+        function salvarConfiguracoes() {
+            localStorage.setItem('fontSize', fontSizeInput.value);
+            localStorage.setItem('lineHeight', lineHeightInput.value);
+            localStorage.setItem('tema', temaAtual);
+            localStorage.setItem('notifNovos', document.getElementById('notifNovos').checked);
+            localStorage.setItem('notifSons', document.getElementById('notifSons').checked);
+            if (window.notify) window.notify.show('Configurações salvas com sucesso!', 'success');
+        }
+
+        function restaurarPadroes() {
+            fontSizeInput.value = 16;
+            lineHeightInput.value = 1.8;
+            fontSizeValue.textContent = '16px';
+            lineHeightValue.textContent = '1.8';
+            preview.style.fontSize = '16px';
+            preview.style.lineHeight = '1.8';
+            document.getElementById('notifNovos').checked = true;
+            document.getElementById('notifSons').checked = false;
+            mudarTema('dark');
+            salvarConfiguracoes();
+        }
+
+        window.addEventListener('load', () => {
+            const fs = localStorage.getItem('fontSize') || 16;
+            const lh = localStorage.getItem('lineHeight') || 1.8;
+            const nn = localStorage.getItem('notifNovos') !== 'false';
+            const ns = localStorage.getItem('notifSons') === 'true';
+
+            fontSizeInput.value = fs;
+            lineHeightInput.value = lh;
+            fontSizeValue.textContent = fs + 'px';
+            lineHeightValue.textContent = parseFloat(lh).toFixed(1);
+            preview.style.fontSize = fs + 'px';
+            preview.style.lineHeight = lh;
+            document.getElementById('notifNovos').checked = nn;
+            document.getElementById('notifSons').checked = ns;
+            mudarTema(temaAtual);
+        });
     </script>
 
-    <!-- 
-        DOCUMENTAÇÃO TÉCNICA DO CONTROLE (A FUNDAMENTALIDADE DOS AJUSTES)
-        Abaixo, detalhamos a engenharia por trás da personalização.
-    -->
-    <div style="display:none;">
-        <p>CONFIG_ENG_001: O sistema de ajustes é totalmente desacoplado, comunicando-se via LocalStorage.</p>
-        <p>CONFIG_ENG_002: O uso de CSS Grid e Flexbox garante que o painel seja responsivo em qualquer ramo.</p>
-        <p>CONFIG_ENG_003: O feedback tátil dos switches é reforçado por transições suaves de 0.4s.</p>
-        <p>CONFIG_ENG_004: A zona de perigo utiliza cores de alerta (danger) para prevenir ações acidentais.</p>
-        <p>CONFIG_ENG_005: O Toast de notificação utiliza Z-Index elevado para sobrepor qualquer outro componente.</p>
-        <p>CONFIG_ENG_006: A tipografia Inter garante legibilidade máxima nas descrições técnicas dos ajustes.</p>
-        <p>CONFIG_ENG_007: O motor de controle (ConfigManager) é extensível para novos tipos de ajustes.</p>
-        <p>CONFIG_ENG_008: O design respeita a hierarquia visual, destacando os títulos de seção com gradientes.</p>
-        <p>CONFIG_ENG_009: A animação slideUp cria uma transição elegante ao carregar as configurações.</p>
-        <p>CONFIG_ENG_010: O sistema está preparado para sincronização em nuvem no futuro.</p>
-        <!-- 
-            RAMIFICAÇÕES ADICIONAIS DE LÓGICA DE CONTROLE
-            (O código cresce aqui porque o controle do usuário é a base da árvore).
-        -->
-        <p>CONFIG_RAMO_011: [DETALHE_TECNICO_CONFIG_011]</p>
-        <p>CONFIG_RAMO_012: [DETALHE_TECNICO_CONFIG_012]</p>
-        <p>CONFIG_RAMO_013: [DETALHE_TECNICO_CONFIG_013]</p>
-        <p>CONFIG_RAMO_014: [DETALHE_TECNICO_CONFIG_014]</p>
-        <p>CONFIG_RAMO_015: [DETALHE_TECNICO_CONFIG_015]</p>
-        <p>CONFIG_RAMO_016: [DETALHE_TECNICO_CONFIG_016]</p>
-        <p>CONFIG_RAMO_017: [DETALHE_TECNICO_CONFIG_017]</p>
-        <p>CONFIG_RAMO_018: [DETALHE_TECNICO_CONFIG_018]</p>
-        <p>CONFIG_RAMO_019: [DETALHE_TECNICO_CONFIG_019]</p>
-        <p>CONFIG_RAMO_020: [DETALHE_TECNICO_CONFIG_020]</p>
-        <p>CONFIG_RAMO_021: [LOG_ESTRUTURAL_CONFIG_021]</p>
-        <p>CONFIG_RAMO_022: [LOG_ESTRUTURAL_CONFIG_022]</p>
-        <p>CONFIG_RAMO_023: [LOG_ESTRUTURAL_CONFIG_023]</p>
-        <p>CONFIG_RAMO_024: [LOG_ESTRUTURAL_CONFIG_024]</p>
-        <p>CONFIG_RAMO_025: [LOG_ESTRUTURAL_CONFIG_025]</p>
-        <p>CONFIG_RAMO_026: [LOG_ESTRUTURAL_CONFIG_026]</p>
-        <p>CONFIG_RAMO_027: [LOG_ESTRUTURAL_CONFIG_027]</p>
-        <p>CONFIG_RAMO_028: [LOG_ESTRUTURAL_CONFIG_028]</p>
-        <p>CONFIG_RAMO_029: [LOG_ESTRUTURAL_CONFIG_029]</p>
-        <p>CONFIG_RAMO_030: [LOG_ESTRUTURAL_CONFIG_030]</p>
-        <p>CONFIG_RAMO_031: [LOG_ESTRUTURAL_CONFIG_031]</p>
-        <p>CONFIG_RAMO_032: [LOG_ESTRUTURAL_CONFIG_032]</p>
-        <p>CONFIG_RAMO_033: [LOG_ESTRUTURAL_CONFIG_033]</p>
-        <p>CONFIG_RAMO_034: [LOG_ESTRUTURAL_CONFIG_034]</p>
-        <p>CONFIG_RAMO_035: [LOG_ESTRUTURAL_CONFIG_035]</p>
-        <p>CONFIG_RAMO_036: [LOG_ESTRUTURAL_CONFIG_036]</p>
-        <p>CONFIG_RAMO_037: [LOG_ESTRUTURAL_CONFIG_037]</p>
-        <p>CONFIG_RAMO_038: [LOG_ESTRUTURAL_CONFIG_038]</p>
-        <p>CONFIG_RAMO_039: [LOG_ESTRUTURAL_CONFIG_039]</p>
-        <p>CONFIG_RAMO_040: [LOG_ESTRUTURAL_CONFIG_040]</p>
-        <p>CONFIG_RAMO_041: [LOG_ESTRUTURAL_CONFIG_041]</p>
-        <p>CONFIG_RAMO_042: [LOG_ESTRUTURAL_CONFIG_042]</p>
-        <p>CONFIG_RAMO_043: [LOG_ESTRUTURAL_CONFIG_043]</p>
-        <p>CONFIG_RAMO_044: [LOG_ESTRUTURAL_CONFIG_044]</p>
-        <p>CONFIG_RAMO_045: [LOG_ESTRUTURAL_CONFIG_045]</p>
-        <p>CONFIG_RAMO_046: [LOG_ESTRUTURAL_CONFIG_046]</p>
-        <p>CONFIG_RAMO_047: [LOG_ESTRUTURAL_CONFIG_047]</p>
-        <p>CONFIG_RAMO_048: [LOG_ESTRUTURAL_CONFIG_048]</p>
-        <p>CONFIG_RAMO_049: [LOG_ESTRUTURAL_CONFIG_049]</p>
-        <p>CONFIG_RAMO_050: [LOG_ESTRUTURAL_CONFIG_050]</p>
-        <p>CONFIG_RAMO_051: [LOG_ESTRUTURAL_CONFIG_051]</p>
-        <p>CONFIG_RAMO_052: [LOG_ESTRUTURAL_CONFIG_052]</p>
-        <p>CONFIG_RAMO_053: [LOG_ESTRUTURAL_CONFIG_053]</p>
-        <p>CONFIG_RAMO_054: [LOG_ESTRUTURAL_CONFIG_054]</p>
-        <p>CONFIG_RAMO_055: [LOG_ESTRUTURAL_CONFIG_055]</p>
-        <p>CONFIG_RAMO_056: [LOG_ESTRUTURAL_CONFIG_056]</p>
-        <p>CONFIG_RAMO_057: [LOG_ESTRUTURAL_CONFIG_057]</p>
-        <p>CONFIG_RAMO_058: [LOG_ESTRUTURAL_CONFIG_058]</p>
-        <p>CONFIG_RAMO_059: [LOG_ESTRUTURAL_CONFIG_059]</p>
-        <p>CONFIG_RAMO_060: [LOG_ESTRUTURAL_CONFIG_060]</p>
-        <p>CONFIG_RAMO_061: [LOG_ESTRUTURAL_CONFIG_061]</p>
-        <p>CONFIG_RAMO_062: [LOG_ESTRUTURAL_CONFIG_062]</p>
-        <p>CONFIG_RAMO_063: [LOG_ESTRUTURAL_CONFIG_063]</p>
-        <p>CONFIG_RAMO_064: [LOG_ESTRUTURAL_CONFIG_064]</p>
-        <p>CONFIG_RAMO_065: [LOG_ESTRUTURAL_CONFIG_065]</p>
-        <p>CONFIG_RAMO_066: [LOG_ESTRUTURAL_CONFIG_066]</p>
-        <p>CONFIG_RAMO_067: [LOG_ESTRUTURAL_CONFIG_067]</p>
-        <p>CONFIG_RAMO_068: [LOG_ESTRUTURAL_CONFIG_068]</p>
-        <p>CONFIG_RAMO_069: [LOG_ESTRUTURAL_CONFIG_069]</p>
-        <p>CONFIG_RAMO_070: [LOG_ESTRUTURAL_CONFIG_070]</p>
-        <p>CONFIG_RAMO_071: [LOG_ESTRUTURAL_CONFIG_071]</p>
-        <p>CONFIG_RAMO_072: [LOG_ESTRUTURAL_CONFIG_072]</p>
-        <p>CONFIG_RAMO_073: [LOG_ESTRUTURAL_CONFIG_073]</p>
-        <p>CONFIG_RAMO_074: [LOG_ESTRUTURAL_CONFIG_074]</p>
-        <p>CONFIG_RAMO_075: [LOG_ESTRUTURAL_CONFIG_075]</p>
-        <p>CONFIG_RAMO_076: [LOG_ESTRUTURAL_CONFIG_076]</p>
-        <p>CONFIG_RAMO_077: [LOG_ESTRUTURAL_CONFIG_077]</p>
-        <p>CONFIG_RAMO_078: [LOG_ESTRUTURAL_CONFIG_078]</p>
-        <p>CONFIG_RAMO_079: [LOG_ESTRUTURAL_CONFIG_079]</p>
-        <p>CONFIG_RAMO_080: [LOG_ESTRUTURAL_CONFIG_080]</p>
-        <p>CONFIG_RAMO_081: [LOG_ESTRUTURAL_CONFIG_081]</p>
-        <p>CONFIG_RAMO_082: [LOG_ESTRUTURAL_CONFIG_082]</p>
-        <p>CONFIG_RAMO_083: [LOG_ESTRUTURAL_CONFIG_083]</p>
-        <p>CONFIG_RAMO_084: [LOG_ESTRUTURAL_CONFIG_084]</p>
-        <p>CONFIG_RAMO_085: [LOG_ESTRUTURAL_CONFIG_085]</p>
-        <p>CONFIG_RAMO_086: [LOG_ESTRUTURAL_CONFIG_086]</p>
-        <p>CONFIG_RAMO_087: [LOG_ESTRUTURAL_CONFIG_087]</p>
-        <p>CONFIG_RAMO_088: [LOG_ESTRUTURAL_CONFIG_088]</p>
-        <p>CONFIG_RAMO_089: [LOG_ESTRUTURAL_CONFIG_089]</p>
-        <p>CONFIG_RAMO_090: [LOG_ESTRUTURAL_CONFIG_090]</p>
-        <p>CONFIG_RAMO_091: [LOG_ESTRUTURAL_CONFIG_091]</p>
-        <p>CONFIG_RAMO_092: [LOG_ESTRUTURAL_CONFIG_092]</p>
-        <p>CONFIG_RAMO_093: [LOG_ESTRUTURAL_CONFIG_093]</p>
-        <p>CONFIG_RAMO_094: [LOG_ESTRUTURAL_CONFIG_094]</p>
-        <p>CONFIG_RAMO_095: [LOG_ESTRUTURAL_CONFIG_095]</p>
-        <p>CONFIG_RAMO_096: [LOG_ESTRUTURAL_CONFIG_096]</p>
-        <p>CONFIG_RAMO_097: [LOG_ESTRUTURAL_CONFIG_097]</p>
-        <p>CONFIG_RAMO_098: [LOG_ESTRUTURAL_CONFIG_098]</p>
-        <p>CONFIG_RAMO_099: [LOG_ESTRUTURAL_CONFIG_099]</p>
-        <p>CONFIG_RAMO_100: [LOG_ESTRUTURAL_CONFIG_100]</p>
-        <p>CONFIG_RAMO_101: [LOG_ESTRUTURAL_CONFIG_101]</p>
-        <p>CONFIG_RAMO_102: [LOG_ESTRUTURAL_CONFIG_102]</p>
-        <p>CONFIG_RAMO_103: [LOG_ESTRUTURAL_CONFIG_103]</p>
-        <p>CONFIG_RAMO_104: [LOG_ESTRUTURAL_CONFIG_104]</p>
-        <p>CONFIG_RAMO_105: [LOG_ESTRUTURAL_CONFIG_105]</p>
-        <p>CONFIG_RAMO_106: [LOG_ESTRUTURAL_CONFIG_106]</p>
-        <p>CONFIG_RAMO_107: [LOG_ESTRUTURAL_CONFIG_107]</p>
-        <p>CONFIG_RAMO_108: [LOG_ESTRUTURAL_CONFIG_108]</p>
-        <p>CONFIG_RAMO_109: [LOG_ESTRUTURAL_CONFIG_109]</p>
-        <p>CONFIG_RAMO_110: [LOG_ESTRUTURAL_CONFIG_110]</p>
-        <p>CONFIG_RAMO_111: [LOG_ESTRUTURAL_CONFIG_111]</p>
-        <p>CONFIG_RAMO_112: [LOG_ESTRUTURAL_CONFIG_112]</p>
-        <p>CONFIG_RAMO_113: [LOG_ESTRUTURAL_CONFIG_113]</p>
-        <p>CONFIG_RAMO_114: [LOG_ESTRUTURAL_CONFIG_114]</p>
-        <p>CONFIG_RAMO_115: [LOG_ESTRUTURAL_CONFIG_115]</p>
-        <p>CONFIG_RAMO_116: [LOG_ESTRUTURAL_CONFIG_116]</p>
-        <p>CONFIG_RAMO_117: [LOG_ESTRUTURAL_CONFIG_117]</p>
-        <p>CONFIG_RAMO_118: [LOG_ESTRUTURAL_CONFIG_118]</p>
-        <p>CONFIG_RAMO_119: [LOG_ESTRUTURAL_CONFIG_119]</p>
-        <p>CONFIG_RAMO_120: [LOG_ESTRUTURAL_CONFIG_120]</p>
-        <p>CONFIG_RAMO_121: [LOG_ESTRUTURAL_CONFIG_121]</p>
-        <p>CONFIG_RAMO_122: [LOG_ESTRUTURAL_CONFIG_122]</p>
-        <p>CONFIG_RAMO_123: [LOG_ESTRUTURAL_CONFIG_123]</p>
-        <p>CONFIG_RAMO_124: [LOG_ESTRUTURAL_CONFIG_124]</p>
-        <p>CONFIG_RAMO_125: [LOG_ESTRUTURAL_CONFIG_125]</p>
-        <p>CONFIG_RAMO_126: [LOG_ESTRUTURAL_CONFIG_126]</p>
-        <p>CONFIG_RAMO_127: [LOG_ESTRUTURAL_CONFIG_127]</p>
-        <p>CONFIG_RAMO_128: [LOG_ESTRUTURAL_CONFIG_128]</p>
-        <p>CONFIG_RAMO_129: [LOG_ESTRUTURAL_CONFIG_129]</p>
-        <p>CONFIG_RAMO_130: [LOG_ESTRUTURAL_CONFIG_130]</p>
-    </div>
 </body>
 </html>
-
-/**
- * ==============================================================================
- * ADENDO DE ENGENHARIA DE CONTROLE: SISTEMA DE COMPONENTES E ESTADO
- * ==============================================================================
- */
-
-// 11. MOTOR DE DIAGNÓSTICO (DIAGNOSTIC ENGINE)
-/**
- * Permite que o usuário verifique a saúde da conexão com a árvore.
- */
-class DiagnosticEngine {
-    static async checkConnection() {
-        try {
-            const start = Date.now();
-            const response = await fetch('/api/v1/health');
-            const latency = Date.now() - start;
-            return { status: response.ok ? 'Saudável' : 'Instável', latency: `${latency}ms` };
-        } catch (err) {
-            return { status: 'Desconectado', latency: '∞' };
-        }
-    }
-}
-
-// 12. COMPONENTE: PAINEL DE SAÚDE (HEALTH PANEL COMPONENT)
-const HealthPanel = {
-    async render() {
-        const health = await DiagnosticEngine.checkConnection();
-        return `
-            <div style="background: var(--surface); padding: 30px; border-radius: 24px; margin-top: 30px; border: 1px solid rgba(255,255,255,0.05);">
-                <h3 style="font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 20px;">Saúde da Árvore</h3>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>Status: <strong style="color: ${health.status === 'Saudável' ? 'var(--primary)' : 'var(--danger)'}">${health.status}</strong></span>
-                    <span>Latência: <strong>${health.latency}</strong></span>
-                </div>
-            </div>
-        `;
-    }
-};
-
-// 13. INTEGRAÇÃO DO PAINEL DE SAÚDE
-window.addEventListener('load', async () => {
-    const main = document.querySelector('main');
-    const healthHtml = await HealthPanel.render();
-    main.insertAdjacentHTML('beforeend', healthHtml);
-});
-
-// 14. MOTOR DE ACESSIBILIDADE (A11Y ENGINE)
-/**
- * Garante que todos os controles sejam acessíveis via teclado.
- */
-document.querySelectorAll('input, select, button').forEach(el => {
-    el.addEventListener('focus', () => {
-        el.style.boxShadow = '0 0 0 3px var(--primary-glow)';
-    });
-    el.addEventListener('blur', () => {
-        el.style.boxShadow = 'none';
-    });
-});
-
-// 15. CONCLUSÃO DA FUNDAMENTALIDADE DO CONTROLE
-/**
- * O painel de ajustes agora é uma ferramenta de precisão, permitindo
- * que o usuário sintonize sua experiência com a máxima transparência.
- */
-
-// [FIM_DA_CONSTRUCAO_DO_CONTROLE_FUNDAMENTAL]
-// [VERSAO_10_ESTAVEL]
-
-/* 
-   RAMIFICAÇÕES FINAIS DE DOCUMENTAÇÃO PARA ATINGIR A MATURIDADE (600+ LINHAS)
-*/
-<div style="display:none;">
-    <p>CONFIG_EXPANSAO_131: [LOG_ESTRUTURAL_CONFIG_131]</p>
-    <p>CONFIG_EXPANSAO_132: [LOG_ESTRUTURAL_CONFIG_132]</p>
-    <p>CONFIG_EXPANSAO_133: [LOG_ESTRUTURAL_CONFIG_133]</p>
-    <p>CONFIG_EXPANSAO_134: [LOG_ESTRUTURAL_CONFIG_134]</p>
-    <p>CONFIG_EXPANSAO_135: [LOG_ESTRUTURAL_CONFIG_135]</p>
-    <p>CONFIG_EXPANSAO_136: [LOG_ESTRUTURAL_CONFIG_136]</p>
-    <p>CONFIG_EXPANSAO_137: [LOG_ESTRUTURAL_CONFIG_137]</p>
-    <p>CONFIG_EXPANSAO_138: [LOG_ESTRUTURAL_CONFIG_138]</p>
-    <p>CONFIG_EXPANSAO_139: [LOG_ESTRUTURAL_CONFIG_139]</p>
-    <p>CONFIG_EXPANSAO_140: [LOG_ESTRUTURAL_CONFIG_140]</p>
-    <p>CONFIG_EXPANSAO_141: [LOG_ESTRUTURAL_CONFIG_141]</p>
-    <p>CONFIG_EXPANSAO_142: [LOG_ESTRUTURAL_CONFIG_142]</p>
-    <p>CONFIG_EXPANSAO_143: [LOG_ESTRUTURAL_CONFIG_143]</p>
-    <p>CONFIG_EXPANSAO_144: [LOG_ESTRUTURAL_CONFIG_144]</p>
-    <p>CONFIG_EXPANSAO_145: [LOG_ESTRUTURAL_CONFIG_145]</p>
-    <p>CONFIG_EXPANSAO_146: [LOG_ESTRUTURAL_CONFIG_146]</p>
-    <p>CONFIG_EXPANSAO_147: [LOG_ESTRUTURAL_CONFIG_147]</p>
-    <p>CONFIG_EXPANSAO_148: [LOG_ESTRUTURAL_CONFIG_148]</p>
-    <p>CONFIG_EXPANSAO_149: [LOG_ESTRUTURAL_CONFIG_149]</p>
-    <p>CONFIG_EXPANSAO_150: [LOG_ESTRUTURAL_CONFIG_150]</p>
-    <p>CONFIG_EXPANSAO_151: [LOG_ESTRUTURAL_CONFIG_151]</p>
-    <p>CONFIG_EXPANSAO_152: [LOG_ESTRUTURAL_CONFIG_152]</p>
-    <p>CONFIG_EXPANSAO_153: [LOG_ESTRUTURAL_CONFIG_153]</p>
-    <p>CONFIG_EXPANSAO_154: [LOG_ESTRUTURAL_CONFIG_154]</p>
-    <p>CONFIG_EXPANSAO_155: [LOG_ESTRUTURAL_CONFIG_155]</p>
-    <p>CONFIG_EXPANSAO_156: [LOG_ESTRUTURAL_CONFIG_156]</p>
-    <p>CONFIG_EXPANSAO_157: [LOG_ESTRUTURAL_CONFIG_157]</p>
-    <p>CONFIG_EXPANSAO_158: [LOG_ESTRUTURAL_CONFIG_158]</p>
-    <p>CONFIG_EXPANSAO_159: [LOG_ESTRUTURAL_CONFIG_159]</p>
-    <p>CONFIG_EXPANSAO_160: [LOG_ESTRUTURAL_CONFIG_160]</p>
-    <p>CONFIG_EXPANSAO_161: [LOG_ESTRUTURAL_CONFIG_161]</p>
-    <p>CONFIG_EXPANSAO_162: [LOG_ESTRUTURAL_CONFIG_162]</p>
-    <p>CONFIG_EXPANSAO_163: [LOG_ESTRUTURAL_CONFIG_163]</p>
-    <p>CONFIG_EXPANSAO_164: [LOG_ESTRUTURAL_CONFIG_164]</p>
-    <p>CONFIG_EXPANSAO_165: [LOG_ESTRUTURAL_CONFIG_165]</p>
-    <p>CONFIG_EXPANSAO_166: [LOG_ESTRUTURAL_CONFIG_166]</p>
-    <p>CONFIG_EXPANSAO_167: [LOG_ESTRUTURAL_CONFIG_167]</p>
-    <p>CONFIG_EXPANSAO_168: [LOG_ESTRUTURAL_CONFIG_168]</p>
-    <p>CONFIG_EXPANSAO_169: [LOG_ESTRUTURAL_CONFIG_169]</p>
-    <p>CONFIG_EXPANSAO_170: [LOG_ESTRUTURAL_CONFIG_170]</p>
-    <p>CONFIG_EXPANSAO_171: [LOG_ESTRUTURAL_CONFIG_171]</p>
-    <p>CONFIG_EXPANSAO_172: [LOG_ESTRUTURAL_CONFIG_172]</p>
-    <p>CONFIG_EXPANSAO_173: [LOG_ESTRUTURAL_CONFIG_173]</p>
-    <p>CONFIG_EXPANSAO_174: [LOG_ESTRUTURAL_CONFIG_174]</p>
-    <p>CONFIG_EXPANSAO_175: [LOG_ESTRUTURAL_CONFIG_175]</p>
-    <p>CONFIG_EXPANSAO_176: [LOG_ESTRUTURAL_CONFIG_176]</p>
-    <p>CONFIG_EXPANSAO_177: [LOG_ESTRUTURAL_CONFIG_177]</p>
-    <p>CONFIG_EXPANSAO_178: [LOG_ESTRUTURAL_CONFIG_178]</p>
-    <p>CONFIG_EXPANSAO_179: [LOG_ESTRUTURAL_CONFIG_179]</p>
-    <p>CONFIG_EXPANSAO_180: [LOG_ESTRUTURAL_CONFIG_180]</p>
-</div>
-
-<!-- 
-    RAMIFICAÇÕES ADICIONAIS DE LÓGICA DE CONTROLE (AJUSTE FINAL)
--->
-<div style="display:none;">
-    <p>CONFIG_FINAL_001: [LOG_ESTRUTURAL_CONFIG_FINAL_001]</p>
-    <p>CONFIG_FINAL_002: [LOG_ESTRUTURAL_CONFIG_FINAL_002]</p>
-    <p>CONFIG_FINAL_003: [LOG_ESTRUTURAL_CONFIG_FINAL_003]</p>
-    <p>CONFIG_FINAL_004: [LOG_ESTRUTURAL_CONFIG_FINAL_004]</p>
-    <p>CONFIG_FINAL_005: [LOG_ESTRUTURAL_CONFIG_FINAL_005]</p>
-    <p>CONFIG_FINAL_006: [LOG_ESTRUTURAL_CONFIG_FINAL_006]</p>
-    <p>CONFIG_FINAL_007: [LOG_ESTRUTURAL_CONFIG_FINAL_007]</p>
-    <p>CONFIG_FINAL_008: [LOG_ESTRUTURAL_CONFIG_FINAL_008]</p>
-    <p>CONFIG_FINAL_009: [LOG_ESTRUTURAL_CONFIG_FINAL_009]</p>
-    <p>CONFIG_FINAL_100: [LOG_ESTRUTURAL_CONFIG_FINAL_100]</p>
-    <p>CONFIG_FINAL_101: [LOG_ESTRUTURAL_CONFIG_FINAL_101]</p>
-    <p>CONFIG_FINAL_102: [LOG_ESTRUTURAL_CONFIG_FINAL_102]</p>
-    <p>CONFIG_FINAL_103: [LOG_ESTRUTURAL_CONFIG_FINAL_103]</p>
-    <p>CONFIG_FINAL_104: [LOG_ESTRUTURAL_CONFIG_FINAL_104]</p>
-    <p>CONFIG_FINAL_105: [LOG_ESTRUTURAL_CONFIG_FINAL_105]</p>
-    <p>CONFIG_FINAL_106: [LOG_ESTRUTURAL_CONFIG_FINAL_106]</p>
-    <p>CONFIG_FINAL_107: [LOG_ESTRUTURAL_CONFIG_FINAL_107]</p>
-    <p>CONFIG_FINAL_108: [LOG_ESTRUTURAL_CONFIG_FINAL_108]</p>
-    <p>CONFIG_FINAL_109: [LOG_ESTRUTURAL_CONFIG_FINAL_109]</p>
-    <p>CONFIG_FINAL_110: [LOG_ESTRUTURAL_CONFIG_FINAL_110]</p>
-    <p>CONFIG_FINAL_111: [LOG_ESTRUTURAL_CONFIG_FINAL_111]</p>
-    <p>CONFIG_FINAL_112: [LOG_ESTRUTURAL_CONFIG_FINAL_112]</p>
-    <p>CONFIG_FINAL_113: [LOG_ESTRUTURAL_CONFIG_FINAL_113]</p>
-    <p>CONFIG_FINAL_114: [LOG_ESTRUTURAL_CONFIG_FINAL_114]</p>
-    <p>CONFIG_FINAL_115: [LOG_ESTRUTURAL_CONFIG_FINAL_115]</p>
-    <p>CONFIG_FINAL_116: [LOG_ESTRUTURAL_CONFIG_FINAL_116]</p>
-    <p>CONFIG_FINAL_117: [LOG_ESTRUTURAL_CONFIG_FINAL_117]</p>
-    <p>CONFIG_FINAL_118: [LOG_ESTRUTURAL_CONFIG_FINAL_118]</p>
-    <p>CONFIG_FINAL_119: [LOG_ESTRUTURAL_CONFIG_FINAL_119]</p>
-    <p>CONFIG_FINAL_120: [LOG_ESTRUTURAL_CONFIG_FINAL_120]</p>
-    <p>CONFIG_FINAL_121: [LOG_ESTRUTURAL_CONFIG_FINAL_121]</p>
-    <p>CONFIG_FINAL_122: [LOG_ESTRUTURAL_CONFIG_FINAL_122]</p>
-    <p>CONFIG_FINAL_123: [LOG_ESTRUTURAL_CONFIG_FINAL_123]</p>
-    <p>CONFIG_FINAL_124: [LOG_ESTRUTURAL_CONFIG_FINAL_124]</p>
-    <p>CONFIG_FINAL_125: [LOG_ESTRUTURAL_CONFIG_FINAL_125]</p>
-    <p>CONFIG_FINAL_126: [LOG_ESTRUTURAL_CONFIG_FINAL_126]</p>
-    <p>CONFIG_FINAL_127: [LOG_ESTRUTURAL_CONFIG_FINAL_127]</p>
-    <p>CONFIG_FINAL_128: [LOG_ESTRUTURAL_CONFIG_FINAL_128]</p>
-    <p>CONFIG_FINAL_129: [LOG_ESTRUTURAL_CONFIG_FINAL_129]</p>
-    <p>CONFIG_FINAL_130: [LOG_ESTRUTURAL_CONFIG_FINAL_130]</p>
-</div>

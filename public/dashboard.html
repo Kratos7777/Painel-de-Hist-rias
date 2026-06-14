@@ -1,66 +1,59 @@
-Claro! Aqui está o dashboard.html completo e corrigido, pronto para colar inteiro no VS Code:
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Painel de Controle</title>
+    <meta name="theme-color" content="#FF6B6B">
+    <title>Dashboard — Painel de Controle</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: #121212;
             color: #F3F0DF;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .navbar {
             background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
-            padding: 15px 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 14px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 14px;
+            position: sticky; top: 0; z-index: 100;
         }
 
         .navbar h1 {
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
 
         .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            transition: 0.3s;
-            background: rgba(255, 255, 255, 0.1);
-            font-size: 0.9rem;
+            color: white; text-decoration: none;
+            padding: 8px 16px; border-radius: 5px;
+            transition: background 0.25s, transform 0.25s;
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 0.9rem; font-weight: 600;
         }
 
-        .nav-links a:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .nav-links a:hover { background: rgba(255, 255, 255, 0.28); transform: translateY(-1px); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+        .container { max-width: 1280px; margin: 0 auto; padding: 40px 20px; }
 
         .stats-grid {
             display: grid;
@@ -70,140 +63,147 @@ Claro! Aqui está o dashboard.html completo e corrigido, pronto para colar intei
         }
 
         .stat-card {
-            background: rgba(24, 28, 37, 0.7);
-            border: 1px solid rgba(17, 202, 160, 0.2);
-            border-radius: 8px;
-            padding: 20px;
+            background: rgba(24, 28, 37, 0.75);
+            border: 1px solid rgba(17, 202, 160, 0.22);
+            border-radius: 12px;
+            padding: 24px 20px;
             text-align: center;
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            animation: fadeUp 0.5s ease-out both;
         }
+
+        .stat-card:nth-child(1) { animation-delay: 0.05s; }
+        .stat-card:nth-child(2) { animation-delay: 0.15s; }
+        .stat-card:nth-child(3) { animation-delay: 0.25s; }
+        .stat-card:nth-child(4) { animation-delay: 0.35s; }
 
         .stat-card:hover {
             border-color: #11CAA0;
-            background: rgba(24, 28, 37, 0.9);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(17, 202, 160, 0.18);
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 2.6rem;
             color: #11CAA0;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-weight: 800;
+            margin-bottom: 8px;
         }
 
-        .stat-label {
-            color: #A0A0A0;
-            font-size: 0.9rem;
-        }
+        .stat-label { color: #A0A0A0; font-size: 0.88rem; letter-spacing: 0.5px; }
 
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 28px;
             margin-bottom: 40px;
         }
 
         .section {
-            background: rgba(24, 28, 37, 0.7);
-            border: 1px solid rgba(17, 202, 160, 0.2);
-            border-radius: 8px;
-            padding: 30px;
+            background: rgba(24, 28, 37, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(17, 202, 160, 0.22);
+            border-radius: 12px;
+            padding: 32px;
+            animation: fadeUp 0.5s ease-out 0.3s both;
         }
 
         .section h2 {
             color: #11CAA0;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+            margin-bottom: 22px;
+            font-size: 1.4rem;
             border-bottom: 2px solid rgba(17, 202, 160, 0.3);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 18px; }
 
         label {
             display: block;
             margin-bottom: 8px;
-            color: #A0A0A0;
-            font-weight: bold;
+            color: #B8BCC8;
+            font-weight: 700;
+            font-size: 0.92rem;
         }
 
-        input[type="number"],
-        textarea {
+        input[type="number"], textarea {
             width: 100%;
-            padding: 12px;
-            background: rgba(15, 17, 21, 0.8);
+            padding: 12px 14px;
+            background: rgba(15, 17, 21, 0.85);
             border: 1px solid rgba(17, 202, 160, 0.3);
             color: #F3F0DF;
-            border-radius: 6px;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 1rem;
+            transition: border-color 0.25s, box-shadow 0.25s;
         }
 
-        input[type="number"]:focus,
-        textarea:focus {
+        input[type="number"]:focus, textarea:focus {
             outline: none;
             border-color: #11CAA0;
-            box-shadow: 0 0 10px rgba(17, 202, 160, 0.2);
+            box-shadow: 0 0 0 3px rgba(17, 202, 160, 0.2);
         }
 
-        textarea {
-            min-height: 300px;
-            resize: vertical;
-        }
+        textarea { min-height: 340px; resize: vertical; line-height: 1.7; }
 
         .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            display: flex; gap: 10px;
+            margin-top: 18px;
             flex-wrap: wrap;
         }
 
         button {
-            padding: 12px 24px;
+            padding: 11px 22px;
             border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
-            font-size: 1rem;
+            transition: all 0.25s ease;
+            font-size: 0.95rem;
         }
 
         .btn-primary {
-            background: #11CAA0;
+            background: linear-gradient(135deg, #11CAA0, #0a9d7f);
             color: #121212;
+            box-shadow: 0 4px 12px rgba(17, 202, 160, 0.3);
         }
-
-        .btn-primary:hover {
-            background: #0a9d7f;
-        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(17, 202, 160, 0.45); }
 
         .btn-secondary {
-            background: rgba(17, 202, 160, 0.2);
+            background: rgba(17, 202, 160, 0.18);
             color: #11CAA0;
             border: 1px solid #11CAA0;
         }
+        .btn-secondary:hover { background: rgba(17, 202, 160, 0.3); transform: translateY(-1px); }
 
-        .btn-secondary:hover {
-            background: rgba(17, 202, 160, 0.3);
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.18);
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
         }
+        .btn-danger:hover { background: rgba(255, 107, 107, 0.3); transform: translateY(-1px); }
 
         .message {
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 18px;
             display: none;
+            font-weight: 600;
+            animation: fadeUp 0.3s ease-out;
         }
 
         .message.success {
-            background: rgba(17, 202, 160, 0.2);
+            background: rgba(17, 202, 160, 0.18);
             color: #11CAA0;
             border: 1px solid #11CAA0;
             display: block;
         }
 
         .message.error {
-            background: rgba(255, 107, 107, 0.2);
+            background: rgba(255, 107, 107, 0.18);
             color: #FF6B6B;
             border: 1px solid #FF6B6B;
             display: block;
@@ -211,63 +211,65 @@ Claro! Aqui está o dashboard.html completo e corrigido, pronto para colar intei
 
         .chapter-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 18px;
         }
 
         .chapter-item {
-            padding: 15px;
+            padding: 14px;
             background: rgba(17, 202, 160, 0.1);
             border: 1px solid rgba(17, 202, 160, 0.3);
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.25s ease;
             text-align: center;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 0.92rem;
         }
 
         .chapter-item:hover {
-            background: rgba(17, 202, 160, 0.2);
+            background: rgba(17, 202, 160, 0.22);
             border-color: #11CAA0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(17, 202, 160, 0.22);
         }
 
         .chapter-item.active {
-            background: rgba(17, 202, 160, 0.3);
+            background: rgba(17, 202, 160, 0.32);
             border-color: #11CAA0;
             color: #11CAA0;
+            box-shadow: 0 4px 12px rgba(17, 202, 160, 0.3);
         }
 
         .info-box {
             background: rgba(17, 202, 160, 0.1);
             border-left: 3px solid #11CAA0;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            padding: 14px 16px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            font-size: 0.92rem;
         }
 
-        .info-box strong {
-            color: #11CAA0;
+        .info-box strong { color: #11CAA0; }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.82rem;
+            color: #6E7686;
+            margin-top: 6px;
+            font-family: 'Courier New', monospace;
         }
 
         @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
+            .main-content { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            textarea {
-                min-height: 200px;
-            }
+            .navbar { flex-direction: column; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            textarea { min-height: 240px; }
+            .section { padding: 22px; }
         }
     </style>
     <script src="/global.js"></script>
@@ -275,17 +277,18 @@ Claro! Aqui está o dashboard.html completo e corrigido, pronto para colar intei
 
 <body>
 
-    <div class="navbar">
-        <h1>🎛️ Dashboard de Controle</h1>
+    <nav class="navbar">
+        <h1>🎛️ Painel do Editor</h1>
         <div class="nav-links">
-            <a href="/capa">← Voltar</a>
+            <a href="/capa">← Capa</a>
+            <a href="/funcionalidades">🏠 Início</a>
             <a href="/logout">Sair</a>
         </div>
-    </div>
+    </nav>
 
-    <div class="container">
+    <main class="container">
 
-        <div class="stats-grid">
+        <section class="stats-grid">
             <div class="stat-card">
                 <div class="stat-number" id="total-capitulos">0</div>
                 <div class="stat-label">Capítulos Publicados</div>
@@ -295,201 +298,222 @@ Claro! Aqui está o dashboard.html completo e corrigido, pronto para colar intei
                 <div class="stat-label">Próximo Capítulo</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">👑</div>
-                <div class="stat-label">Modo Admin</div>
+                <div class="stat-number" id="total-palavras">0</div>
+                <div class="stat-label">Total de Palavras</div>
             </div>
-        </div>
+            <div class="stat-card">
+                <div class="stat-number">👑</div>
+                <div class="stat-label">Modo Administrador</div>
+            </div>
+        </section>
 
         <div class="main-content">
 
-            <div class="section">
-                <h2>Editar Capítulo</h2>
-
+            <section class="section">
+                <h2>📝 Editar Capítulo</h2>
                 <div class="message" id="message"></div>
 
                 <div class="info-box">
-                    <strong>Dica:</strong> Selecione um capítulo da lista abaixo ou digite o número para editar.
+                    <strong>💡 Dica:</strong> Selecione um capítulo da lista ao lado ou digite o número e clique em Carregar.
                 </div>
 
                 <div class="form-group">
-                    <label for="numero-capitulo">Número do Capítulo:</label>
-                    <input type="number" id="numero-capitulo" min="1" value="1" placeholder="Digite o número">
+                    <label for="numero-capitulo">Número do Capítulo</label>
+                    <input type="number" id="numero-capitulo" min="1" value="1" placeholder="Ex: 1">
                 </div>
 
                 <div class="button-group">
                     <button class="btn-secondary" onclick="carregarCapitulo()">📖 Carregar</button>
                 </div>
 
-                <div class="form-group">
-                    <label for="conteudo-capitulo">Conteúdo:</label>
-                    <textarea id="conteudo-capitulo" placeholder="Cole o conteúdo do capítulo aqui..."></textarea>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="conteudo-capitulo">Conteúdo do Capítulo</label>
+                    <textarea id="conteudo-capitulo" placeholder="Digite ou cole o conteúdo do capítulo aqui..."></textarea>
+                    <div class="char-counter" id="char-counter">0 caracteres · 0 palavras</div>
                 </div>
 
                 <div class="button-group">
                     <button class="btn-primary" onclick="salvarCapitulo()">💾 Salvar Capítulo</button>
                     <button class="btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
+                    <button class="btn-danger" onclick="deletarCapitulo()">❌ Excluir</button>
                 </div>
-            </div>
+            </section>
 
-            <div class="section">
-                <h2>Capítulos Disponíveis</h2>
+            <section class="section">
+                <h2>📚 Capítulos Disponíveis</h2>
 
                 <div class="info-box">
                     <strong id="total-capitulos-label">0</strong> capítulo(s) publicado(s)
                 </div>
 
                 <div class="chapter-list" id="chapter-list">
-                    <p style="color: #A0A0A0; grid-column: 1/-1;">Nenhum capítulo publicado ainda</p>
+                    <p style="color:#A0A0A0;grid-column:1/-1;text-align:center;">Nenhum capítulo publicado ainda</p>
                 </div>
 
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(17, 202, 160, 0.2);">
-                    <h3 style="color: #11CAA0; margin-bottom: 15px;">Ações Rápidas</h3>
+                <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(17,202,160,0.2);">
+                    <h3 style="color:#11CAA0;margin-bottom:14px;font-size:1.05rem;">⚡ Ações Rápidas</h3>
                     <div class="button-group">
                         <button class="btn-secondary" onclick="novoCapitulo()">➕ Novo Capítulo</button>
-                        <button class="btn-secondary" onclick="recarregarLista()">🔄 Recarregar</button>
+                        <button class="btn-secondary" onclick="recarregarLista()">🔄 Recarregar Lista</button>
                     </div>
                 </div>
-            </div>
+            </section>
 
         </div>
 
-    </div>
+    </main>
 
     <script>
+        const inputNumero = document.getElementById('numero-capitulo');
+        const inputConteudo = document.getElementById('conteudo-capitulo');
+        const charCounter = document.getElementById('char-counter');
+
         function mostrarMensagem(texto, tipo) {
-            const msg = document.getElementById("message");
+            const msg = document.getElementById('message');
             msg.textContent = texto;
             msg.className = `message ${tipo}`;
-            setTimeout(() => {
-                msg.className = "message";
-            }, 4000);
+            setTimeout(() => { msg.className = 'message'; }, 4000);
         }
 
-        async function carregarCapitulo() {
-            const numero = parseInt(document.getElementById("numero-capitulo").value);
+        function atualizarContador() {
+            const txt = inputConteudo.value;
+            const palavras = txt.trim() ? txt.trim().split(/\s+/).length : 0;
+            charCounter.textContent = `${txt.length.toLocaleString('pt-BR')} caracteres · ${palavras.toLocaleString('pt-BR')} palavras`;
+        }
+        inputConteudo.addEventListener('input', atualizarContador);
 
-            if (isNaN(numero) || numero <= 0) {
-                mostrarMensagem("Digite um número válido", "error");
-                return;
-            }
+        async function carregarCapitulo() {
+            const numero = parseInt(inputNumero.value);
+            if (isNaN(numero) || numero <= 0) return mostrarMensagem('Digite um número válido', 'error');
 
             try {
-                const response = await fetch(`/api/capitulo/${numero}`);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById("conteudo-capitulo").value = data.conteudo || "";
+                const r = await fetch(`/api/capitulo/${numero}`);
+                if (r.ok) {
+                    const data = await r.json();
+                    inputConteudo.value = data.conteudo || '';
+                    atualizarContador();
                     atualizarListaCapitulos(numero);
-                    mostrarMensagem(`Capítulo ${numero} carregado com sucesso`, "success");
-                } else if (response.status === 404) {
-                    document.getElementById("conteudo-capitulo").value = "";
+                    mostrarMensagem(`✅ Capítulo ${numero} carregado`, 'success');
+                } else if (r.status === 404) {
+                    inputConteudo.value = '';
+                    atualizarContador();
                     atualizarListaCapitulos(numero);
-                    mostrarMensagem(`Capítulo ${numero} ainda não existe. Você pode criá-lo!`, "success");
+                    mostrarMensagem(`📝 Capítulo ${numero} ainda não existe. Você pode criá-lo!`, 'success');
                 } else {
-                    mostrarMensagem("Erro ao carregar capítulo", "error");
+                    mostrarMensagem('Erro ao carregar capítulo', 'error');
                 }
             } catch (e) {
-                mostrarMensagem("Erro ao carregar capítulo", "error");
+                mostrarMensagem('Erro ao carregar capítulo', 'error');
                 console.error(e);
             }
         }
 
         async function salvarCapitulo() {
-            const numero = parseInt(document.getElementById("numero-capitulo").value);
-            const conteudo = document.getElementById("conteudo-capitulo").value;
-
-            if (isNaN(numero) || numero <= 0) {
-                mostrarMensagem("Digite um número válido", "error");
-                return;
-            }
-
-            if (!conteudo.trim()) {
-                mostrarMensagem("O conteúdo não pode estar vazio", "error");
-                return;
-            }
+            const numero = parseInt(inputNumero.value);
+            const conteudo = inputConteudo.value;
+            if (isNaN(numero) || numero <= 0) return mostrarMensagem('Digite um número válido', 'error');
+            if (!conteudo.trim()) return mostrarMensagem('O conteúdo não pode estar vazio', 'error');
 
             try {
-                const response = await fetch("/api/salvar-capitulo", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                const r = await fetch('/api/salvar-capitulo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ numero, conteudo })
                 });
-
-                if (response.ok) {
-                    mostrarMensagem(`Capítulo ${numero} salvo com sucesso! 🎉`, "success");
+                if (r.ok) {
+                    mostrarMensagem(`🎉 Capítulo ${numero} salvo com sucesso!`, 'success');
                     carregarListaCapitulos();
                 } else {
-                    mostrarMensagem("Erro ao salvar capítulo", "error");
+                    mostrarMensagem('Erro ao salvar capítulo', 'error');
                 }
             } catch (e) {
-                mostrarMensagem("Erro ao salvar capítulo", "error");
+                mostrarMensagem('Erro ao salvar capítulo', 'error');
                 console.error(e);
             }
         }
 
+        async function deletarCapitulo() {
+            const numero = parseInt(inputNumero.value);
+            if (isNaN(numero) || numero <= 0) return mostrarMensagem('Digite um número válido', 'error');
+            if (!confirm(`Tem certeza que deseja EXCLUIR o capítulo ${numero}? Esta ação não pode ser desfeita.`)) return;
+
+            try {
+                const r = await fetch(`/api/capitulo/${numero}`, { method: 'DELETE' });
+                if (r.ok) {
+                    inputConteudo.value = '';
+                    atualizarContador();
+                    mostrarMensagem(`🗑️ Capítulo ${numero} excluído`, 'success');
+                    carregarListaCapitulos();
+                } else {
+                    mostrarMensagem('Erro ao excluir capítulo', 'error');
+                }
+            } catch (e) {
+                mostrarMensagem('Erro ao excluir capítulo', 'error');
+            }
+        }
+
         function limparFormulario() {
-            document.getElementById("numero-capitulo").value = "1";
-            document.getElementById("conteudo-capitulo").value = "";
-            mostrarMensagem("Formulário limpo", "success");
+            inputNumero.value = '1';
+            inputConteudo.value = '';
+            atualizarContador();
+            mostrarMensagem('Formulário limpo', 'success');
         }
 
         function novoCapitulo() {
-            const proxNum = parseInt(document.getElementById("proximo-numero").textContent);
-            document.getElementById("numero-capitulo").value = proxNum;
-            document.getElementById("conteudo-capitulo").value = "";
-            document.getElementById("conteudo-capitulo").focus();
-            mostrarMensagem(`Pronto para criar o Capítulo ${proxNum}`, "success");
+            const prox = parseInt(document.getElementById('proximo-numero').textContent);
+            inputNumero.value = prox;
+            inputConteudo.value = '';
+            atualizarContador();
+            inputConteudo.focus();
+            mostrarMensagem(`✏️ Pronto para criar o Capítulo ${prox}`, 'success');
         }
 
         function recarregarLista() {
             carregarListaCapitulos();
-            mostrarMensagem("Lista recarregada", "success");
+            mostrarMensagem('Lista recarregada', 'success');
         }
 
         async function carregarListaCapitulos() {
             try {
-                const response = await fetch("/api/capitulos");
-                const caps = await response.json();
-
+                const [r1, r2] = await Promise.all([fetch('/api/capitulos'), fetch('/api/stats')]);
+                const caps = await r1.json();
+                const stats = await r2.json();
                 const total = Array.isArray(caps) ? caps.length : 0;
-                document.getElementById("total-capitulos").textContent = total;
-                document.getElementById("total-capitulos-label").textContent = total;
-                document.getElementById("proximo-numero").textContent = total + 1;
-
-                atualizarListaCapitulos(parseInt(document.getElementById("numero-capitulo").value));
+                document.getElementById('total-capitulos').textContent = total;
+                document.getElementById('total-capitulos-label').textContent = total;
+                document.getElementById('proximo-numero').textContent = total + 1;
+                document.getElementById('total-palavras').textContent = (stats.totalPalavras || 0).toLocaleString('pt-BR');
+                atualizarListaCapitulos(parseInt(inputNumero.value));
             } catch (e) {
-                console.error("Erro ao carregar lista:", e);
+                console.error('Erro ao carregar lista:', e);
             }
         }
 
         async function atualizarListaCapitulos(ativo) {
             try {
-                const response = await fetch("/api/capitulos");
-                const caps = await response.json();
-
-                const lista = document.getElementById("chapter-list");
-                lista.innerHTML = "";
-
+                const r = await fetch('/api/capitulos');
+                const caps = await r.json();
+                const lista = document.getElementById('chapter-list');
+                lista.innerHTML = '';
                 if (Array.isArray(caps) && caps.length > 0) {
                     caps.forEach(cap => {
-                        const div = document.createElement("div");
-                        div.className = `chapter-item ${cap.numero === ativo ? "active" : ""}`;
+                        const div = document.createElement('div');
+                        div.className = `chapter-item ${cap.numero === ativo ? 'active' : ''}`;
                         div.textContent = `Cap. ${cap.numero}`;
-                        div.onclick = () => {
-                            document.getElementById("numero-capitulo").value = cap.numero;
-                            carregarCapitulo();
-                        };
+                        div.title = `${cap.palavras} palavras · ${cap.tamanho}`;
+                        div.onclick = () => { inputNumero.value = cap.numero; carregarCapitulo(); };
                         lista.appendChild(div);
                     });
                 } else {
-                    lista.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #A0A0A0;'>Nenhum capítulo publicado ainda</p>";
+                    lista.innerHTML = "<p style='grid-column:1/-1;text-align:center;color:#A0A0A0;'>Nenhum capítulo publicado ainda</p>";
                 }
             } catch (e) {
-                console.error("Erro ao atualizar lista:", e);
+                console.error('Erro ao atualizar lista:', e);
             }
         }
 
         carregarListaCapitulos();
+        atualizarContador();
     </script>
 
 </body>

@@ -1,351 +1,323 @@
+Substitui inteiro o global.js no VS Code.
+
 /**
- * GLOBAL.JS - Sistema Central de Potencialização do Portal
- * Este arquivo centraliza toda a lógica compartilhada entre as páginas
- * Inclua este arquivo em todos os HTML: <script src="/global.js"></script>
+ * ==============================================================================
+ * GLOBAL.JS - Sistema Central do Portal de Histórias
+ * Versão: 12.0.0 - Edição Expandida
+ * ==============================================================================
+ * Centraliza notificações, temas, atalhos, barra de progresso e usuário.
+ * Inclua em todas as páginas: <script src="/global.js"></script>
+ * ==============================================================================
  */
 
-// =====================
-// SISTEMA DE NOTIFICAÇÕES (TOASTS)
-// =====================
-class NotificationSystem {
-    constructor() {
-        this.container = null;
-        this.init();
-    }
+(function () {
+    'use strict';
 
-    init() {
-        if (!document.getElementById('toast-container')) {
+    // =====================================================================
+    // SISTEMA DE NOTIFICAÇÕES (TOASTS)
+    // =====================================================================
+    class NotificationSystem {
+        constructor() {
+            this.container = null;
+            this.init();
+        }
+
+        init() {
+            if (document.getElementById('toast-container')) {
+                this.container = document.getElementById('toast-container');
+                return;
+            }
             this.container = document.createElement('div');
             this.container.id = 'toast-container';
+            this.container.setAttribute('role', 'status');
+            this.container.setAttribute('aria-live', 'polite');
             this.container.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                z-index: 9999;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
+                position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+                display: flex; flex-direction: column; gap: 10px; pointer-events: none;
             `;
-            document.body.appendChild(this.container);
-        } else {
-            this.container = document.getElementById('toast-container');
+            (document.body || document.documentElement).appendChild(this.container);
+        }
+
+        show(message, type = 'info', duration = 3000) {
+            if (!this.container) this.init();
+
+            const palette = {
+                success: { bg: 'rgba(17, 202, 160, 0.18)', border: '#11CAA0', text: '#11CAA0', icon: '✅' },
+                error:   { bg: 'rgba(255, 107, 107, 0.18)', border: '#FF6B6B', text: '#FF6B6B', icon: '❌' },
+                info:    { bg: 'rgba(88, 101, 242, 0.18)', border: '#5865F2', text: '#A8B0FF', icon: 'ℹ️' },
+                warning: { bg: 'rgba(255, 193, 7, 0.18)',  border: '#FFC107', text: '#FFD54F', icon: '⚠️' }
+            };
+
+            const c = palette[type] || palette.info;
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background: ${c.bg}; border: 1px solid ${c.border}; color: ${c.text};
+                padding: 14px 20px; border-radius: 8px; font-weight: 600;
+                animation: toastSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+                max-width: 320px; word-wrap: break-word; pointer-events: auto;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); display: flex; align-items: center; gap: 10px;
+                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            `;
+            toast.innerHTML = `<span style="font-size:1.1rem;">${c.icon}</span><span>${this.escapeHtml(message)}</span>`;
+            this.container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease-out forwards';
+                setTimeout(() => toast.remove(), 320);
+            }, duration);
+        }
+
+        escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
     }
 
-    show(message, type = 'info', duration = 3000) {
-        const toast = document.createElement('div');
+    // =====================================================================
+    // SISTEMA DE TEMAS (escuro, claro, sépia)
+    // =====================================================================
+    class ThemeSystem {
+        constructor() {
+            this.themes = ['dark', 'light', 'sepia'];
+            this.currentTheme = localStorage.getItem('tema') || 'dark';
+            this.init();
+        }
 
-        const colors = {
-            success: { bg: 'rgba(17, 202, 160, 0.2)', border: '#11CAA0', text: '#11CAA0' },
-            error: { bg: 'rgba(255, 107, 107, 0.2)', border: '#FF6B6B', text: '#FF6B6B' },
-            info: { bg: 'rgba(88, 101, 242, 0.2)', border: '#5865F2', text: '#5865F2' },
-            warning: { bg: 'rgba(255, 193, 7, 0.2)', border: '#FFC107', text: '#FFC107' }
-        };
+        init() {
+            this.injectStyles();
+            this.applyTheme(this.currentTheme);
+        }
 
-        const color = colors[type] || colors.info;
-
-        toast.style.cssText = `
-            background: ${color.bg};
-            border: 1px solid ${color.border};
-            color: ${color.text};
-            padding: 15px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            animation: slideInRight 0.3s ease-out;
-            max-width: 300px;
-            word-wrap: break-word;
-        `;
-
-        toast.textContent = message;
-        this.container.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.animation = 'slideOutRight 0.3s ease-out';
-            setTimeout(() => toast.remove(), 300);
-        }, duration);
-    }
-}
-
-// =====================
-// SISTEMA DE TEMAS
-// =====================
-class ThemeSystem {
-    constructor() {
-        this.currentTheme = localStorage.getItem('tema') || 'dark';
-        this.init();
-    }
-
-    init() {
-        this.applyTheme(this.currentTheme);
-        this.addStyleSheet();
-    }
-
-    addStyleSheet() {
-        if (!document.getElementById('theme-styles')) {
+        injectStyles() {
+            if (document.getElementById('theme-styles')) return;
             const style = document.createElement('style');
             style.id = 'theme-styles';
             style.textContent = `
-                @keyframes slideInRight {
-                    from { opacity: 0; transform: translateX(20px); }
-                    to { opacity: 1; transform: translateX(0); }
-                }
-                @keyframes slideOutRight {
-                    from { opacity: 1; transform: translateX(0); }
-                    to { opacity: 0; transform: translateX(20px); }
-                }
-                body.theme-sepia {
-                    background: #f4ecd8 !important;
-                    color: #5c4033 !important;
-                }
-                body.theme-sepia .chapter-content {
-                    background: #faf6f0 !important;
-                    color: #5c4033 !important;
-                }
-                body.theme-light {
-                    background: #ffffff !important;
-                    color: #333333 !important;
-                }
-                body.theme-light .chapter-content {
-                    background: #f5f5f5 !important;
-                    color: #333333 !important;
-                }
+                @keyframes toastSlideIn { from { opacity:0; transform:translateX(40px) scale(0.9); } to { opacity:1; transform:translateX(0) scale(1); } }
+                @keyframes toastSlideOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
+                @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+                body.theme-sepia { background:#f4ecd8 !important; color:#5c4033 !important; }
+                body.theme-sepia .chapter-content { background:#faf6f0 !important; color:#5c4033 !important; }
+                body.theme-light { background:#ffffff !important; color:#222 !important; }
+                body.theme-light .chapter-content { background:#f5f5f5 !important; color:#222 !important; }
+                ::selection { background:rgba(17,202,160,0.4); color:#fff; }
             `;
             document.head.appendChild(style);
         }
-    }
 
-    applyTheme(theme) {
-        this.currentTheme = theme;
-        localStorage.setItem('tema', theme);
+        applyTheme(theme) {
+            if (!this.themes.includes(theme)) theme = 'dark';
+            this.currentTheme = theme;
+            localStorage.setItem('tema', theme);
+            document.body.classList.remove('theme-dark', 'theme-light', 'theme-sepia');
+            document.body.classList.add(`theme-${theme}`);
+        }
 
-        document.body.classList.remove('theme-dark', 'theme-sepia', 'theme-light');
-        document.body.classList.add(`theme-${theme}`);
-    }
-
-    toggle() {
-        const themes = ['dark', 'light', 'sepia'];
-        const currentIndex = themes.indexOf(this.currentTheme);
-        const nextTheme = themes[(currentIndex + 1) % themes.length];
-        this.applyTheme(nextTheme);
-        return nextTheme;
-    }
-}
-
-// =====================
-// SISTEMA DE PREFERÊNCIAS DE LEITURA
-// =====================
-class ReadingPreferences {
-    constructor() {
-        this.fontSize = parseInt(localStorage.getItem('fontSize')) || 16;
-        this.lineHeight = parseFloat(localStorage.getItem('lineHeight')) || 1.8;
-        this.init();
-    }
-
-    init() {
-        this.applyPreferences();
-    }
-
-    applyPreferences() {
-        const style = document.getElementById('reading-prefs') || document.createElement('style');
-        style.id = 'reading-prefs';
-        style.textContent = `
-            body {
-                font-size: ${this.fontSize}px;
-                line-height: ${this.lineHeight};
-            }
-            .chapter-content {
-                font-size: ${this.fontSize}px;
-                line-height: ${this.lineHeight};
-            }
-        `;
-        if (!document.getElementById('reading-prefs')) {
-            document.head.appendChild(style);
+        toggle() {
+            const idx = this.themes.indexOf(this.currentTheme);
+            const next = this.themes[(idx + 1) % this.themes.length];
+            this.applyTheme(next);
+            return next;
         }
     }
 
-    setFontSize(size) {
-        this.fontSize = size;
-        localStorage.setItem('fontSize', size);
-        this.applyPreferences();
-    }
+    // =====================================================================
+    // SISTEMA DE PREFERÊNCIAS DE LEITURA
+    // =====================================================================
+    class ReadingPreferences {
+        constructor() {
+            this.fontSize = parseInt(localStorage.getItem('fontSize')) || 16;
+            this.lineHeight = parseFloat(localStorage.getItem('lineHeight')) || 1.8;
+            this.apply();
+        }
 
-    setLineHeight(height) {
-        this.lineHeight = height;
-        localStorage.setItem('lineHeight', height);
-        this.applyPreferences();
-    }
-}
-
-// =====================
-// SISTEMA DE NAVEGAÇÃO
-// =====================
-class NavigationSystem {
-    constructor() {
-        this.setupKeyboardShortcuts();
-        this.setupNavbar();
-    }
-
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ignora atalhos quando o usuário está digitando em um campo
-            const tag = (e.target && e.target.tagName) || '';
-            const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target && e.target.isContentEditable);
-            if (isEditable) return;
-
-            if (e.key === 'ArrowLeft') {
-                const btnAnterior = document.getElementById('btn-anterior');
-                if (btnAnterior && !btnAnterior.disabled) {
-                    btnAnterior.click();
-                }
+        apply() {
+            let style = document.getElementById('reading-prefs');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'reading-prefs';
+                document.head.appendChild(style);
             }
-            if (e.key === 'ArrowRight') {
-                const btnProximo = document.getElementById('btn-proximo');
-                if (btnProximo && !btnProximo.disabled) {
-                    btnProximo.click();
-                }
-            }
-            if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
-                const novoTema = window.themeSystem.toggle();
-                window.notify.show(`Tema alterado para: ${novoTema}`, 'info', 2000);
-            }
-        });
-    }
+            style.textContent = `
+                body { font-size:${this.fontSize}px; line-height:${this.lineHeight}; }
+                .chapter-content { font-size:${this.fontSize}px; line-height:${this.lineHeight}; }
+            `;
+        }
 
-    setupNavbar() {
-        if (!document.querySelector('.navbar')) {
-            this.createDynamicNavbar();
+        setFontSize(size) {
+            this.fontSize = Math.max(12, Math.min(28, parseInt(size) || 16));
+            localStorage.setItem('fontSize', this.fontSize);
+            this.apply();
+        }
+
+        setLineHeight(height) {
+            this.lineHeight = Math.max(1.2, Math.min(3, parseFloat(height) || 1.8));
+            localStorage.setItem('lineHeight', this.lineHeight);
+            this.apply();
         }
     }
 
-    createDynamicNavbar() {
-        const navbar = document.createElement('div');
-        navbar.className = 'navbar';
-        navbar.style.cssText = `
-            background: linear-gradient(135deg, #11CAA0 0%, #0a9d7f 100%);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            flex-wrap: wrap;
-            gap: 15px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        `;
+    // =====================================================================
+    // ATALHOS DE TECLADO E NAVEGAÇÃO
+    // =====================================================================
+    class NavigationSystem {
+        constructor() {
+            this.setupKeyboardShortcuts();
+        }
 
-        navbar.innerHTML = `
-            <h1 style="color: white; font-size: 1.5rem; margin: 0;">TR: Vida</h1>
-            <div class="nav-links" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="/capa" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">📖 Capa</a>
-                <a href="/perfil" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">👤 Perfil</a>
-                <a href="/configuracoes" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">⚙️ Config</a>
-                <a href="/logout" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); transition: 0.3s;">Sair</a>
-            </div>
-        `;
+        setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                const tag = (e.target && e.target.tagName) || '';
+                const isEditable = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) ||
+                                   (e.target && e.target.isContentEditable);
+                if (isEditable) return;
 
-        document.body.insertBefore(navbar, document.body.firstChild);
-    }
-}
+                if (e.key === 'ArrowLeft') this.clickIfExists('btn-anterior');
+                if (e.key === 'ArrowRight') this.clickIfExists('btn-proximo');
+                if (e.key === 't' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    const novo = window.themeSystem.toggle();
+                    window.notify.show(`Tema: ${novo}`, 'info', 1800);
+                }
+                if (e.key === '?' && !e.shiftKey === false) this.showShortcuts();
+            });
+        }
 
-// =====================
-// SISTEMA DE CARREGAMENTO
-// =====================
-class LoadingBar {
-    constructor() {
-        this.bar = null;
-        this.init();
+        clickIfExists(id) {
+            const btn = document.getElementById(id);
+            if (btn && !btn.disabled) btn.click();
+        }
+
+        showShortcuts() {
+            window.notify.show('← → navega capítulos · T muda tema', 'info', 4000);
+        }
     }
 
-    init() {
-        const bar = document.createElement('div');
-        bar.id = 'loading-bar';
-        bar.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #11CAA0, #0a9d7f);
-            width: 0%;
-            z-index: 10000;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba(17, 202, 160, 0.5);
-        `;
-        document.body.appendChild(bar);
-        this.bar = bar;
-    }
+    // =====================================================================
+    // BARRA DE CARREGAMENTO
+    // =====================================================================
+    class LoadingBar {
+        constructor() {
+            this.bar = document.createElement('div');
+            this.bar.id = 'loading-bar';
+            this.bar.style.cssText = `
+                position: fixed; top: 0; left: 0; height: 3px;
+                background: linear-gradient(90deg, #11CAA0, #0a9d7f);
+                width: 0%; z-index: 10000; transition: width 0.3s ease;
+                box-shadow: 0 0 12px rgba(17, 202, 160, 0.6);
+            `;
+            (document.body || document.documentElement).appendChild(this.bar);
+        }
 
-    start() {
-        this.bar.style.width = '30%';
-    }
+        start() { this.bar.style.width = '35%'; }
 
-    finish() {
-        this.bar.style.width = '100%';
-        setTimeout(() => {
-            this.bar.style.opacity = '0';
-            this.bar.style.transition = 'opacity 0.5s ease';
+        finish() {
+            this.bar.style.width = '100%';
             setTimeout(() => {
-                this.bar.style.width = '0%';
-                this.bar.style.opacity = '1';
-                this.bar.style.transition = 'width 0.3s ease';
-            }, 500);
-        }, 300);
-    }
-}
-
-// =====================
-// SISTEMA DE USUÁRIO
-// =====================
-class UserSystem {
-    constructor() {
-        this.user = null;
-        this.loadUser();
-    }
-
-    async loadUser() {
-        try {
-            const response = await fetch('/api/user');
-            this.user = await response.json();
-            this.updateUserDisplay();
-        } catch (e) {
-            console.log('Usuário não autenticado');
+                this.bar.style.opacity = '0';
+                this.bar.style.transition = 'opacity 0.4s ease';
+                setTimeout(() => {
+                    this.bar.style.width = '0%';
+                    this.bar.style.opacity = '1';
+                    this.bar.style.transition = 'width 0.3s ease';
+                }, 400);
+            }, 250);
         }
     }
 
-    updateUserDisplay() {
-        if (this.user && this.user.username) {
-            const userElements = document.querySelectorAll('[data-user-name]');
-            userElements.forEach(el => {
+    // =====================================================================
+    // BOTÃO "VOLTAR AO TOPO"
+    // =====================================================================
+    class ScrollToTop {
+        constructor() {
+            this.btn = document.createElement('button');
+            this.btn.setAttribute('aria-label', 'Voltar ao topo');
+            this.btn.innerHTML = '↑';
+            this.btn.style.cssText = `
+                position: fixed; bottom: 20px; left: 20px; z-index: 9998;
+                width: 48px; height: 48px; border-radius: 50%; border: none;
+                background: linear-gradient(135deg, #11CAA0, #0a9d7f); color: #121212;
+                font-size: 1.4rem; font-weight: bold; cursor: pointer; opacity: 0;
+                transform: translateY(20px); pointer-events: none;
+                transition: opacity 0.3s ease, transform 0.3s ease;
+                box-shadow: 0 6px 16px rgba(17, 202, 160, 0.4);
+            `;
+            this.btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+            (document.body || document.documentElement).appendChild(this.btn);
+            window.addEventListener('scroll', () => this.update(), { passive: true });
+        }
+
+        update() {
+            const show = window.scrollY > 400;
+            this.btn.style.opacity = show ? '1' : '0';
+            this.btn.style.transform = show ? 'translateY(0)' : 'translateY(20px)';
+            this.btn.style.pointerEvents = show ? 'auto' : 'none';
+        }
+    }
+
+    // =====================================================================
+    // SISTEMA DE USUÁRIO
+    // =====================================================================
+    class UserSystem {
+        constructor() {
+            this.user = null;
+            this.load();
+        }
+
+        async load() {
+            try {
+                const r = await fetch('/api/user');
+                if (!r.ok) return;
+                this.user = await r.json();
+                this.render();
+            } catch (e) {
+                console.log('[UserSystem] Não autenticado');
+            }
+        }
+
+        render() {
+            if (!this.user || !this.user.username) return;
+            document.querySelectorAll('[data-user-name]').forEach(el => {
                 el.textContent = this.user.username;
             });
-
-            const avatarElements = document.querySelectorAll('[data-user-avatar]');
-            avatarElements.forEach(el => {
+            document.querySelectorAll('[data-user-avatar]').forEach(el => {
                 el.src = this.user.avatar;
+                el.alt = `Avatar de ${this.user.username}`;
             });
+            if (this.user.isAdmin) {
+                document.querySelectorAll('[data-admin-only]').forEach(el => {
+                    el.style.display = '';
+                });
+            }
         }
     }
-}
 
-// =====================
-// INICIALIZAÇÃO GLOBAL
-// =====================
-window.notify = new NotificationSystem();
-window.themeSystem = new ThemeSystem();
-window.readingPrefs = new ReadingPreferences();
-window.navigation = new NavigationSystem();
-window.loadingBar = new LoadingBar();
-window.userSystem = new UserSystem();
+    // =====================================================================
+    // INICIALIZAÇÃO GLOBAL
+    // =====================================================================
+    function boot() {
+        window.notify = new NotificationSystem();
+        window.themeSystem = new ThemeSystem();
+        window.readingPrefs = new ReadingPreferences();
+        window.navigation = new NavigationSystem();
+        window.loadingBar = new LoadingBar();
+        window.scrollToTop = new ScrollToTop();
+        window.userSystem = new UserSystem();
 
-document.addEventListener('click', (e) => {
-    const link = e.target.closest('a[href^="/"]');
-    if (link && !link.target) {
-        window.loadingBar.start();
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href^="/"]');
+            if (link && !link.target && !link.hasAttribute('download')) {
+                window.loadingBar.start();
+            }
+        });
+
+        window.addEventListener('load', () => window.loadingBar.finish());
+        console.log('%c✅ Global.js v12.0.0 carregado', 'color:#11CAA0;font-weight:bold;');
     }
-});
 
-window.addEventListener('load', () => {
-    window.loadingBar.finish();
-});
-
-console.log('✅ Global.js carregado com sucesso! Sistema potencializado.');
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+})();
