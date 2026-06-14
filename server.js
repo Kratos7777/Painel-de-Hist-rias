@@ -1,8 +1,8 @@
-// ECOSSISTEMA PRIMORDIAL - SERVER.JS
+// ECOSSISTEMA SUPREMO - SERVER.JS
 // O Tronco Inabalável: Gerencia o fluxo de vida do portal com APIs robustas e autenticação resiliente.
-// Versão 5.0 - Purificação Atômica e Raio-X de Credenciais
+// Versão 6.0 - Purificação Atômica, Raio-X de Credenciais, Sincronização de Escopo e Expansão Monumental
 
-// Módulos Essenciais: As raízes profundas do sistema para um ecossistema robusto
+// Módulos Essenciais: As raízes profundas do sistema para um ecossistema robusto e expansivo
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
@@ -17,8 +17,9 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
-const util = require("util"); // Para util.inspect, essencial para o Raio-X
+const util = require("util"); // Para util.inspect, essencial para o Raio-X detalhado
 const { URL } = require("url"); // Para parsear URLs de forma robusta e dinâmica
+const { exec } = require('child_process'); // Para comandos de shell, se necessário para setup avançado
 
 // Carrega variáveis de ambiente do arquivo .env
 dotenv.config();
@@ -39,15 +40,23 @@ const PATHS = {
     LOGS: path.join(__dirname, "logs"),
     ERROR_LOG: path.join(__dirname, "logs", "error.log"),
     ACCESS_LOG: path.join(__dirname, "logs", "access.log"),
+    // Adicionando um caminho para assets globais, se necessário
+    ASSETS: path.join(__dirname, "public", "assets"),
 };
 
 // Garante que as pastas essenciais existam, criando-as se necessário.
 // Isso previne erros de I/O antes mesmo do servidor iniciar, garantindo um solo fértil.
-Object.values(PATHS).forEach(dirPath => {
-    // Verifica se é um diretório (não um arquivo de log) antes de tentar criar
-    if (!path.extname(dirPath) && !fs.existsSync(dirPath)) {
+const ensureDirectoryExistence = (dirPath) => {
+    if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
         console.log(`[SETUP] Pasta essencial criada: ${dirPath}`);
+    }
+};
+
+Object.values(PATHS).forEach(dirPath => {
+    // Verifica se é um diretório (não um arquivo de log) antes de tentar criar
+    if (!path.extname(dirPath)) {
+        ensureDirectoryExistence(dirPath);
     }
 });
 
@@ -58,11 +67,13 @@ Object.values(PATHS).forEach(dirPath => {
 // DISCORD_CLIENT_ID="SEU_CLIENT_ID_DO_DISCORD" (APENAS NÚMEROS! Ex: 123456789012345678)
 // DISCORD_CLIENT_SECRET="SEU_CLIENT_SECRET_DO_DISCORD" (String alfanumérica)
 // DISCORD_CALLBACK_URL="SUA_URL_DE_CALLBACK_DO_DISCORD" (Ex: http://localhost:3000/callback ou https://seusite.com/auth/discord/callback)
+// CORS_ORIGIN="*" ou "http://localhost:3000" (Para controle de CORS)
 
 const SESSION_SECRET_RAW = process.env.SESSION_SECRET;
 const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET_RAW = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL_FULL = process.env.DISCORD_CALLBACK_URL;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 
 // Purificação Atômica do CLIENT_ID: Garante que seja um snowflake puro e limpo de qualquer contaminação
 // Remove tudo que não for dígito, espaços e caracteres de controle invisíveis.
@@ -72,19 +83,25 @@ const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW
 
 // Extrai o PATH da CALLBACK_URL para uso dinâmico nas rotas do Express
 let DISCORD_CALLBACK_PATH = "/callback"; // Default fallback para compatibilidade
+let DISCORD_CALLBACK_URL_ENCODED = DISCORD_CALLBACK_URL_FULL; // Valor padrão, pode ser ajustado
+
 if (DISCORD_CALLBACK_URL_FULL) {
     try {
         const parsedUrl = new URL(DISCORD_CALLBACK_URL_FULL);
         DISCORD_CALLBACK_PATH = parsedUrl.pathname; // Pega apenas o /caminho/da/url
+        // Codifica a URL para garantir que caracteres especiais sejam tratados corretamente pelo Discord
+        // e reconstrói a URL completa para a estratégia do Passport
+        DISCORD_CALLBACK_URL_ENCODED = `${parsedUrl.protocol}//${parsedUrl.host}${encodeURIComponent(parsedUrl.pathname)}${parsedUrl.search}${parsedUrl.hash}`;
     } catch (e) {
         console.error(`[SETUP ERROR] DISCORD_CALLBACK_URL inválida no .env: ${e.message}. Usando default /callback.`);
+        DISCORD_CALLBACK_URL_ENCODED = DISCORD_CALLBACK_URL_FULL; // Fallback para a URL original se houver erro de parse
     }
 }
 
 // Aplica valores padrão se não estiverem definidos no .env (apenas para desenvolvimento/teste)
-const SESSION_SECRET = SESSION_SECRET_RAW || "trvida_ecosistema_secreto_ancestral_2026_super_seguro";
-const DISCORD_CLIENT_SECRET = DISCORD_CLIENT_SECRET_RAW || "H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X"; // Substitua pelo seu segredo real
-const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_FULL || `http://localhost:${PORT}${DISCORD_CALLBACK_PATH}`; // Usa o caminho extraído
+const SESSION_SECRET = SESSION_SECRET_RAW || "trvida_ecosistema_secreto_ancestral_2026_super_seguro_e_longo_demais_para_ser_quebrado_facilmente";
+const DISCORD_CLIENT_SECRET = DISCORD_CLIENT_SECRET_RAW || "H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X_um_segredo_muito_forte_e_complexo"; // Substitua pelo seu segredo real
+const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_ENCODED || `http://localhost:${PORT}${DISCORD_CALLBACK_PATH}`; // Usa o caminho extraído e codificado
 
 // VERIFICAÇÃO CRÍTICA: Garante que as credenciais do Discord foram fornecidas e são válidas
 // Este bloco é um Raio-X completo das suas credenciais antes de iniciar o servidor.
@@ -94,11 +111,12 @@ if (!DISCORD_CLIENT_ID || isNaN(DISCORD_CLIENT_ID) || !DISCORD_CLIENT_SECRET) {
     console.error("Por favor, verifique o Portal do Desenvolvedor do Discord e seu arquivo .env.");
     console.error("--------------------------------------------------");
     console.error(`DIAGNÓSTICO CLIENT_ID RAW: ${util.inspect(DISCORD_CLIENT_ID_RAW)}`);
-    console.error(`DIAGNÓSTICO CLIENT_ID LIMPO: ${util.inspect(DISCORD_CLIENT_ID)}`);
+    console.error(`DIAGNÓSTICO CLIENT_ID PURIFICADO: ${util.inspect(DISCORD_CLIENT_ID)}`);
     console.error(`É um número válido (isNaN): ${!isNaN(DISCORD_CLIENT_ID)}`);
     console.error(`CLIENT_SECRET (PRESENTE): ${!!DISCORD_CLIENT_SECRET}`);
-    console.error(`CALLBACK_URL (COMPLETA): ${util.inspect(DISCORD_CALLBACK_URL_FULL)}`);
-    console.error(`CALLBACK_PATH (EXTRAÍDO): ${util.inspect(DISCORD_CALLBACK_PATH)}`);
+    console.error(`CALLBACK_URL (RAW): ${util.inspect(DISCORD_CALLBACK_URL_FULL)}`);
+    console.error(`CALLBACK_URL (USADA NA ESTRATÉGIA): ${util.inspect(DISCORD_CALLBACK_URL)}`);
+    console.error(`CALLBACK_PATH (EXTRAÍDO PARA ROTA): ${util.inspect(DISCORD_CALLBACK_PATH)}`);
     console.error("--------------------------------------------------\n");
     process.exit(1); // Encerra o processo do servidor para forçar a correção
 }
@@ -141,7 +159,7 @@ app.use(helmet({
 
 // CORS: Permite requisições de diferentes origens (se necessário para o ecossistema)
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || "*", // Ajuste para domínios específicos em produção
+    origin: CORS_ORIGIN, // Ajuste para domínios específicos em produção
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
 }));
@@ -192,8 +210,8 @@ passport.deserializeUser((obj, done) => {
 passport.use(new DiscordStrategy({
     clientID: DISCORD_CLIENT_ID,
     clientSecret: DISCORD_CLIENT_SECRET,
-    callbackURL: DISCORD_CALLBACK_URL,
-    scope: ["identify", "email"], // Solicita identificação e email do usuário
+    callbackURL: DISCORD_CALLBACK_URL, // Usando a URL codificada e purificada
+    scope: ["identify", "email"], // Escopos mínimos para identificação
     prompt: "none", // Evita prompt de autorização repetitivo se já autorizado
 }, (accessToken, refreshToken, profile, done) => {
     // Aqui você pode integrar com seu banco de dados para salvar/atualizar o usuário
@@ -271,6 +289,7 @@ app.get(DISCORD_CALLBACK_PATH, (req, res, next) => {
 // Ordem é importante: primeiro os arquivos estáticos, depois as rotas protegidas
 app.use(express.static(PATHS.PUBLIC));
 app.use("/imagens", express.static(PATHS.IMAGENS)); // Garante que /imagens seja acessível
+app.use("/assets", express.static(PATHS.ASSETS)); // Servir assets globais
 
 // Rotas Protegidas (A Copa da Árvore - Apenas para usuários autenticados)
 app.get("/capa", isAuth, (req, res) => {
@@ -468,7 +487,7 @@ app.get("/health", (req, res) => {
         memory: process.memoryUsage(),
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
-        version: "5.0.0",
+        version: "6.0.0",
     });
 });
 
@@ -536,7 +555,7 @@ app.use((err, req, res, next) => {
 
 // INICIALIZAÇÃO DA VIDA: O Ecossistema ganha vida
 app.listen(PORT, () => {
-    console.log(`\n🌳 O ECOSSISTEMA FINAL ESTÁ VIVO NA PORTA ${PORT}`);
+    console.log(`\n🌳 O ECOSSISTEMA SUPREMO ESTÁ VIVO NA PORTA ${PORT}`);
     console.log(`
 +-----------------------------------------------------------------------+
 |                   PAINEL DE DIAGNÓSTICO DO TRONCO                     |

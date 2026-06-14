@@ -5,34 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TR: VIDA - O Ecossistema Primordial</title>
     
-    <!-- Fontes e Ícones: As sementes estéticas do ecossistema -->
+    <!-- Favicon: A semente da identidade visual -->
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+
+    <!-- Fontes e Ícones: As sementes estéticas do ecossistema, carregadas de forma otimizada -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Variáveis CSS: A seiva que nutre o design */
+        /* ===================================================================== */
+        /* CSS GLOBAL: A Seiva que Nutre o Design do Ecossistema               */
+        /* ===================================================================== */
+
+        /* Variáveis CSS: Define a paleta de cores e tipografia para consistência */
         :root {
-            --primary: #11CAA0;
-            --primary-glow: rgba(17, 202, 160, 0.4);
-            --bg: #04060a;
-            --surface: #0a0c10;
-            --surface-light: #12151c;
-            --text: #ffffff;
-            --text-dim: #a0a0a0;
-            --danger: #ef4444;
-            --transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-            --shadow: 0 25px 50px rgba(0,0,0,0.6);
-            --border-color: rgba(255,255,255,0.1);
+            --primary: #11CAA0; /* Verde esmeralda vibrante, cor principal do ecossistema */
+            --primary-glow: rgba(17, 202, 160, 0.4); /* Efeito de brilho para a cor primária */
+            --bg: #04060a; /* Fundo muito escuro, base do ecossistema */
+            --surface: #0a0c10; /* Superfície de elementos, um pouco mais escuro que o fundo */
+            --surface-light: #12151c; /* Superfície de elementos mais clara */
+            --text: #ffffff; /* Cor principal do texto */
+            --text-dim: #a0a0a0; /* Cor do texto secundário ou atenuado */
+            --danger: #ef4444; /* Cor para mensagens de erro */
+            --transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transição suave para interações */
+            --shadow: 0 25px 50px rgba(0,0,0,0.6); /* Sombra para elementos em destaque */
+            --border-color: rgba(255,255,255,0.1); /* Cor de borda sutil */
         }
 
-        /* Reset e Base: O solo fértil */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        /* Reset e Base: O solo fértil para o layout */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased; /* Suavização de fontes para melhor legibilidade */
+            -moz-osx-font-smoothing: grayscale;
+        }
 
         html, body {
             height: 100%;
-            overflow-x: hidden;
+            overflow-x: hidden; /* Evita rolagem horizontal indesejada */
         }
 
         body {
@@ -45,7 +58,11 @@
             position: relative;
         }
 
-        /* Fundo Dinâmico: O mesh que dá vida ao ambiente */
+        /* ===================================================================== */
+        /* EFEITOS VISUAIS: A Atmosfera Cinematográfica do Ecossistema          */
+        /* ===================================================================== */
+
+        /* Fundo Dinâmico (Mesh Gradient): O ambiente que respira */
         .bg-mesh {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
@@ -54,8 +71,8 @@
                 radial-gradient(at 100% 100%, rgba(88, 101, 242, 0.1) 0, transparent 60%),
                 radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.05) 0, transparent 70%);
             opacity: 0.8;
-            animation: backgroundPan 90s infinite alternate linear;
-            transform: scale(1.1);
+            animation: backgroundPan 90s infinite alternate linear; /* Animação de movimento suave */
+            transform: scale(1.1); /* Garante que o efeito preencha a tela */
         }
 
         @keyframes backgroundPan {
@@ -63,14 +80,17 @@
             100% { background-position: 100% 100%; }
         }
 
-        /* Overlay de Efeito: Adiciona profundidade e mistério */
+        /* Overlay de Efeito: Adiciona profundidade e mistério à cena */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%);
             z-index: -1;
         }
 
-        /* Conteúdo Principal da Landing Page */
+        /* ===================================================================== */
+        /* LAYOUT PRINCIPAL: A Estrutura da Landing Page                       */
+        /* ===================================================================== */
+
         .hero-section {
             flex-grow: 1;
             display: flex;
@@ -103,7 +123,8 @@
             margin-bottom: 30px;
             line-height: 1.1;
             text-shadow: 0 0 30px rgba(255,255,255,0.3);
-            animation: fadeInDown 1.5s ease-out 0.5s forwards opacity 0;
+            animation: fadeInDown 1.5s ease-out 0.5s forwards;
+            opacity: 0; /* Inicia invisível para a animação */
         }
 
         .hero-subtitle {
@@ -112,15 +133,17 @@
             max-width: 900px;
             margin: 0 auto 50px;
             line-height: 1.8;
-            animation: fadeInUp 1.5s ease-out 1s forwards opacity 0;
+            animation: fadeInUp 1.5s ease-out 1s forwards;
+            opacity: 0; /* Inicia invisível para a animação */
         }
 
+        /* Botão de Login do Discord: O portal para o ecossistema */
         .discord-login-btn {
             display: inline-flex;
             align-items: center;
             gap: 15px;
             padding: 18px 40px;
-            background: linear-gradient(45deg, #5865F2, #7289DA);
+            background: linear-gradient(45deg, #5865F2, #7289DA); /* Cores do Discord */
             color: var(--text);
             text-decoration: none;
             border-radius: 100px;
@@ -130,7 +153,8 @@
             transition: var(--transition);
             box-shadow: 0 10px 30px rgba(88, 101, 242, 0.4);
             border: 2px solid #5865F2;
-            animation: pulse 2s infinite, fadeIn 1.5s ease-out 1.5s forwards opacity 0;
+            animation: pulse 2s infinite, fadeIn 1.5s ease-out 1.5s forwards;
+            opacity: 0; /* Inicia invisível para a animação */
         }
 
         .discord-login-btn:hover {
@@ -144,14 +168,29 @@
             font-size: 1.5rem;
         }
 
+        /* Mensagens de Erro: O alerta do ecossistema */
         .error-message {
             color: var(--danger);
             margin-top: 20px;
             font-size: 1.1rem;
             animation: fadeIn 1s ease-out;
+            opacity: 0; /* Inicia invisível */
+            max-width: 80%;
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        /* Animações Cinematográficas */
+        .error-message.show {
+            opacity: 1;
+        }
+
+        /* ===================================================================== */
+        /* ANIMAÇÕES: A Vida e o Movimento do Ecossistema                      */
+        /* ===================================================================== */
+
         @keyframes fadeInScale {
             from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
@@ -178,7 +217,10 @@
             100% { transform: scale(1); }
         }
 
-        /* Rodapé: As raízes profundas do ecossistema */
+        /* ===================================================================== */
+        /* RODAPÉ: As Raízes Profundas do Ecossistema                          */
+        /* ===================================================================== */
+
         footer {
             padding: 30px 5%;
             border-top: 1px solid var(--border-color);
@@ -188,15 +230,31 @@
             background: var(--surface);
             position: relative;
             z-index: 1;
+            margin-top: auto; /* Empurra o rodapé para baixo */
         }
 
-        /* Responsividade: A adaptação do ecossistema */
+        /* ===================================================================== */
+        /* RESPONSIVIDADE: A Adaptação do Ecossistema a Diferentes Solos       */
+        /* ===================================================================== */
+
         @media (max-width: 768px) {
-            .hero-logo { font-size: 2rem; }
-            .hero-title { font-size: 3rem; }
-            .hero-subtitle { font-size: 1rem; }
+            .hero-logo { font-size: clamp(2rem, 8vw, 3.5rem); }
+            .hero-title { font-size: clamp(3rem, 12vw, 5rem); }
+            .hero-subtitle { font-size: clamp(1rem, 4vw, 1.3rem); }
             .discord-login-btn { padding: 15px 30px; font-size: 1rem; }
             .discord-login-btn i { font-size: 1.2rem; }
+            .error-message { font-size: 0.9rem; padding: 10px 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 30px 3%;
+            }
+            .hero-logo { font-size: clamp(1.8rem, 10vw, 3rem); }
+            .hero-title { font-size: clamp(2.5rem, 15vw, 4rem); }
+            .hero-subtitle { font-size: clamp(0.9rem, 5vw, 1.1rem); margin-bottom: 30px; }
+            .discord-login-btn { padding: 12px 25px; font-size: 0.9rem; gap: 10px; }
+            .discord-login-btn i { font-size: 1rem; }
         }
     </style>
 </head>
@@ -210,6 +268,7 @@
         <h2 class="hero-title">O Ecossistema Primordial da Literatura</h2>
         <p class="hero-subtitle">
             Adentre um universo onde as histórias ganham vida. Conecte-se e explore narrativas profundas, crie seus próprios mundos e faça parte de uma comunidade que respira literatura.
+            Sua jornada começa aqui, no solo fértil da imaginação, onde cada palavra é uma semente e cada capítulo, um novo ramo.
         </p>
         <a href="/login" class="discord-login-btn">
             <i class="fab fa-discord"></i> Entrar via Discord
@@ -219,40 +278,44 @@
 
     <footer>
         <p>&copy; 2026 TR: Vida - O Ecossistema da Literatura Imersiva. Todos os direitos reservados.</p>
-        <p>Desenvolvido com paixão e código.</p>
+        <p>Desenvolvido com paixão e código. <span style="color: var(--primary);">#EcossistemaPrimordial</span></p>
     </footer>
 
     <script>
-        // Lógica Dinâmica: A seiva que traz vida à página
+        // ===================================================================== */
+        // JAVASCRIPT: A Seiva Dinâmica que Anima o Ecossistema                 */
+        // ===================================================================== */
+
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const error = urlParams.get('error');
             const details = urlParams.get('details');
             const errorDisplay = document.getElementById('error-display');
 
+            // Exibe mensagens de erro de forma elegante
             if (error) {
-                let errorMessage = 'Ocorreu um erro durante o login.';
+                let errorMessage = 'Ocorreu um erro desconhecido durante o login.';
                 switch (error) {
                     case 'auth_failed':
-                        errorMessage = `Falha na autenticação com Discord. Detalhes: ${decodeURIComponent(details || 'Verifique suas credenciais e tente novamente.')}`;
+                        errorMessage = `Falha na autenticação com Discord. Verifique suas credenciais e tente novamente.`;
                         break;
                     case 'user_not_found':
-                        errorMessage = 'Usuário não encontrado após autenticação. Tente novamente.';
+                        errorMessage = 'Usuário não encontrado após autenticação. Verifique suas permissões no Discord.';
                         break;
                     case 'login_failed':
-                        errorMessage = `Não foi possível efetuar o login. Detalhes: ${decodeURIComponent(details || 'Tente novamente mais tarde.')}`;
+                        errorMessage = `Não foi possível efetuar o login. Sua sessão pode ter expirado ou há um problema no servidor.`;
                         break;
                     case 'session_save_failed':
-                        errorMessage = `Falha ao salvar a sessão. Detalhes: ${decodeURIComponent(details || 'Pode ser um problema de configuração do servidor.')}`;
+                        errorMessage = `Falha ao salvar a sessão. Pode ser um problema de configuração do servidor ou cookies.`;
                         break;
                     case 'logout_failed':
-                        errorMessage = `Erro ao fazer logout. Detalhes: ${decodeURIComponent(details || 'Tente novamente.')}`;
+                        errorMessage = `Erro ao fazer logout. Sua sessão pode não ter sido encerrada corretamente.`;
                         break;
                     case 'session_destroy_failed':
-                        errorMessage = `Erro ao destruir a sessão. Detalhes: ${decodeURIComponent(details || 'Tente novamente.')}`;
+                        errorMessage = `Erro ao destruir a sessão. Por favor, limpe os cookies do navegador e tente novamente.`;
                         break;
                     case 'id_invalido':
-                        errorMessage = 'ID de capítulo inválido. Por favor, verifique a URL.';
+                        errorMessage = 'ID de capítulo inválido. Por favor, verifique a URL ou o ID do capítulo.';
                         break;
                     case 'capitulo_nao_encontrado':
                         errorMessage = 'Capítulo não encontrado. Ele pode ter sido removido ou o ID está incorreto.';
@@ -260,23 +323,32 @@
                     case 'erro_conexao_capitulo':
                         errorMessage = 'Erro de conexão ao buscar o capítulo. Verifique sua internet ou tente novamente.';
                         break;
-                    default:
-                        errorMessage = `Erro desconhecido: ${decodeURIComponent(details || 'Por favor, tente novamente.')}`;
+                    case 'credenciais_invalidas':
+                        errorMessage = 'Credenciais do Discord inválidas. Verifique seu .env e o Portal do Desenvolvedor.';
                         break;
+                    default:
+                        errorMessage = `Erro desconhecido: ${decodeURIComponent(details || 'Por favor, tente novamente.')}`; // Mensagem genérica com detalhes
                 }
                 errorDisplay.textContent = errorMessage;
+                errorDisplay.classList.add('show');
+
+                // Opcional: Limpa os parâmetros da URL após exibir a mensagem
+                setTimeout(() => {
+                    history.replaceState({}, document.title, window.location.pathname);
+                    errorDisplay.classList.remove('show');
+                }, 10000); // Mensagem desaparece após 10 segundos
             }
         });
 
-        // Efeito Parallax Sutil no Fundo
+        // Efeito Parallax Sutil no Fundo: Reage ao movimento do mouse
         document.addEventListener('mousemove', (e) => {
             const bgMesh = document.querySelector('.bg-mesh');
             const overlay = document.querySelector('.overlay');
-            const speed = 0.01; // Ajuste para mais ou menos efeito
+            const speed = 0.01; // Ajuste para mais ou menos efeito de paralaxe
             const x = (window.innerWidth - e.pageX * speed) / 100;
             const y = (window.innerHeight - e.pageY * speed) / 100;
             bgMesh.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
-            overlay.style.backgroundPosition = `${x * 2}px ${y * 2}px`;
+            // overlay.style.backgroundPosition = `${x * 2}px ${y * 2}px`; // Efeito sutil no overlay
         });
     </script>
 </body>
