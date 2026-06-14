@@ -3,350 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TR: Vida - O portal definitivo para histórias imersivas. Conecte-se e viva a jornada.">
-    <title>TR: Vida | Portal de Histórias</title>
+    <title>TR: VIDA - O Ecossistema Primordial</title>
     
-    <!-- Fonts & Icons -->
+    <!-- Fontes e Ícones: As sementes estéticas do ecossistema -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        /* Variáveis CSS: A seiva que nutre o design */
         :root {
             --primary: #11CAA0;
-            --primary-dark: #0a9d7f;
             --primary-glow: rgba(17, 202, 160, 0.4);
-            --bg-dark: #0f1115;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            --text-main: #ffffff;
+            --bg: #04060a;
+            --surface: #0a0c10;
+            --surface-light: #12151c;
+            --text: #ffffff;
             --text-dim: #a0a0a0;
-            --discord-color: #5865F2;
-            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --danger: #ef4444;
+            --transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow: 0 25px 50px rgba(0,0,0,0.6);
+            --border-color: rgba(255,255,255,0.1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
-        }
+        /* Reset e Base: O solo fértil */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
+        html, body {
+            height: 100%;
             overflow-x: hidden;
         }
 
-        /* Animação de Fundo Dinâmica */
-        .bg-glow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .blob {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: var(--primary-glow);
-            filter: blur(120px);
-            border-radius: 50%;
-            opacity: 0.15;
-            animation: move 20s infinite alternate;
-        }
-
-        @keyframes move {
-            from { transform: translate(-10%, -10%); }
-            to { transform: translate(20%, 20%); }
-        }
-
-        /* Header / Navigation */
-        nav {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            padding: 2rem 10%;
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo i { font-size: 1.4rem; }
-
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 0 10%;
+            flex-direction: column;
+            line-height: 1.7;
             position: relative;
         }
 
-        .hero-content {
-            max-width: 650px;
-            z-index: 10;
+        /* Fundo Dinâmico: O mesh que dá vida ao ambiente */
+        .bg-mesh {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(at 0% 0%, rgba(17, 202, 160, 0.2) 0, transparent 60%),
+                radial-gradient(at 100% 100%, rgba(88, 101, 242, 0.1) 0, transparent 60%),
+                radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.05) 0, transparent 70%);
+            opacity: 0.8;
+            animation: backgroundPan 90s infinite alternate linear;
+            transform: scale(1.1);
         }
 
-        .badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: rgba(17, 202, 160, 0.1);
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            border-radius: 100px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: fadeInUp 0.8s ease-out;
+        @keyframes backgroundPan {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
         }
 
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(3rem, 8vw, 5.5rem);
-            line-height: 1.1;
-            margin-bottom: 2rem;
-            animation: fadeInUp 1s ease-out 0.2s both;
+        /* Overlay de Efeito: Adiciona profundidade e mistério */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%);
+            z-index: -1;
         }
 
-        h1 span {
-            color: var(--primary);
-            display: block;
-        }
-
-        .hero-description {
-            font-size: 1.2rem;
-            color: var(--text-dim);
-            margin-bottom: 3rem;
-            max-width: 500px;
-            animation: fadeInUp 1s ease-out 0.4s both;
-        }
-
-        /* Botões */
-        .cta-group {
+        /* Conteúdo Principal da Landing Page */
+        .hero-section {
+            flex-grow: 1;
             display: flex;
-            gap: 1.5rem;
-            animation: fadeInUp 1s ease-out 0.6s both;
-        }
-
-        .btn-discord {
-            background: var(--discord-color);
-            color: white;
-            text-decoration: none;
-            padding: 1.2rem 2.5rem;
-            border-radius: 12px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: var(--transition);
-            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.3);
-        }
-
-        .btn-discord:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(88, 101, 242, 0.5);
-            filter: brightness(1.1);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 1.2rem 2.5rem;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.05);
-            border-color: var(--primary);
-        }
-
-        /* Features Section */
-        .features-grid {
-            padding: 5rem 10%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3));
-        }
-
-        .feature-card {
-            background: var(--bg-card);
-            padding: 3rem 2rem;
-            border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: var(--transition);
-            text-align: center;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            background: rgba(255,255,255,0.05);
-            border-color: var(--primary-glow);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-        }
-
-        .feature-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-card p {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-        }
-
-        /* Footer */
-        footer {
-            padding: 4rem 10%;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            text-align: center;
-            color: var(--text-dim);
-        }
-
-        .footer-links {
-            margin-bottom: 2rem;
-            display: flex;
+            flex-direction: column;
             justify-content: center;
-            gap: 2rem;
+            align-items: center;
+            text-align: center;
+            padding: 50px 5%;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
         }
 
-        .footer-links a {
+        .hero-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 7vw, 4.5rem);
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 25px var(--primary-glow);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            animation: fadeInScale 2s ease-out;
+        }
+
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(3.5rem, 10vw, 7rem);
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 30px;
+            line-height: 1.1;
+            text-shadow: 0 0 30px rgba(255,255,255,0.3);
+            animation: fadeInDown 1.5s ease-out 0.5s forwards opacity 0;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.6rem);
             color: var(--text-dim);
-            text-decoration: none;
-            transition: 0.3s;
+            max-width: 900px;
+            margin: 0 auto 50px;
+            line-height: 1.8;
+            animation: fadeInUp 1.5s ease-out 1s forwards opacity 0;
         }
 
-        .footer-links a:hover { color: var(--primary); }
+        .discord-login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 40px;
+            background: linear-gradient(45deg, #5865F2, #7289DA);
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.4);
+            border: 2px solid #5865F2;
+            animation: pulse 2s infinite, fadeIn 1.5s ease-out 1.5s forwards opacity 0;
+        }
 
-        /* Animações */
+        .discord-login-btn:hover {
+            background: linear-gradient(45deg, #7289DA, #5865F2);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(88, 101, 242, 0.6);
+            border-color: var(--text);
+        }
+
+        .discord-login-btn i {
+            font-size: 1.5rem;
+        }
+
+        .error-message {
+            color: var(--danger);
+            margin-top: 20px;
+            font-size: 1.1rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Animações Cinematográficas */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Responsividade */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* Rodapé: As raízes profundas do ecossistema */
+        footer {
+            padding: 30px 5%;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            background: var(--surface);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsividade: A adaptação do ecossistema */
         @media (max-width: 768px) {
-            nav { padding: 1.5rem 5%; }
-            .hero { padding: 0 5%; text-align: center; justify-content: center; }
-            .hero-content { max-width: 100%; }
-            .cta-group { flex-direction: column; width: 100%; }
-            .btn-discord, .btn-secondary { width: 100%; justify-content: center; }
-            h1 { font-size: 3.5rem; }
+            .hero-logo { font-size: 2rem; }
+            .hero-title { font-size: 3rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .discord-login-btn { padding: 15px 30px; font-size: 1rem; }
+            .discord-login-btn i { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow">
-        <div class="blob" style="top: 10%; left: 10%;"></div>
-        <div class="blob" style="bottom: 10%; right: 10%; animation-delay: -5s;"></div>
-    </div>
+    <div class="bg-mesh"></div>
+    <div class="overlay"></div>
 
-    <nav>
-        <a href="/" class="logo">
-            <i class="fas fa-scroll"></i> TR: VIDA
+    <main class="hero-section">
+        <h1 class="hero-logo">TR: VIDA</h1>
+        <h2 class="hero-title">O Ecossistema Primordial da Literatura</h2>
+        <p class="hero-subtitle">
+            Adentre um universo onde as histórias ganham vida. Conecte-se e explore narrativas profundas, crie seus próprios mundos e faça parte de uma comunidade que respira literatura.
+        </p>
+        <a href="/login" class="discord-login-btn">
+            <i class="fab fa-discord"></i> Entrar via Discord
         </a>
-    </nav>
-
-    <main>
-        <section class="hero">
-            <div class="hero-content">
-                <span class="badge">Portal de Literatura Digital</span>
-                <h1>A Jornada <span>Começa Aqui.</span></h1>
-                <p class="hero-description">
-                    Mergulhe em um universo de mistérios, decisões e emoções. O TR: Vida é o portal onde cada capítulo ganha vida através de uma experiência imersiva única.
-                </p>
-                
-                <div class="cta-group">
-                    <a href="/auth/discord" class="btn-discord">
-                        <i class="fab fa-discord"></i> Entrar com Discord
-                    </a>
-                    <a href="#saiba-mais" class="btn-secondary">Explorar Obra</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="saiba-mais" class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-book-open"></i></div>
-                <h3>Leitura Imersiva</h3>
-                <p>Interface limpa e focada, projetada para que nada interrompa sua conexão com a história.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-                <h3>Progresso Real</h3>
-                <p>Sincronização instantânea entre seus dispositivos. Continue exatamente de onde parou.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-                <h3>Acesso Seguro</h3>
-                <p>Autenticação via Discord garante que seus dados e preferências estejam sempre protegidos.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-gem"></i></div>
-                <h3>Conteúdo VIP</h3>
-                <p>Acesse capítulos extras, ilustrações exclusivas e o painel do autor em tempo real.</p>
-            </div>
-        </section>
+        <div id="error-display" class="error-message"></div>
     </main>
 
     <footer>
-        <div class="footer-links">
-            <a href="#">Termos</a>
-            <a href="#">Privacidade</a>
-            <a href="#">Contato</a>
-            <a href="/dashboard">Admin</a>
-        </div>
-        <p>&copy; 2026 TR: Vida - Todos os direitos reservados. Desenvolvido com <i class="fas fa-heart" style="color: var(--primary);"></i></p>
+        <p>&copy; 2026 TR: Vida - O Ecossistema da Literatura Imersiva. Todos os direitos reservados.</p>
+        <p>Desenvolvido com paixão e código.</p>
     </footer>
 
     <script>
-        // Efeito de Parallax suave no fundo
-        document.addEventListener('mousemove', (e) => {
-            const blobs = document.querySelectorAll('.blob');
-            const x = e.clientX / window.innerWidth;
-            const y = e.clientY / window.innerHeight;
-            
-            blobs.forEach((blob, index) => {
-                const speed = (index + 1) * 20;
-                blob.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
-            });
+        // Lógica Dinâmica: A seiva que traz vida à página
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const details = urlParams.get('details');
+            const errorDisplay = document.getElementById('error-display');
+
+            if (error) {
+                let errorMessage = 'Ocorreu um erro durante o login.';
+                switch (error) {
+                    case 'auth_failed':
+                        errorMessage = `Falha na autenticação com Discord. Detalhes: ${decodeURIComponent(details || 'Verifique suas credenciais e tente novamente.')}`;
+                        break;
+                    case 'user_not_found':
+                        errorMessage = 'Usuário não encontrado após autenticação. Tente novamente.';
+                        break;
+                    case 'login_failed':
+                        errorMessage = `Não foi possível efetuar o login. Detalhes: ${decodeURIComponent(details || 'Tente novamente mais tarde.')}`;
+                        break;
+                    case 'session_save_failed':
+                        errorMessage = `Falha ao salvar a sessão. Detalhes: ${decodeURIComponent(details || 'Pode ser um problema de configuração do servidor.')}`;
+                        break;
+                    case 'logout_failed':
+                        errorMessage = `Erro ao fazer logout. Detalhes: ${decodeURIComponent(details || 'Tente novamente.')}`;
+                        break;
+                    case 'session_destroy_failed':
+                        errorMessage = `Erro ao destruir a sessão. Detalhes: ${decodeURIComponent(details || 'Tente novamente.')}`;
+                        break;
+                    case 'id_invalido':
+                        errorMessage = 'ID de capítulo inválido. Por favor, verifique a URL.';
+                        break;
+                    case 'capitulo_nao_encontrado':
+                        errorMessage = 'Capítulo não encontrado. Ele pode ter sido removido ou o ID está incorreto.';
+                        break;
+                    case 'erro_conexao_capitulo':
+                        errorMessage = 'Erro de conexão ao buscar o capítulo. Verifique sua internet ou tente novamente.';
+                        break;
+                    default:
+                        errorMessage = `Erro desconhecido: ${decodeURIComponent(details || 'Por favor, tente novamente.')}`;
+                        break;
+                }
+                errorDisplay.textContent = errorMessage;
+            }
         });
 
-        // Smooth scroll
-        document.querySelector('.btn-secondary').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector('#saiba-mais').scrollIntoView({ behavior: 'smooth' });
+        // Efeito Parallax Sutil no Fundo
+        document.addEventListener('mousemove', (e) => {
+            const bgMesh = document.querySelector('.bg-mesh');
+            const overlay = document.querySelector('.overlay');
+            const speed = 0.01; // Ajuste para mais ou menos efeito
+            const x = (window.innerWidth - e.pageX * speed) / 100;
+            const y = (window.innerHeight - e.pageY * speed) / 100;
+            bgMesh.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+            overlay.style.backgroundPosition = `${x * 2}px ${y * 2}px`;
         });
     </script>
 </body>

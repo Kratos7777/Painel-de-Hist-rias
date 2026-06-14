@@ -181,28 +181,7 @@ app.get("/", (req, res) => {
         return res.redirect("/capa");
     }
     console.log(`[FLUXO] Usuário não autenticado, exibindo tela de login.`);
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>TR: VIDA - O Ecossistema Literário</title>
-            <style>
-                body { font-family: sans-serif; background-color: #090b0e; color: #fff; text-align: center; padding-top: 100px; }
-                h1 { color: #11CAA0; }
-                a { color: #11CAA0; text-decoration: none; padding: 10px 20px; border: 1px solid #11CAA0; border-radius: 5px; }
-                a:hover { background-color: #11CAA0; color: #090b0e; }
-            </style>
-        </head>
-        <body>
-            <h1>TR: VIDA - O Ecossistema Literário</h1>
-            <p>Bem-vindo ao portal. Faça login para explorar as histórias.</p>
-            <a href="/login">Entrar via Discord</a>
-            ${req.query.error ? `<p style="color: red;">Erro no login: ${req.query.error}</p>` : ``}
-        </body>
-        </html>
-    `);
+    res.sendFile(path.join(PATHS.PUBLIC, "index.html"));
 });
 
 // Rota de Login: Inicia o fluxo de autenticação do Discord
