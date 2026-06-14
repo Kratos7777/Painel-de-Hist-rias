@@ -1,8 +1,8 @@
 // ECOSSISTEMA PRIMORDIAL - SERVER.JS
 // O Tronco Inabalável: Gerencia o fluxo de vida do portal com APIs robustas e autenticação resiliente.
-// Versão 4.1 - Sincronização Absoluta e Adaptação Dinâmica
+// Versão 5.0 - Purificação Atômica e Raio-X de Credenciais
 
-// Módulos Essenciais: As raízes profundas do sistema
+// Módulos Essenciais: As raízes profundas do sistema para um ecossistema robusto
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
@@ -17,20 +17,20 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
-const util = require("util"); // Para util.inspect
-const { URL } = require("url"); // Para parsear URLs de forma robusta
+const util = require("util"); // Para util.inspect, essencial para o Raio-X
+const { URL } = require("url"); // Para parsear URLs de forma robusta e dinâmica
 
 // Carrega variáveis de ambiente do arquivo .env
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Porta padrão 3000, configurável via .env
 
 // ------------------------------------------------------------------------------
-// 1. A SEMENTE: CONFIGURAÇÕES E SOLO (Garante que o ambiente esteja pronto)
+// 1. A SEMENTE: CONFIGURAÇÕES E SOLO (Garante que o ambiente esteja pronto e seguro)
 // ------------------------------------------------------------------------------
 
-// Definição de Caminhos Essenciais: O mapa do ecossistema
+// Definição de Caminhos Essenciais: O mapa do ecossistema para organização de arquivos
 const PATHS = {
     ROOT: __dirname,
     PUBLIC: path.join(__dirname, "public"),
@@ -42,21 +42,21 @@ const PATHS = {
 };
 
 // Garante que as pastas essenciais existam, criando-as se necessário.
-// Isso previne erros de I/O antes mesmo do servidor iniciar.
+// Isso previne erros de I/O antes mesmo do servidor iniciar, garantindo um solo fértil.
 Object.values(PATHS).forEach(dirPath => {
-    // Verifica se é um diretório antes de tentar criar
+    // Verifica se é um diretório (não um arquivo de log) antes de tentar criar
     if (!path.extname(dirPath) && !fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
         console.log(`[SETUP] Pasta essencial criada: ${dirPath}`);
     }
 });
 
-// Variáveis de Ambiente para Segredos: Protegendo as sementes
+// Variáveis de Ambiente para Segredos: Protegendo as sementes mais sensíveis
 // ATENÇÃO: VOCÊ PRECISA CONFIGURAR ESTAS VARIÁVEIS NO SEU ARQUIVO .env
 // Crie um arquivo chamado .env na raiz do seu projeto com o seguinte conteúdo:
-// SESSION_SECRET="SUA_CHAVE_SECRETA_UNICA_E_FORTE"
+// SESSION_SECRET="SUA_CHAVE_SECRETA_UNICA_E_FORTE" (String longa e aleatória)
 // DISCORD_CLIENT_ID="SEU_CLIENT_ID_DO_DISCORD" (APENAS NÚMEROS! Ex: 123456789012345678)
-// DISCORD_CLIENT_SECRET="SEU_CLIENT_SECRET_DO_DISCORD"
+// DISCORD_CLIENT_SECRET="SEU_CLIENT_SECRET_DO_DISCORD" (String alfanumérica)
 // DISCORD_CALLBACK_URL="SUA_URL_DE_CALLBACK_DO_DISCORD" (Ex: http://localhost:3000/callback ou https://seusite.com/auth/discord/callback)
 
 const SESSION_SECRET_RAW = process.env.SESSION_SECRET;
@@ -64,13 +64,14 @@ const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET_RAW = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_CALLBACK_URL_FULL = process.env.DISCORD_CALLBACK_URL;
 
-// Purificação Total do CLIENT_ID: Garante que seja um snowflake puro e limpo
+// Purificação Atômica do CLIENT_ID: Garante que seja um snowflake puro e limpo de qualquer contaminação
+// Remove tudo que não for dígito, espaços e caracteres de controle invisíveis.
 const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW 
-    ? DISCORD_CLIENT_ID_RAW.replace(/[^0-9]/g, "").trim() // Remove tudo que não for dígito e espaços
+    ? DISCORD_CLIENT_ID_RAW.replace(/[^0-9]/g, "").trim() 
     : null; 
 
 // Extrai o PATH da CALLBACK_URL para uso dinâmico nas rotas do Express
-let DISCORD_CALLBACK_PATH = "/callback"; // Default fallback
+let DISCORD_CALLBACK_PATH = "/callback"; // Default fallback para compatibilidade
 if (DISCORD_CALLBACK_URL_FULL) {
     try {
         const parsedUrl = new URL(DISCORD_CALLBACK_URL_FULL);
@@ -86,17 +87,23 @@ const DISCORD_CLIENT_SECRET = DISCORD_CLIENT_SECRET_RAW || "H9e_qH080-v_uY7Y16-U
 const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_FULL || `http://localhost:${PORT}${DISCORD_CALLBACK_PATH}`; // Usa o caminho extraído
 
 // VERIFICAÇÃO CRÍTICA: Garante que as credenciais do Discord foram fornecidas e são válidas
+// Este bloco é um Raio-X completo das suas credenciais antes de iniciar o servidor.
 if (!DISCORD_CLIENT_ID || isNaN(DISCORD_CLIENT_ID) || !DISCORD_CLIENT_SECRET) {
     console.error("\n--- ERRO CRÍTICO DE CONFIGURAÇÃO DO DISCORD ---");
     console.error("As variáveis DISCORD_CLIENT_ID (deve ser um número válido) e DISCORD_CLIENT_SECRET não foram definidas ou estão incorretas no seu arquivo .env.");
     console.error("Por favor, verifique o Portal do Desenvolvedor do Discord e seu arquivo .env.");
-    console.error(`DISCORD_CLIENT_ID (limpo): \'${DISCORD_CLIENT_ID}\'`);
-    console.error(`DISCORD_CLIENT_SECRET (presente): ${!!DISCORD_CLIENT_SECRET}`);
-    console.error("------------------------------------\n");
+    console.error("--------------------------------------------------");
+    console.error(`DIAGNÓSTICO CLIENT_ID RAW: ${util.inspect(DISCORD_CLIENT_ID_RAW)}`);
+    console.error(`DIAGNÓSTICO CLIENT_ID LIMPO: ${util.inspect(DISCORD_CLIENT_ID)}`);
+    console.error(`É um número válido (isNaN): ${!isNaN(DISCORD_CLIENT_ID)}`);
+    console.error(`CLIENT_SECRET (PRESENTE): ${!!DISCORD_CLIENT_SECRET}`);
+    console.error(`CALLBACK_URL (COMPLETA): ${util.inspect(DISCORD_CALLBACK_URL_FULL)}`);
+    console.error(`CALLBACK_PATH (EXTRAÍDO): ${util.inspect(DISCORD_CALLBACK_PATH)}`);
+    console.error("--------------------------------------------------\n");
     process.exit(1); // Encerra o processo do servidor para forçar a correção
 }
 
-// Stream para logs de acesso
+// Stream para logs de acesso: O registro da vida do ecossistema
 const accessLogStream = fs.createWriteStream(PATHS.ACCESS_LOG, { flags: "a" });
 
 // ------------------------------------------------------------------------------
@@ -115,7 +122,7 @@ app.use("/api/", apiLimiter);
 
 app.set("trust proxy", 1); // Essencial para ambientes com proxy (Render, Heroku, etc.)
 
-// Helmet: Coleção de middlewares de segurança HTTP
+// Helmet: Coleção de middlewares de segurança HTTP para fortalecer a casca
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -132,16 +139,16 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
 
-// CORS: Permite requisições de diferentes origens (se necessário)
+// CORS: Permite requisições de diferentes origens (se necessário para o ecossistema)
 app.use(cors({
     origin: process.env.CORS_ORIGIN || "*", // Ajuste para domínios específicos em produção
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
 }));
 
-app.use(compression()); // Comprime as respostas HTTP para maior velocidade
+app.use(compression()); // Comprime as respostas HTTP para maior velocidade e eficiência
 
-// Morgan: Log de requisições detalhado para acesso e depuração
+// Morgan: Log de requisições detalhado para acesso e depuração em tempo real
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms", { stream: accessLogStream }));
 app.use(morgan("dev")); // Log para o console durante o desenvolvimento
 
@@ -149,7 +156,7 @@ app.use(express.json()); // Processa corpos de requisição JSON
 app.use(express.urlencoded({ extended: true })); // Processa corpos de requisição URL-encoded
 app.use(cookieParser(SESSION_SECRET)); // Parseia cookies e os assina com o segredo
 
-// Configuração de Sessão: A memória do ecossistema
+// Configuração de Sessão: A memória persistente do ecossistema
 app.use(session({
     name: "trvida_ecosystem_sid", // Nome do cookie de sessão
     secret: SESSION_SECRET,
@@ -229,7 +236,7 @@ app.get("/", (req, res) => {
 app.get("/login", passport.authenticate("discord"));
 
 // Rota de Callback: Recebe a resposta do Discord após a autenticação
-// Usa o caminho extraído dinamicamente da DISCORD_CALLBACK_URL
+// Usa o caminho extraído dinamicamente da DISCORD_CALLBACK_URL para sincronização absoluta
 app.get(DISCORD_CALLBACK_PATH, (req, res, next) => {
     passport.authenticate("discord", (err, user, info) => {
         if (err) {
@@ -461,7 +468,7 @@ app.get("/health", (req, res) => {
         memory: process.memoryUsage(),
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
-        version: "4.1.0",
+        version: "5.0.0",
     });
 });
 
@@ -544,10 +551,13 @@ app.listen(PORT, () => {
 +-----------------------------------------------------------------------+
 |  AUTENTICAÇÃO DISCORD                                                 |
 +-----------------------------------------------------------------------+
-|  CLIENT_ID (LIMPO):       '${DISCORD_CLIENT_ID}'${(DISCORD_CLIENT_ID && !isNaN(DISCORD_CLIENT_ID)) ? ' (VÁLIDO)' : ' (INVÁLIDO/AUSENTE)'}
-|  CLIENT_SECRET (PRESENTE): ${!!DISCORD_CLIENT_SECRET}
-|  CALLBACK_URL (COMPLETA): '${DISCORD_CALLBACK_URL}'
-|  CALLBACK_PATH (EXTRAÍDO):'${DISCORD_CALLBACK_PATH}'
+|  CLIENT_ID (RAW):         ${util.inspect(DISCORD_CLIENT_ID_RAW).padEnd(50)}|
+|  CLIENT_ID (PURIFICADO):  ${util.inspect(DISCORD_CLIENT_ID).padEnd(50)}|
+|  CLIENT_ID (VÁLIDO?):     ${(!isNaN(DISCORD_CLIENT_ID) && DISCORD_CLIENT_ID !== null).toString().padEnd(50)}|
+|  CLIENT_SECRET (PRESENTE):${!!DISCORD_CLIENT_SECRET_RAW.toString().padEnd(50)}|
+|  CALLBACK_URL (RAW):      ${util.inspect(DISCORD_CALLBACK_URL_FULL).padEnd(50)}|
+|  CALLBACK_URL (USADA):    ${util.inspect(DISCORD_CALLBACK_URL).padEnd(50)}|
+|  CALLBACK_PATH (EXTRAÍDO):${util.inspect(DISCORD_CALLBACK_PATH).padEnd(50)}|
 +-----------------------------------------------------------------------+
 |  VERIFIQUE ESTES VALORES NO PORTAL DO DESENVOLVEDOR DO DISCORD!       |
 |  A CALLBACK_URL NO DISCORD DEVE SER EXATAMENTE IGUAL À COMPLETA ACIMA.|
