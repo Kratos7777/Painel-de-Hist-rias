@@ -1,3 +1,262 @@
+
+1) server.js (substituir inteiro)
+/**
+ * ==============================================================================
+ * 🚀 PORTAL DE HISTÓRIAS - SISTEMA ULTRA PREMIUM (SERVER.JS)
+ * Versão: 11.0.0 - À Prova de Bala
+ * ==============================================================================
+ */
+
+require('dotenv').config();
+
+const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
+const DiscordStrategy = require('passport-discord').Strategy;
+const path = require('path');
+const fs = require('fs');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+
+const app = express();
+
+// ==========================================
+// 🛠️ CONFIGURAÇÕES
+// ==========================================
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+const cleanEnv = (val) => (val ? val.trim().replace(/['"]/g, '') : null);
+
+const CLIENT_ID = cleanEnv(process.env.CLIENT_ID);
+const CLIENT_SECRET = cleanEnv(process.env.CLIENT_SECRET);
+const CALLBACK_URL = cleanEnv(process.env.REDIRECT_URI) || cleanEnv(process.env.CALLBACK_URL);
+const DISCORD_ADMIN_ID = cleanEnv(process.env.DISCORD_ID);
+const SESSION_SECRET = cleanEnv(process.env.SESSION_SECRET) || "portal_historias_super_secret_2026";
+
+console.log("\n" + "=".repeat(50));
+console.log("🌟 PORTAL DE HISTÓRIAS - INICIANDO");
+console.log("=".repeat(50));
+console.log(`📡 Ambiente: ${NODE_ENV.toUpperCase()}`);
+console.log(`🔌 Porta: ${PORT}`);
+console.log(`🆔 Client ID: ${CLIENT_ID ? CLIENT_ID.substring(0, 5) + '...' : '❌ NÃO DEFINIDO'}`);
+console.log(`🔗 Redirect URI: ${CALLBACK_URL || '❌ NÃO DEFINIDO'}`);
+console.log("=".repeat(50) + "\n");
+
+// ==========================================
+// 🛡️ MIDDLEWARES
+// ==========================================
+app.set('trust proxy', 1);
+app.use(compression());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(SESSION_SECRET));
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: true,
+    saveUninitialized: false,
+    name: 'portal_historias.sid',
+    cookie: {
+        httpOnly: true,
+        secure: NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 * 30
+    }
+}));
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
+
+if (CLIENT_ID && CLIENT_SECRET && CALLBACK_URL) {
+    passport.use(new DiscordStrategy({
+        clientID: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        callbackURL: CALLBACK_URL,
+        scope: ['identify', 'email']
+    }, (accessToken, refreshToken, profile, done) => {
+        console.log(`[AUTH] Login: ${profile.username} (${profile.id})`);
+        profile.isAdmin = (profile.id === DISCORD_ADMIN_ID);
+        if (profile.isAdmin) console.log(`[AUTH] Administrador detectado: ${profile.username}`);
+        return done(null, profile);
+    }));
+} else {
+    console.error("❌ ERRO: Variáveis do Discord não configuradas!");
+}
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ==========================================
+// 🚪 AUTENTICAÇÃO (com aliases pra qualquer URL)
+// ==========================================
+const startDiscordAuth = (req, res, next) => {
+    console.log("[AUTH] Redirecionando para o Discord...");
+    passport.authenticate('discord')(req, res, next);
+};
+
+// Todas estas rotas iniciam o login com Discord
+app.get('/auth/discord', startDiscordAuth);
+app.get('/login', startDiscordAuth);
+app.get('/entrar', startDiscordAuth);
+app.get('/discord', startDiscordAuth);
+
+app.get('/auth/discord/callback', (req, res, next) => {
+    passport.authenticate('discord', (err, user) => {
+        if (err) {
+            console.error("[AUTH] Erro:", err.message);
+            return res.status(500).send(`
+                <div style="font-family:sans-serif;padding:50px;text-align:center;background:#0f1115;color:white;height:100vh;">
+                    <h1 style="color:#ff4757;">Erro de Conexão com o Discord</h1>
+                    <p style="color:#a4b0be;">${err.message}</p>
+                    <a href="/" style="background:#5865F2;color:white;padding:12px 25px;text-decoration:none;border-radius:5px;">Voltar ao Início</a>
+                </div>
+            `);
+        }
+        if (!user) return res.redirect('/');
+        req.logIn(user, (loginErr) => {
+            if (loginErr) return next(loginErr);
+            console.log(`[AUTH] Bem-vindo, ${user.username}`);
+            req.session.save(() => res.redirect('/funcionalidades'));
+        });
+    })(req, res, next);
+});
+
+app.get('/logout', (req, res) => {
+    req.logout(() => {
+        req.session.destroy(() => {
+            res.clearCookie('portal_historias.sid');
+            res.redirect('/');
+        });
+    });
+});
+
+// ==========================================
+// 🛡️ PROTEÇÃO DE ROTAS
+// ==========================================
+const isAuth = (req, res, next) => {
+    if (req.isAuthenticated()) return next();
+    res.redirect('/');
+};
+
+const isAdmin = (req, res, next) => {
+    if (req.isAuthenticated() && req.user.id === DISCORD_ADMIN_ID) return next();
+    res.status(403).send("Acesso Negado: Apenas o autor da obra pode acessar esta página.");
+};
+
+// ==========================================
+// 📄 PÁGINAS HTML
+// ==========================================
+app.get('/', (req, res) => {
+    if (req.isAuthenticated()) return res.redirect('/funcionalidades');
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/funcionalidades', isAuth, (req, res) => res.sendFile(path.join(__dirname, 'funcionalidades.html')));
+app.get('/capa', isAuth, (req, res) => res.sendFile(path.join(__dirname, 'capa.html')));
+app.get('/trvida/:numero', isAuth, (req, res) => res.sendFile(path.join(__dirname, 'capitulo.html')));
+app.get('/perfil', isAuth, (req, res) => res.sendFile(path.join(__dirname, 'perfil.html')));
+app.get('/configuracoes', isAuth, (req, res) => res.sendFile(path.join(__dirname, 'configuracoes.html')));
+app.get('/dashboard', isAdmin, (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
+
+// ==========================================
+// 📊 API
+// ==========================================
+app.get('/api/user', (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ error: "Não autenticado" });
+    res.json({
+        id: req.user.id,
+        username: req.user.username,
+        avatar: req.user.avatar
+            ? `https://cdn.discordapp.com/avatars/${req.user.id}/${req.user.avatar}.png`
+            : 'https://cdn.discordapp.com/embed/avatars/0.png',
+        isAdmin: req.user.id === DISCORD_ADMIN_ID
+    });
+});
+
+app.get('/api/capitulos', isAuth, (req, res) => {
+    try {
+        const dataDir = path.join(__dirname, 'data');
+        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+        const capitulos = fs.readdirSync(dataDir)
+            .filter(f => /^trvida\d+\.txt$/.test(f))
+            .map(f => {
+                const numero = parseInt(f.replace('trvida', '').replace('.txt', ''), 10);
+                const stats = fs.statSync(path.join(dataDir, f));
+                return { numero, postadoEm: stats.mtime, tamanho: (stats.size / 1024).toFixed(1) + ' KB' };
+            })
+            .sort((a, b) => a.numero - b.numero);
+        res.json(capitulos);
+    } catch (err) {
+        console.error("[API] Erro:", err);
+        res.status(500).json({ error: "Erro ao buscar capítulos." });
+    }
+});
+
+app.get('/api/capitulo/:numero', isAuth, (req, res) => {
+    const numero = parseInt(req.params.numero, 10);
+    const filePath = path.join(__dirname, 'data', `trvida${numero}.txt`);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Capítulo ainda não postado." });
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: "Erro na leitura." });
+        res.json({ numero, conteudo: data });
+    });
+});
+
+app.post('/api/salvar-capitulo', isAdmin, (req, res) => {
+    const { numero, conteudo } = req.body;
+    if (!numero || !conteudo) return res.status(400).json({ error: "Número e conteúdo obrigatórios." });
+    const dataDir = path.join(__dirname, 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+    fs.writeFile(path.join(dataDir, `trvida${numero}.txt`), conteudo, 'utf8', (err) => {
+        if (err) return res.status(500).json({ error: "Erro ao salvar." });
+        console.log(`[EDITOR] Capítulo ${numero} salvo por ${req.user.username}`);
+        res.json({ success: true, message: `Capítulo ${numero} salvo!` });
+    });
+});
+
+// ==========================================
+// 📂 ARQUIVOS ESTÁTICOS + SEGURANÇA
+// ==========================================
+const SENSITIVE = new Set([
+    '/server.js', '/package.json', '/package-lock.json', '/yarn.lock',
+    '/.env', '/.env.local', '/.env.production', '/.gitignore',
+    '/readme.md', '/funcionalidades_global.md'
+]);
+
+app.use((req, res, next) => {
+    if (SENSITIVE.has(req.path.toLowerCase())) return res.status(404).send('Não encontrado.');
+    next();
+});
+
+app.use(express.static(__dirname, { dotfiles: 'deny', index: false }));
+app.use('/imagens', express.static(path.join(__dirname, 'imagens')));
+
+// 404 com botão útil pra voltar e tentar login de novo
+app.use((req, res) => {
+    res.status(404).send(`
+        <div style="font-family:sans-serif;text-align:center;padding:80px 20px;background:#0f1115;color:white;min-height:100vh;">
+            <h1 style="font-size:80px;color:#11CAA0;margin:0;">404</h1>
+            <h2>Página não encontrada</h2>
+            <p style="color:#A0A0A0;">A página <code style="color:#FFC107;">${req.path}</code> não existe.</p>
+            <br>
+            <a href="/" style="background:#11CAA0;color:#121212;padding:12px 25px;text-decoration:none;border-radius:6px;font-weight:bold;margin:5px;">🏠 Início</a>
+            <a href="/auth/discord" style="background:#5865F2;color:white;padding:12px 25px;text-decoration:none;border-radius:6px;font-weight:bold;margin:5px;">🎮 Entrar com Discord</a>
+        </div>
+    `);
+});
+
+app.listen(PORT, () => {
+    console.log(`✅ SERVIDOR v11.0.0 RODANDO em http://localhost:${PORT}\n`);
+});
+2) index.html (substituir inteiro)
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,16 +265,8 @@
     <meta name="description" content="Portal de Histórias - TR: Vida. Autenticação via Discord.">
     <title>Portal de Histórias - Login</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
 
         body {
             background: linear-gradient(135deg, #0f1115 0%, #1a1f2e 50%, #121212 100%);
@@ -33,11 +284,9 @@
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
                 radial-gradient(circle at 20% 50%, rgba(17, 202, 160, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(17, 202, 160, 0.05) 0%, transparent 50%);
             pointer-events: none;
@@ -60,13 +309,10 @@
 
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .logo {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
+        .logo { font-size: 3rem; margin-bottom: 20px; }
 
         h1 {
             font-size: 2rem;
@@ -75,18 +321,8 @@
             text-shadow: 0 2px 10px rgba(17, 202, 160, 0.3);
         }
 
-        .subtitle {
-            color: #A0A0A0;
-            margin-bottom: 30px;
-            font-size: 1rem;
-        }
-
-        .description {
-            color: #D0D0D0;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
+        .subtitle { color: #A0A0A0; margin-bottom: 30px; font-size: 1rem; }
+        .description { color: #D0D0D0; margin-bottom: 30px; line-height: 1.6; font-size: 0.95rem; }
 
         .btn-discord {
             display: inline-block;
@@ -108,32 +344,12 @@
             box-shadow: 0 8px 25px rgba(88, 101, 242, 0.5);
         }
 
-        .features {
-            margin-top: 40px;
-            text-align: left;
-            color: #A0A0A0;
-            font-size: 0.9rem;
-        }
-
-        .features h3 {
-            color: #11CAA0;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .features ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .features li {
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-        }
-
+        .features { margin-top: 40px; text-align: left; color: #A0A0A0; font-size: 0.9rem; }
+        .features h3 { color: #11CAA0; margin-bottom: 15px; text-align: center; }
+        .features ul { list-style: none; padding: 0; }
+        .features li { padding: 8px 0; display: flex; align-items: center; }
         .features li::before {
-            content: 'v';
+            content: '✓';
             color: #11CAA0;
             font-weight: bold;
             margin-right: 10px;
@@ -148,17 +364,22 @@
     </style>
     <script src="/global.js"></script>
 </head>
+
 <body>
+
     <div class="login-container">
         <div class="logo">🎭</div>
         <h1>TR: Vida</h1>
         <p class="subtitle">Portal de Histórias</p>
+
         <p class="description">
             Bem-vindo a uma jornada épica. Conecte sua conta do Discord para acessar a obra completa.
         </p>
+
         <a href="/auth/discord" class="btn-discord">
-    🎮 Entrar com o Discord
-</a>
+            🎮 Entrar com o Discord
+        </a>
+
         <div class="features">
             <h3>O que você vai encontrar</h3>
             <ul>
@@ -169,5 +390,6 @@
             </ul>
         </div>
     </div>
+
 </body>
 </html>
