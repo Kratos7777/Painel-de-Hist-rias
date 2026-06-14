@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Capítulos | TR: Vida</title>
+    <title>Painel Editor | TR: Vida</title>
     
-    <!-- SEMENTE: RAÍZES ESTÉTICAS E ESTILOS BASE -->
+    <!-- Fontes e Ícones: As sementes estéticas do ecossistema -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* SISTEMA DE DESIGN - O JARDIM DO EDITOR */
+        /* Variáveis CSS: A seiva que nutre o design */
         :root {
             --primary: #11CAA0;
             --primary-glow: rgba(17, 202, 160, 0.3);
@@ -27,6 +27,7 @@
             --shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
+        /* Reset e Base: O solo fértil */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 
         body {
@@ -50,7 +51,7 @@
             padding: 1.5rem 5%;
             display: flex; justify-content: space-between; align-items: center;
             z-index: 1000;
-            background: var(--glass);
+            background: var(--surface);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
@@ -333,7 +334,7 @@
                     }
                 } catch (err) {
                     console.error("Erro ao carregar lista de capítulos:", err);
-                    DOM.chapterList.innerHTML = `<li>Erro ao carregar capítulos: ${err.message}</li>`;
+                    showMessage(`Erro ao carregar capítulos: ${err.message}`, 'error');
                 }
             }
 
@@ -403,87 +404,72 @@
                 }
             }
 
-            // Salva o capítulo atual
-            DOM.saveBtn.addEventListener('click', async () => {
+            // Salva um capítulo (novo ou existente)
+            async function saveChapter() {
+                const id = currentChapterId;
                 const content = DOM.chapterContent.value;
-                if (!content.trim()) {
-                    showMessage('O conteúdo do capítulo não pode estar vazio.', 'error');
-                    return;
-                }
 
-                let idToSave = currentChapterId;
-                if (!idToSave) {
-                    // Se for um novo capítulo e o ID não foi pré-preenchido, tenta obter um novo ID
-                    try {
-                        const response = await fetch('/api/stories/next-id');
-                        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-                        const data = await response.json();
-                        if (data.success) {
-                            idToSave = data.nextId;
-                        } else {
-                            showMessage('Não foi possível obter um ID para o novo capítulo.', 'error');
-                            return;
-                        }
-                    } catch (err) {
-                        showMessage(`Erro ao obter ID para novo capítulo: ${err.message}`, 'error');
-                        return;
-                    }
+                if (!id || !content) {
+                    showMessage("ID e conteúdo do capítulo não podem estar vazios.", 'error');
+                    return;
                 }
 
                 try {
                     const response = await fetch('/api/stories/save', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: idToSave, content })
+                        body: JSON.stringify({ id: parseInt(id, 10), content }),
                     });
                     if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
                     const data = await response.json();
 
                     if (data.success) {
-                        showMessage(data.message, 'success');
-                        loadChapterList();
-                        selectChapter(idToSave); // Seleciona o capítulo salvo
+                        showMessage('Capítulo salvo com sucesso!', 'success');
+                        loadChapterList(); // Recarrega a lista para refletir as mudanças
+                        selectChapter(parseInt(id, 10)); // Re-seleciona o capítulo salvo
                     } else {
-                        showMessage(`Erro ao salvar: ${data.error}`, 'error');
+                        showMessage(`Erro ao salvar capítulo: ${data.error}`, 'error');
                     }
                 } catch (err) {
                     console.error("Erro ao salvar capítulo:", err);
                     showMessage(`Erro ao salvar capítulo: ${err.message}`, 'error');
                 }
-            });
+            }
 
-            // Deleta o capítulo atual
-            DOM.deleteBtn.addEventListener('click', async () => {
-                if (!currentChapterId) return;
-                if (!confirm(`Tem certeza que deseja deletar o Capítulo ${currentChapterId}?`)) return;
+            // Deleta um capítulo
+            async function deleteChapter() {
+                if (!currentChapterId || !confirm('Tem certeza que deseja excluir este capítulo?')) {
+                    return;
+                }
 
                 try {
                     const response = await fetch(`/api/stories/delete/${currentChapterId}`, {
-                        method: 'DELETE'
+                        method: 'DELETE',
                     });
                     if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
                     const data = await response.json();
 
                     if (data.success) {
-                        showMessage(data.message, 'success');
-                        loadChapterList();
-                        newChapter(); // Após deletar, inicia um novo capítulo
+                        showMessage('Capítulo excluído com sucesso!', 'success');
+                        newChapter(); // Inicia um novo capítulo após a exclusão
+                        loadChapterList(); // Recarrega a lista
                     } else {
-                        showMessage(`Erro ao deletar: ${data.error}`, 'error');
+                        showMessage(`Erro ao excluir capítulo: ${data.error}`, 'error');
                     }
                 } catch (err) {
-                    console.error("Erro ao deletar capítulo:", err);
-                    showMessage(`Erro ao deletar capítulo: ${err.message}`, 'error');
+                    console.error("Erro ao excluir capítulo:", err);
+                    showMessage(`Erro ao excluir capítulo: ${err.message}`, 'error');
                 }
-            });
+            }
 
-            // Evento para o botão Novo Capítulo
+            // Event Listeners
+            DOM.saveBtn.addEventListener('click', saveChapter);
+            DOM.deleteBtn.addEventListener('click', deleteChapter);
             DOM.newChapterBtn.addEventListener('click', newChapter);
 
             // Inicialização
             loadChapterList();
-            newChapter(); // Inicia com um formulário de novo capítulo
-            console.log("Editor TR: Vida ativo. Jardim pronto para cultivo.");
+            newChapter(); // Começa com um novo capítulo pronto para edição
         })();
     </script>
 </body>

@@ -3,59 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copa de Histórias | TR: Vida</title>
+    <title>Biblioteca | TR: Vida</title>
     
-    <!-- SEMENTE: RAÍZES ESTÉTICAS E ESTILOS BASE -->
-    <!-- Conectamos a árvore a fontes e ícones externos para garantir a beleza visual. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* SISTEMA DE DESIGN - A COPA (CAPA.HTML) */
-        /* Variáveis CSS para facilitar o crescimento e manutenção do design. */
         :root {
             --primary: #11CAA0;
-            --primary-glow: rgba(17, 202, 160, 0.3);
             --bg: #090b0e;
             --surface: #12151c;
-            --surface-light: #1a1d26;
             --text: #ffffff;
             --text-dim: #a0a0a0;
-            --danger: #ef4444;
-            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            --shadow: 0 20px 40px rgba(0,0,0,0.4);
-            --glass: rgba(18, 21, 28, 0.8);
+            --transition: all 0.3s ease;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg);
             color: var(--text);
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
             min-height: 100vh;
         }
 
-        /* O FUNDO (O SOLO): Efeito de mesh dinâmico. */
         .bg-mesh {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            background:
-                radial-gradient(at 0% 0%, rgba(17, 202, 160, 0.1) 0, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(88, 101, 242, 0.05) 0, transparent 50%);
+            background: radial-gradient(at 0% 0%, rgba(17, 202, 160, 0.1) 0, transparent 50%);
         }
 
-        /* A NAVBAR (O RAMO SUPERIOR): Conecta o usuário aos outros ramos. */
         nav {
-            position: fixed; top: 0; width: 100%;
             padding: 1.5rem 5%;
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -64,304 +46,202 @@
             font-size: 1.8rem; font-weight: 900;
             color: var(--primary);
             text-decoration: none;
-            display: flex; align-items: center; gap: 12px;
-            letter-spacing: -1px;
         }
 
-        .nav-links { display: flex; gap: 30px; align-items: center; }
-        .nav-links a {
-            color: var(--text); text-decoration: none;
-            font-weight: 600; font-size: 0.9rem;
-            transition: var(--transition); opacity: 0.7;
-        }
-        .nav-links a:hover { opacity: 1; color: var(--primary); }
-        .nav-links a.active { opacity: 1; color: var(--primary); }
-
-        /* O HEADER (O TOPO DA COPA): Apresenta a biblioteca. */
         header {
-            padding: 180px 5% 60px;
+            padding: 100px 5% 40px;
             text-align: center;
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
         header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            margin-bottom: 20px; line-height: 1.1;
-            font-weight: 900;
-        }
-
-        header span { color: var(--primary); }
-
-        header p {
-            color: var(--text-dim);
-            font-size: 1.2rem; max-width: 700px;
-            margin: 0 auto 50px; line-height: 1.6;
-        }
-
-        /* BUSCA (FILTRAGEM DE SEIVA): Permite encontrar frutos específicos. */
-        .search-container {
-            max-width: 600px; margin: 0 auto 80px;
-            position: relative;
-        }
-
-        .search-container i {
-            position: absolute; left: 25px; top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary); font-size: 1.2rem;
-        }
-
-        .search-container input {
-            width: 100%;
-            background: var(--surface);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px 30px 20px 65px;
-            border-radius: 100px;
-            color: white; font-size: 1rem;
-            outline: none; transition: var(--transition);
-        }
-
-        .search-container input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 30px var(--primary-glow);
-            background: var(--surface-light);
-        }
-
-        /* O GRID (A RAMIFICAÇÃO): Onde os frutos (histórias) são exibidos. */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 40px;
-            padding: 0 5% 100px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* O CARD (O FRUTO): Cada história real é um fruto. */
-        .card {
-            background: var(--surface);
-            border-radius: 24px;
-            overflow: hidden;
-            position: relative;
-            aspect-ratio: 2/3;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: var(--shadow);
-        }
-
-        .card:hover {
-            transform: translateY(-15px) scale(1.02);
-            border-color: var(--primary);
-            box-shadow: 0 30px 60px rgba(17, 202, 160, 0.15);
-        }
-
-        .card-img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .card:hover .card-img {
-            filter: brightness(0.4) blur(2px);
-            transform: scale(1.1);
-        }
-
-        .card-content {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%;
-            padding: 40px 30px;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
-            transform: translateY(20px);
-            opacity: 0;
-            transition: var(--transition);
-        }
-
-        .card:hover .card-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .card-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem; font-weight: 700;
+            font-size: 3rem;
             margin-bottom: 10px;
         }
 
-        .card-meta {
-            display: flex; gap: 15px;
-            font-size: 0.8rem; font-weight: 800;
-            color: var(--primary);
-            text-transform: uppercase; letter-spacing: 1px;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 40px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        .card-img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+        }
+
+        .card-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-info h2 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 10px;
         }
 
         .card-btn {
-            margin-top: 25px;
             display: inline-block;
-            padding: 12px 30px;
+            padding: 10px 20px;
             background: var(--primary);
             color: var(--bg);
+            border-radius: 50px;
+            font-weight: 800;
             text-decoration: none;
-            border-radius: 100px;
-            font-weight: 900; font-size: 0.85rem;
-            transition: 0.3s;
-        }
-
-        /* ESTADOS DE VIDA (LOADER E VAZIO): Feedback ao usuário. */
-        #status-msg {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 100px 20px;
-            color: var(--text-dim);
-            font-size: 1.2rem;
-        }
-
-        .loader-spinner {
-            width: 50px; height: 50px;
-            border: 5px solid rgba(17, 202, 160, 0.1);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* FOOTER (AS RAÍZES PROFUNDAS) */
-        footer {
-            padding: 80px 5% 40px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            text-align: center;
-            color: var(--text-dim);
             font-size: 0.9rem;
+        }
+
+        /* VISÃO DE CAPÍTULOS */
+        #chapter-view {
+            display: none;
+            padding: 40px 5%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: none; border: 1px solid var(--primary); color: var(--primary);
+            padding: 8px 16px; border-radius: 50px; cursor: pointer;
+            margin-bottom: 30px; font-weight: 600;
+        }
+
+        .chapter-item {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chapter-item:hover {
+            background: rgba(17, 202, 160, 0.1);
+            transform: translateX(10px);
+        }
+
+        footer {
+            padding: 60px 5% 30px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
-    <!-- TRONCO: ESTRUTURA PRINCIPAL DO CORPO -->
     <div class="bg-mesh"></div>
 
     <nav>
-        <a href="/" class="logo"><i class="fas fa-leaf"></i> TR: VIDA</a>
-        <div class="nav-links">
-            <a href="/capa" class="active">Biblioteca</a>
-            <a href="/perfil">Meu Perfil</a>
-            <a href="/configuracoes">Ajustes</a>
-            <a href="/logout" style="color: var(--danger);">Sair</a>
+        <a href="/" class="logo">TR: VIDA</a>
+        <div style="display: flex; gap: 20px;">
+            <a href="/editor" style="color: white; text-decoration: none;">Editor</a>
+            <a href="/logout" style="color: var(--danger); text-decoration: none;">Sair</a>
         </div>
     </nav>
 
-    <header>
-        <h1>Copa de <span>Histórias</span></h1>
-        <p>Aqui nascem os frutos reais da nossa árvore. Cada capítulo é uma nova vida para explorar.</p>
-        
-        <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="search-input" placeholder="Procure por um fruto específico...">
-        </div>
+    <header id="main-header">
+        <h1>Sua <span>Biblioteca</span></h1>
+        <p>Escolha uma obra para começar sua jornada.</p>
     </header>
 
-    <main class="grid" id="main-grid">
-        <!-- A SEIVA (JavaScript) irá colher os frutos reais do servidor aqui -->
-        <div id="status-msg">
-            <div class="loader-spinner"></div>
-            Sincronizando com o tronco central...
+    <!-- VISÃO DE OBRAS -->
+    <main class="grid" id="works-grid">
+        <div class="card" onclick="showChapters()">
+            <img src="/imagens/capa-principal.png" alt="TR: Vida" class="card-img" onerror="this.src='https://via.placeholder.com/400x600?text=TR:+Vida'">
+            <div class="card-info">
+                <h2>TR: Vida</h2>
+                <p style="color: var(--text-dim); margin-bottom: 15px;">A obra primordial do ecossistema.</p>
+                <span class="card-btn">VER CAPÍTULOS</span>
+            </div>
         </div>
     </main>
+
+    <!-- VISÃO DE CAPÍTULOS -->
+    <section id="chapter-view">
+        <button class="back-btn" onclick="showWorks()"><i class="fas fa-arrow-left"></i> Voltar para Obras</button>
+        <h2 id="work-title" style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 30px;">TR: Vida - Capítulos</h2>
+        <div id="chapters-list">
+            <!-- Capítulos carregados via JS -->
+            <p>Carregando capítulos...</p>
+        </div>
+    </section>
 
     <footer>
         <p>&copy; 2026 TR: Vida - O Ecossistema da Literatura Imersiva.</p>
     </footer>
 
-    <!-- SEIVA: LÓGICA DINÂMICA (JavaScript) -->
-    <!-- Este script conecta as folhas ao tronco para receber os dados reais. -->
     <script>
-        (function() {
-            'use strict';
+        let allStories = [];
 
-            const DOM = {
-                grid: document.getElementById('main-grid'),
-                searchInput: document.getElementById('search-input'),
-                statusMsg: document.getElementById('status-msg')
-            };
-            let allStories = [];
-
-            // Função para buscar os frutos (histórias) do servidor
-            async function fetchStories() {
-                try {
-                    const response = await fetch('/api/stories/list');
-                    if (!response.ok) {
-                        throw new Error(`Erro HTTP: ${response.status}`);
-                    }
-                    const data = await response.json();
-
-                    if (data.success && data.stories.length > 0) {
-                        allStories = data.stories;
-                        renderStories(allStories);
-                    } else {
-                        DOM.grid.innerHTML = `
-                            <div id="status-msg">
-                                <i class="fas fa-seedling" style="font-size: 3rem; margin-bottom: 20px; display: block;"></i>
-                                A árvore ainda não deu frutos reais.<br>
-                                <span style="font-size: 0.9rem; opacity: 0.6;">Adicione arquivos .txt na pasta /data do servidor.</span>
-                            </div>`;
-                    }
-                } catch (err) {
-                    console.error("Erro na conexão com o tronco:", err);
-                    DOM.grid.innerHTML = `<div id="status-msg">O tronco central não está respondendo. Verifique a conexão. Detalhes: ${err.message}</div>`;
+        // Busca os capítulos do servidor
+        async function fetchStories() {
+            try {
+                const response = await fetch('/api/stories/list');
+                const data = await response.json();
+                if (data.success) {
+                    allStories = data.stories;
                 }
+            } catch (err) {
+                console.error("Erro ao carregar capítulos:", err);
+            }
+        }
+
+        function showChapters() {
+            document.getElementById('works-grid').style.display = 'none';
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('chapter-view').style.display = 'block';
+            
+            const list = document.getElementById('chapters-list');
+            list.innerHTML = '';
+
+            if (allStories.length === 0) {
+                list.innerHTML = '<p>Nenhum capítulo encontrado para esta obra.</p>';
+                return;
             }
 
-            // Função para exibir os frutos (histórias) no grid
-            function renderStories(stories) {
-                DOM.grid.innerHTML = ''; // Limpa o grid antes de renderizar
-                
-                if (stories.length === 0) {
-                    DOM.grid.innerHTML = `
-                        <div id="status-msg">
-                            <i class="fas fa-search-minus" style="font-size: 3rem; margin-bottom: 20px; display: block;"></i>
-                            Nenhum fruto encontrado com este termo de busca.
-                        </div>`;
-                    return;
-                }
-
-                stories.forEach(story => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.onclick = () => window.location.href = story.url;
-
-                    // Caminho da imagem da capa: assume 'capa-principal.png' para todas as histórias
-                    // Se houver imagens específicas por história, esta lógica precisaria ser ajustada
-                    const imgPath = 'imagens/capa-principal.png'; 
-
-                    card.innerHTML = `
-                        <img src="${imgPath}" alt="${story.title}" class="card-img" onerror="this.src=\'https://via.placeholder.com/400x600?text=Fruto+${story.id}\'">
-                        <div class="card-content">
-                            <h2 class="card-title">${story.title}</h2>
-                            <div class="card-meta">
-                                <span><i class="fas fa-check-circle"></i> Maduro</span>
-                                <span><i class="fas fa-clock"></i> Novo</span>
-                            </div>
-                            <span class="card-btn">COLHER E LER</span>
-                        </div>
-                    `;
-                    DOM.grid.appendChild(card);
-                });
-            }
-
-            // Filtragem em tempo real (Poda dinâmica)
-            DOM.searchInput.addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase();
-                const filtered = allStories.filter(s => s.title.toLowerCase().includes(term));
-                renderStories(filtered);
+            allStories.forEach(story => {
+                const div = document.createElement('div');
+                div.className = 'chapter-item';
+                div.onclick = () => window.location.href = story.url;
+                div.innerHTML = `
+                    <span style="font-weight: 600; font-size: 1.1rem;">${story.title}</span>
+                    <i class="fas fa-chevron-right" style="color: var(--primary);"></i>
+                `;
+                list.appendChild(div);
             });
+        }
 
-            // Inicialização: Faz a seiva começar a fluir
-            fetchStories();
-            console.log("Copa TR: Vida inicializada. Ramos prontos para leitura.");
-        })();
+        function showWorks() {
+            document.getElementById('works-grid').style.display = 'grid';
+            document.getElementById('main-header').style.display = 'block';
+            document.getElementById('chapter-view').style.display = 'none';
+        }
+
+        // Inicia a busca assim que a página carrega
+        fetchStories();
     </script>
 </body>
 </html>

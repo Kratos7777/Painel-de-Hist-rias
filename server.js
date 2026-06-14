@@ -1,287 +1,325 @@
-/**
- * ==============================================================================
- * PORTAL TR: VIDA - O ECOSSISTEMA PRIMORDIAL (SERVER-SIDE CORE)
- * ==============================================================================
- * Versão: 10.5.0 (Expansão Máxima e Fluxo Absoluto)
- *
- * Este é o ápice da engenharia para o Portal TR: Vida. O Ecossistema Primordial
- * não apenas serve arquivos; ele sustenta a vida literária com uma estrutura
- * inquebrável, onde a naturalidade do fluxo é garantida por camadas de 
- * resiliência profunda. Nada aqui é por acaso; cada linha é um nervo que
- * conecta a semente ao fruto final.
- *
- * FILOSOFIA:
- * - Persistência Absoluta: A sessão é a alma, e ela nunca morre durante o ciclo.
- * - Fluxo Orgânico: Uma rota nutre a próxima, sem barreiras ou erros.
- * - Blindagem Total: Proteção contra falhas de rede, ambiente e redirecionamento.
- * ==============================================================================
- */
+// ECOSSISTEMA FINAL - SERVER.JS
+// O Tronco Inabalável: Gerencia o fluxo de vida do portal com APIs robustas e autenticação resiliente.
 
-require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const path = require('path');
 const fs = require('fs');
-const util = require('util');
-const compression = require('compression');
-const morgan = require('morgan');
+const { readdir, readFile, writeFile, unlink } = require('fs').promises;
 const helmet = require('helmet');
 const cors = require('cors');
+const compression = require('compression');
 const cookieParser = require('cookie-parser');
-
-// FERRAMENTAS DE MANIPULAÇÃO DE VIDA (FileSystem Promisificado)
-const readdir = util.promisify(fs.readdir);
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const unlink = util.promisify(fs.unlink);
-const mkdir = util.promisify(fs.mkdir);
+const morgan = require('morgan');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SESSION_SECRET = process.env.SESSION_SECRET || 'seiva_primordial_ancestral_trvida_v10';
 
-// CONFIGURAÇÃO DE RAÍZES (Caminhos Absolutos e Seguros)
+// ------------------------------------------------------------------------------
+// 1. A SEMENTE: CONFIGURAÇÕES E SOLO (Garante que o ambiente esteja pronto)
+// ------------------------------------------------------------------------------
 const PATHS = {
     ROOT: __dirname,
     PUBLIC: path.join(__dirname, 'public'),
     DATA: path.join(__dirname, 'data'),
-    LOGS: path.join(__dirname, 'logs'),
     IMAGENS: path.join(__dirname, 'public', 'imagens')
 };
 
-// GARANTIA DE ESTRUTURA (Criação de pastas vitais no início da vida)
-(async () => {
-    for (const p of Object.values(PATHS)) {
-        if (!fs.existsSync(p)) await mkdir(p, { recursive: true });
+// Garante que as pastas essenciais existam, criando-as se necessário.
+[PATHS.DATA, PATHS.IMAGENS].forEach(dir => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+        console.log(`[SETUP] Pasta criada: ${dir}`);
     }
-})();
+});
+
+const SESSION_SECRET = process.env.SESSION_SECRET || 'trvida_ecosistema_secreto_ancestral_2026';
 
 // ------------------------------------------------------------------------------
-// 1. A CASCA: BLINDAGEM E ADAPTABILIDADE
+// 2. A CASCA: PROTEÇÃO E PREPARAÇÃO (Blindagem do servidor e processamento inicial)
 // ------------------------------------------------------------------------------
-app.set('trust proxy', 1); // Confiança total em ambientes de rede complexos
+app.set('trust proxy', 1); // Essencial para ambientes com proxy (Render, Heroku, etc.)
+app.use(helmet({ contentSecurityPolicy: false })); // Permite flexibilidade para assets externos
+app.use(cors());
+app.use(compression());
+app.use(morgan('dev')); // Log de requisições para diagnóstico
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(SESSION_SECRET));
 
-app.use(helmet({
-    contentSecurityPolicy: false, // Fluidez para assets externos
-    crossOriginEmbedderPolicy: false
+app.use(session({
+    name: 'trvida_ecosystem_sid',
+    secret: SESSION_SECRET,
+    resave: true, // Força o salvamento da sessão de volta ao armazenamento da sessão
+    saveUninitialized: false, // Não salva sessões novas que não foram modificadas
+    rolling: true, // Reseta o tempo de expiração do cookie a cada requisição
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 dias de vida para o cookie
+        secure: process.env.NODE_ENV === 'production', // Apenas HTTPS em produção
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Configuração para cookies cross-site
+    }
 }));
 
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
-app.use(cookieParser(SESSION_SECRET));
-app.use(compression());
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
-
-// GESTÃO DE SESSÃO (A MEMÓRIA ETERNA DO ECOSSISTEMA)
-// Configurada para persistência máxima entre domínios e redirecionamentos
-const sessionConfig = {
-    secret: SESSION_SECRET,
-    resave: true,
-    saveUninitialized: false,
-    name: 'trvida_ecosystem_sid',
-    rolling: true,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias de persistência natural
-        sameSite: 'lax',
-        path: '/'
-    }
-};
-app.use(session(sessionConfig));
-
 // ------------------------------------------------------------------------------
-// 2. AS RAÍZES: AUTENTICAÇÃO DISCORD (O FLUXO DA VIDA)
+// 3. AS RAÍZES: AUTENTICAÇÃO (Passport.js para Discord - A seiva da identidade)
 // ------------------------------------------------------------------------------
-passport.serializeUser((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((obj, done) => {
-    done(null, obj);
-});
-
-if (process.env.CLIENT_ID) {
-    passport.use(new DiscordStrategy({
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: process.env.REDIRECT_URI,
-        scope: ['identify', 'email'],
-        prompt: 'none'
-    }, (accessToken, refreshToken, profile, done) => {
-        // O perfil é injetado nas veias do sistema
-        process.nextTick(() => done(null, profile));
-    }));
-}
-
 app.use(passport.initialize());
 app.use(passport.session());
 
-// MIDDLEWARE DE PROTEÇÃO (O FILTRO DA SEIVA)
-// Garante que apenas seres autenticados acessem os ramos internos
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
+
+passport.use(new DiscordStrategy({
+    clientID: process.env.DISCORD_CLIENT_ID || '1314353266555293758',
+    clientSecret: process.env.DISCORD_CLIENT_SECRET || 'H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X', // Substitua pelo seu segredo real
+    callbackURL: process.env.DISCORD_CALLBACK_URL || 'http://localhost:3000/callback',
+    scope: ['identify', 'email'],
+    prompt: 'none' // Evita prompt de autorização repetitivo
+}, (accessToken, refreshToken, profile, done) => {
+    // Aqui você pode salvar o perfil do usuário no seu banco de dados, se tiver um.
+    // Por enquanto, apenas passamos o perfil adiante.
+    console.log(`[AUTH] Perfil Discord recebido: ${profile.username}`);
+    return done(null, profile);
+}));
+
+// Middleware de Proteção (Garante que apenas usuários autenticados acessem os ramos)
 const isAuth = (req, res, next) => {
-    if (req.isAuthenticated()) return next();
+    if (req.isAuthenticated()) {
+        console.log(`[AUTH] Usuário autenticado: ${req.user.username}`);
+        return next();
+    }
     
-    // Diferenciação inteligente entre navegação e dados
-    if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.path.startsWith('/api/')) {
-        return res.status(401).json({ success: false, error: "Sessão não identificada pelo Tronco." });
+    console.log(`[AUTH] Acesso não autorizado para: ${req.path}`);
+    // Se for uma chamada de API (AJAX), retorna 401; caso contrário, redireciona para o login
+    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(401).json({ success: false, error: "Sessão expirada ou não autenticada." });
     }
     res.redirect('/');
 };
 
 // ------------------------------------------------------------------------------
-// 3. OS RAMOS: NAVEGAÇÃO E PÁGINAS (FLUXO ORGÂNICO)
+// 4. OS RAMOS: ROTAS E FLUXO (Define os caminhos e a navegação do ecossistema)
 // ------------------------------------------------------------------------------
-app.use(express.static(PATHS.PUBLIC));
-app.use('/imagens', express.static(PATHS.IMAGENS));
 
-// Rota Raiz (A Semente)
+// Rota Raiz: Ponto de entrada do portal
 app.get('/', (req, res) => {
-    if (req.isAuthenticated()) return res.redirect('/capa');
-    res.sendFile(path.join(PATHS.PUBLIC, 'index.html'));
+    if (req.isAuthenticated()) {
+        console.log(`[FLUXO] Usuário autenticado, redirecionando para /capa.`);
+        return res.redirect('/capa');
+    }
+    console.log(`[FLUXO] Usuário não autenticado, exibindo tela de login.`);
+    res.send(`
+        <h1>TR: VIDA - O Ecossistema Literário</h1>
+        <p>Bem-vindo ao portal. Faça login para explorar as histórias.</p>
+        <a href="/login">Entrar via Discord</a>
+    `);
 });
 
-// LOGIN DISCORD (A PONTE DE LUZ)
-app.get('/auth/discord', passport.authenticate('discord'));
+// Rota de Login: Inicia o fluxo de autenticação do Discord
+app.get('/login', passport.authenticate('discord'));
 
-app.get('/auth/discord/callback', (req, res, next) => {
-    passport.authenticate('discord', { failureRedirect: '/?error=auth_failed' }, (err, user) => {
-        if (err) return next(err);
-        if (!user) return res.redirect('/?error=no_user');
+// Rota de Callback: Recebe a resposta do Discord após a autenticação
+app.get('/callback', (req, res, next) => {
+    passport.authenticate('discord', (err, user, info) => {
+        if (err) {
+            console.error(`[AUTH ERROR] Erro no callback: ${err}`);
+            return res.redirect('/?error=auth_failed');
+        }
+        if (!user) {
+            console.log(`[AUTH] Usuário não retornado pelo Discord.`);
+            return res.redirect('/?error=user_not_found');
+        }
         
-        req.logIn(user, (err) => {
-            if (err) return next(err);
+        req.logIn(user, (loginErr) => {
+            if (loginErr) {
+                console.error(`[AUTH ERROR] Erro ao fazer login: ${loginErr}`);
+                return res.redirect('/?error=login_failed');
+            }
             
-            // Consolidação da sessão antes do redirecionamento final
-            req.session.save((err) => {
-                if (err) return next(err);
+            // Salva a sessão explicitamente para garantir persistência antes do redirecionamento
+            req.session.save(() => {
+                console.log(`[AUTH] Sessão salva para ${user.username}. Redirecionando para /capa.`);
                 res.redirect('/capa');
             });
         });
     })(req, res, next);
 });
 
-// RAMOS PROTEGIDOS (A COPA DA ÁRVORE)
-app.get('/capa', isAuth, (req, res) => res.sendFile(path.join(PATHS.PUBLIC, 'capa.html')));
-app.get('/editor', isAuth, (req, res) => res.sendFile(path.join(PATHS.PUBLIC, 'editor.html')));
-app.get('/perfil', isAuth, (req, res) => res.sendFile(path.join(PATHS.PUBLIC, 'perfil.html')));
-app.get('/configuracoes', isAuth, (req, res) => res.sendFile(path.join(PATHS.PUBLIC, 'configuracoes.html')));
+// Servir arquivos estáticos (CSS, JS, imagens) da pasta 'public'
+app.use(express.static(PATHS.PUBLIC));
+app.use('/imagens', express.static(PATHS.IMAGENS)); // Garante que /imagens seja acessível
 
-// O LEITOR (A FOLHA DA IMERSÃO)
+// Rotas Protegidas (A Copa da Árvore - Apenas para usuários autenticados)
+app.get('/capa', isAuth, (req, res) => {
+    console.log(`[FLUXO] Servindo capa.html para ${req.user.username}`);
+    res.sendFile(path.join(PATHS.PUBLIC, 'capa.html'));
+});
+
+app.get('/editor', isAuth, (req, res) => {
+    console.log(`[FLUXO] Servindo editor.html para ${req.user.username}`);
+    res.sendFile(path.join(PATHS.PUBLIC, 'editor.html'));
+});
+
 app.get('/ler/:id', isAuth, (req, res) => {
-    const id = req.params.id;
-    // O Tronco apenas serve a folha; a seiva (dados) vem via API
+    console.log(`[FLUXO] Servindo capitulo.html para ${req.user.username} (ID: ${req.params.id})`);
     res.sendFile(path.join(PATHS.PUBLIC, 'capitulo.html'));
 });
 
-// LOGOUT (O RETORNO AO SOLO)
+// Rota de Logout: Finaliza a sessão do usuário
 app.get('/logout', (req, res) => {
     req.logout((err) => {
+        if (err) { console.error(`[AUTH ERROR] Erro ao fazer logout: ${err}`); }
         req.session.destroy(() => {
             res.clearCookie('trvida_ecosystem_sid');
+            console.log(`[AUTH] Usuário desconectado.`);
             res.redirect('/');
         });
     });
 });
 
 // ------------------------------------------------------------------------------
-// 4. OS FRUTOS: API DE DADOS (COLHEITA E GESTÃO)
+// 5. OS FRUTOS: API DE DADOS (Colheita e Gestão de Conteúdo - O coração dinâmico)
 // ------------------------------------------------------------------------------
 
-// Utilitário de Colheita de Histórias
-const harvest = async () => {
-    const files = await readdir(PATHS.DATA);
-    return files
-        .filter(f => f.startsWith('trvida') && f.endsWith('.txt'))
-        .map(f => {
-            const id = parseInt(f.replace('trvida', '').replace('.txt', ''), 10);
-            return { id, title: `Capítulo ${id}`, url: `/ler/${id}` };
-        })
-        .filter(s => !isNaN(s.id))
-        .sort((a, b) => a.id - b.id);
-};
-
-// LISTAGEM DE FRUTOS
-app.get('/api/stories/list', isAuth, async (req, res) => {
-    try {
-        const stories = await harvest();
-        res.json({ success: true, stories });
-    } catch (err) {
-        res.status(500).json({ success: false, error: "Erro na colheita primordial." });
-    }
-});
-
-// SABOR DO FRUTO (CONTEÚDO DO CAPÍTULO)
-app.get('/api/stories/content/:id', isAuth, async (req, res) => {
-    const id = parseInt(req.params.id, 10);
+// Utilitário de Colheita de Histórias (Lê todos os arquivos .txt da pasta DATA)
+const harvestStories = async () => {
     try {
         const files = await readdir(PATHS.DATA);
-        const file = files.find(f => f.match(new RegExp(`^trvida0*${id}\\.txt$`)));
+        const stories = files
+            .filter(f => f.startsWith('trvida') && f.endsWith('.txt'))
+            .map(f => {
+                const idMatch = f.match(/^trvida(\d+)\.txt$/);
+                const id = idMatch ? parseInt(idMatch[1], 10) : null;
+                return { id, title: `Capítulo ${id}`, url: `/ler/${id}` };
+            })
+            .filter(s => s.id !== null && !isNaN(s.id)) // Garante que o ID é um número válido
+            .sort((a, b) => a.id - b.id);
         
-        if (file) {
-            const content = await readFile(path.join(PATHS.DATA, file), 'utf8');
-            res.json({ 
-                success: true, 
-                id, 
-                content, 
-                stats: { words: content.split(/\s+/).filter(Boolean).length } 
+        console.log(`[API] ${stories.length} histórias colhidas.`);
+        return stories;
+    } catch (e) {
+        console.error(`[API ERROR] Erro na colheita de histórias: ${e.message}`);
+        return [];
+    }
+};
+
+// API: Lista todos os capítulos disponíveis
+app.get('/api/stories/list', isAuth, async (req, res) => {
+    const stories = await harvestStories();
+    res.json({ success: true, stories });
+});
+
+// API: Retorna o conteúdo de um capítulo específico, incluindo navegação
+app.get('/api/stories/content/:id', isAuth, async (req, res) => {
+    const requestedId = parseInt(req.params.id, 10);
+    if (isNaN(requestedId)) {
+        return res.status(400).json({ success: false, error: "ID de capítulo inválido." });
+    }
+
+    try {
+        const stories = await harvestStories();
+        const currentIndex = stories.findIndex(s => s.id === requestedId);
+        
+        if (currentIndex === -1) {
+            console.log(`[API] Capítulo ${requestedId} não encontrado.`);
+            return res.status(404).json({ success: false, error: "Fruto não encontrado nas raízes." });
+        }
+
+        const story = stories[currentIndex];
+        const fileName = `trvida${story.id}.txt`; // Usa o ID do objeto story para garantir o nome correto
+        const filePath = path.join(PATHS.DATA, fileName);
+        
+        if (fs.existsSync(filePath)) {
+            const content = await readFile(filePath, 'utf8');
+            const words = content.split(/\s+/).filter(Boolean).length;
+
+            res.json({
+                success: true,
+                id: story.id,
+                title: story.title,
+                content: content,
+                stats: {
+                    words: words,
+                    total: stories.length,
+                    index: currentIndex + 1
+                },
+                navigation: {
+                    prev: currentIndex > 0 ? stories[currentIndex - 1].id : null,
+                    next: currentIndex < stories.length - 1 ? stories[currentIndex + 1].id : null
+                }
             });
         } else {
-            res.status(404).json({ success: false, error: "Fruto não encontrado nas raízes." });
+            console.error(`[API ERROR] Arquivo físico ${filePath} não encontrado para o ID ${requestedId}.`);
+            res.status(404).json({ success: false, error: "Arquivo físico do capítulo não encontrado." });
         }
     } catch (err) {
-        res.status(500).json({ success: false, error: "Erro ao processar o fruto." });
+        console.error(`[API ERROR] Erro ao processar o fruto ${requestedId}: ${err.message}`);
+        res.status(500).json({ success: false, error: `Erro interno do servidor: ${err.message}` });
     }
 });
 
-// PLANTIO DE NOVAS SEMENTES (SALVAR CAPÍTULO)
+// API: Salva (cria ou atualiza) um capítulo
 app.post('/api/stories/save', isAuth, async (req, res) => {
     const { id, content } = req.body;
-    if (!id || content === undefined) return res.status(400).json({ success: false, error: "Semente incompleta." });
+    if (!id || content === undefined) {
+        return res.status(400).json({ success: false, error: "Dados incompletos para plantar a semente." });
+    }
     
     try {
         const fileName = `trvida${parseInt(id, 10)}.txt`;
         await writeFile(path.join(PATHS.DATA, fileName), content, 'utf8');
+        console.log(`[API] Semente ${fileName} plantada/nutrida.`);
         res.json({ success: true, message: "Semente plantada e nutrida." });
     } catch (err) {
-        res.status(500).json({ success: false, error: "Erro ao plantar semente." });
+        console.error(`[API ERROR] Erro ao plantar semente ${id}: ${err.message}`);
+        res.status(500).json({ success: false, error: `Erro ao plantar semente: ${err.message}` });
     }
 });
 
-// PODA DE RAMOS (DELETAR CAPÍTULO)
+// API: Deleta um capítulo
 app.delete('/api/stories/delete/:id', isAuth, async (req, res) => {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+        return res.status(400).json({ success: false, error: "ID de capítulo inválido para poda." });
+    }
+
     try {
         const files = await readdir(PATHS.DATA);
-        const file = files.find(f => f.match(new RegExp(`^trvida0*${id}\\.txt$`)));
-        if (file) {
-            await unlink(path.join(PATHS.DATA, file));
+        const fileToDelete = files.find(f => f.match(new RegExp(`^trvida0*${id}\.txt$`)));
+        
+        if (fileToDelete) {
+            await unlink(path.join(PATHS.DATA, fileToDelete));
+            console.log(`[API] Ramo ${fileToDelete} podado com sucesso.`);
             res.json({ success: true, message: "Ramo podado com sucesso." });
         } else {
+            console.log(`[API] Ramo ${id} não encontrado para poda.`);
             res.status(404).json({ success: false, error: "Ramo não encontrado para poda." });
         }
     } catch (err) {
-        res.status(500).json({ success: false, error: "Erro ao podar o ramo." });
+        console.error(`[API ERROR] Erro ao podar o ramo ${id}: ${err.message}`);
+        res.status(500).json({ success: false, error: `Erro ao podar o ramo: ${err.message}` });
     }
 });
 
-// PRÓXIMO ID (O CRESCIMENTO CONTÍNUO)
+// API: Retorna o próximo ID disponível para um novo capítulo
 app.get('/api/stories/next-id', isAuth, async (req, res) => {
     try {
-        const stories = await harvest();
+        const stories = await harvestStories();
         const maxId = stories.reduce((max, s) => Math.max(max, s.id), 0);
         res.json({ success: true, nextId: maxId + 1 });
     } catch (err) {
-        res.status(500).json({ success: false, error: "Erro ao calcular crescimento." });
+        console.error(`[API ERROR] Erro ao calcular o próximo crescimento: ${err.message}`);
+        res.status(500).json({ success: false, error: `Erro ao calcular próximo ID: ${err.message}` });
     }
 });
 
 // ------------------------------------------------------------------------------
-// 5. MONITORAMENTO E VIDA (SAÚDE DO ECOSSISTEMA)
+// 6. MONITORAMENTO E VIDA (Saúde do Ecossistema e Tratamento de Erros)
 // ------------------------------------------------------------------------------
+
+// Rota de Saúde: Verifica se o servidor está vivo
 app.get('/health', (req, res) => {
     res.json({
         status: 'VIVO',
@@ -291,25 +329,40 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Tratamento de Ramos Inexistentes (404)
+// Tratamento de Ramos Inexistentes (404 - Página não encontrada)
 app.use((req, res) => {
+    console.log(`[ERRO 404] Ramo não encontrado: ${req.originalUrl}`);
     const file404 = path.join(PATHS.PUBLIC, '404.html');
     if (fs.existsSync(file404)) {
         res.status(404).sendFile(file404);
     } else {
-        res.status(404).send("<h1>404</h1><p>Este ramo não existe neste ecossistema.</p>");
+        res.status(404).send(`
+            <h1>404 - Ramo Não Encontrado</h1>
+            <p>A URL ${req.originalUrl} não existe neste ecossistema.</p>
+            <a href="/">Voltar ao Solo</a>
+        `);
     }
 });
 
-// Tratamento de Feridas Críticas (500)
+// Tratamento de Feridas Críticas (500 - Erro interno do servidor)
 app.use((err, req, res, next) => {
-    console.error("FERIDA NO ECOSSISTEMA:", err);
-    res.status(500).send("<h1>500</h1><p>O Ecossistema Primordial está se regenerando de uma falha crítica.</p>");
+    console.error("\n--- FERIDA CRÍTICA NO ECOSSISTEMA ---");
+    console.error(err.stack);
+    console.error("------------------------------------\n");
+    res.status(500).send(`
+        <h1>500 - Ferida Crítica</h1>
+        <p>O Ecossistema Primordial está se regenerando de uma falha crítica.</p>
+        <p>Detalhes: ${err.message}</p>
+        <a href="/">Voltar ao Solo</a>
+    `);
 });
 
-// INICIALIZAÇÃO DA VIDA
+// INICIALIZAÇÃO DA VIDA: O Ecossistema ganha vida
 app.listen(PORT, () => {
-    console.log(`\n🌳 O ECOSSISTEMA PRIMORDIAL ESTÁ VIVO NA PORTA ${PORT}`);
-    console.log(`📂 RAÍZES: ${PATHS.ROOT}`);
-    console.log(`🍃 RAMOS: ${PATHS.PUBLIC}\n`);
+    console.log(`\n🌳 O ECOSSISTEMA FINAL ESTÁ VIVO NA PORTA ${PORT}`);
+    console.log(`📂 RAÍZES DO PROJETO: ${PATHS.ROOT}`);
+    console.log(`🍃 RAMOS PÚBLICOS: ${PATHS.PUBLIC}`);
+    console.log(`📚 DADOS DOS FRUTOS: ${PATHS.DATA}`);
+    console.log(`🖼️ IMAGENS: ${PATHS.IMAGENS}\n`);
+    console.log(`Acesse: http://localhost:${PORT}`);
 });
