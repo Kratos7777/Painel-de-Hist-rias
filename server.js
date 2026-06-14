@@ -1,6 +1,6 @@
 // ECOSSISTEMA PRIMORDIAL - SERVER.JS
 // O Tronco Inabalável: Gerencia o fluxo de vida do portal com APIs robustas e autenticação resiliente.
-// Versão 3.0 - Limpeza Absoluta e Diagnóstico Profundo
+// Versão 4.1 - Sincronização Absoluta e Adaptação Dinâmica
 
 // Módulos Essenciais: As raízes profundas do sistema
 const express = require("express");
@@ -17,6 +17,8 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
+const util = require("util"); // Para util.inspect
+const { URL } = require("url"); // Para parsear URLs de forma robusta
 
 // Carrega variáveis de ambiente do arquivo .env
 dotenv.config();
@@ -55,27 +57,40 @@ Object.values(PATHS).forEach(dirPath => {
 // SESSION_SECRET="SUA_CHAVE_SECRETA_UNICA_E_FORTE"
 // DISCORD_CLIENT_ID="SEU_CLIENT_ID_DO_DISCORD" (APENAS NÚMEROS! Ex: 123456789012345678)
 // DISCORD_CLIENT_SECRET="SEU_CLIENT_SECRET_DO_DISCORD"
-// DISCORD_CALLBACK_URL="SUA_URL_DE_CALLBACK_DO_DISCORD" (Ex: http://localhost:3000/callback)
+// DISCORD_CALLBACK_URL="SUA_URL_DE_CALLBACK_DO_DISCORD" (Ex: http://localhost:3000/callback ou https://seusite.com/auth/discord/callback)
 
 const SESSION_SECRET_RAW = process.env.SESSION_SECRET;
 const DISCORD_CLIENT_ID_RAW = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET_RAW = process.env.DISCORD_CLIENT_SECRET;
-const DISCORD_CALLBACK_URL_RAW = process.env.DISCORD_CALLBACK_URL;
+const DISCORD_CALLBACK_URL_FULL = process.env.DISCORD_CALLBACK_URL;
 
-// Limpeza e Validação Absoluta do CLIENT_ID: Garante que seja um snowflake puro
-const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW ? DISCORD_CLIENT_ID_RAW.replace(/\D/g, "") : null; // Remove tudo que não for dígito
+// Purificação Total do CLIENT_ID: Garante que seja um snowflake puro e limpo
+const DISCORD_CLIENT_ID = DISCORD_CLIENT_ID_RAW 
+    ? DISCORD_CLIENT_ID_RAW.replace(/[^0-9]/g, "").trim() // Remove tudo que não for dígito e espaços
+    : null; 
+
+// Extrai o PATH da CALLBACK_URL para uso dinâmico nas rotas do Express
+let DISCORD_CALLBACK_PATH = "/callback"; // Default fallback
+if (DISCORD_CALLBACK_URL_FULL) {
+    try {
+        const parsedUrl = new URL(DISCORD_CALLBACK_URL_FULL);
+        DISCORD_CALLBACK_PATH = parsedUrl.pathname; // Pega apenas o /caminho/da/url
+    } catch (e) {
+        console.error(`[SETUP ERROR] DISCORD_CALLBACK_URL inválida no .env: ${e.message}. Usando default /callback.`);
+    }
+}
 
 // Aplica valores padrão se não estiverem definidos no .env (apenas para desenvolvimento/teste)
 const SESSION_SECRET = SESSION_SECRET_RAW || "trvida_ecosistema_secreto_ancestral_2026_super_seguro";
 const DISCORD_CLIENT_SECRET = DISCORD_CLIENT_SECRET_RAW || "H9e_qH080-v_uY7Y16-U-oY_2Z_X-Z-X"; // Substitua pelo seu segredo real
-const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_RAW || `http://localhost:${PORT}/callback`;
+const DISCORD_CALLBACK_URL = DISCORD_CALLBACK_URL_FULL || `http://localhost:${PORT}${DISCORD_CALLBACK_PATH}`; // Usa o caminho extraído
 
 // VERIFICAÇÃO CRÍTICA: Garante que as credenciais do Discord foram fornecidas e são válidas
 if (!DISCORD_CLIENT_ID || isNaN(DISCORD_CLIENT_ID) || !DISCORD_CLIENT_SECRET) {
     console.error("\n--- ERRO CRÍTICO DE CONFIGURAÇÃO DO DISCORD ---");
     console.error("As variáveis DISCORD_CLIENT_ID (deve ser um número válido) e DISCORD_CLIENT_SECRET não foram definidas ou estão incorretas no seu arquivo .env.");
     console.error("Por favor, verifique o Portal do Desenvolvedor do Discord e seu arquivo .env.");
-    console.error(`DISCORD_CLIENT_ID (limpo): '${DISCORD_CLIENT_ID}'`);
+    console.error(`DISCORD_CLIENT_ID (limpo): \'${DISCORD_CLIENT_ID}\'`);
     console.error(`DISCORD_CLIENT_SECRET (presente): ${!!DISCORD_CLIENT_SECRET}`);
     console.error("------------------------------------\n");
     process.exit(1); // Encerra o processo do servidor para forçar a correção
@@ -109,7 +124,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
             imgSrc: ["'self'", "data:", "https://via.placeholder.com"],
-            connectSrc: ["'self'", "https://discord.com"], // Adicionado para permitir conexão com Discord
+            connectSrc: ["'self'", "https://discord.com", "https://discordapp.com"], // Adicionado para permitir conexão com Discord
         },
     },
     crossOriginEmbedderPolicy: false, // Necessário para alguns embeds
@@ -214,7 +229,8 @@ app.get("/", (req, res) => {
 app.get("/login", passport.authenticate("discord"));
 
 // Rota de Callback: Recebe a resposta do Discord após a autenticação
-app.get("/callback", (req, res, next) => {
+// Usa o caminho extraído dinamicamente da DISCORD_CALLBACK_URL
+app.get(DISCORD_CALLBACK_PATH, (req, res, next) => {
     passport.authenticate("discord", (err, user, info) => {
         if (err) {
             console.error(`[AUTH ERROR] Erro no callback do Discord: ${err.message}`);
@@ -445,7 +461,7 @@ app.get("/health", (req, res) => {
         memory: process.memoryUsage(),
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
-        version: "3.0.0",
+        version: "4.1.0",
     });
 });
 
@@ -514,13 +530,29 @@ app.use((err, req, res, next) => {
 // INICIALIZAÇÃO DA VIDA: O Ecossistema ganha vida
 app.listen(PORT, () => {
     console.log(`\n🌳 O ECOSSISTEMA FINAL ESTÁ VIVO NA PORTA ${PORT}`);
-    console.log(`📂 RAÍZES DO PROJETO: ${PATHS.ROOT}`);
-    console.log(`🍃 RAMOS PÚBLICOS: ${PATHS.PUBLIC}`);
-    console.log(`📚 DADOS DOS FRUTOS: ${PATHS.DATA}`);
-    console.log(`🖼️ IMAGENS: ${PATHS.IMAGENS}`);
-    console.log(`📝 LOGS DE ERRO: ${PATHS.ERROR_LOG}`);
-    console.log(`📜 LOGS DE ACESSO: ${PATHS.ACCESS_LOG}\n`);
+    console.log(`
++-----------------------------------------------------------------------+
+|                   PAINEL DE DIAGNÓSTICO DO TRONCO                     |
++-----------------------------------------------------------------------+
+|  PORTA DO SERVIDOR: ${PORT.toString().padEnd(55)}|
+|  RAÍZES DO PROJETO: ${PATHS.ROOT.padEnd(55)}|
+|  RAMOS PÚBLICOS:    ${PATHS.PUBLIC.padEnd(55)}|
+|  DADOS DOS FRUTOS:  ${PATHS.DATA.padEnd(55)}|
+|  IMAGENS:           ${PATHS.IMAGENS.padEnd(55)}|
+|  LOGS DE ERRO:      ${PATHS.ERROR_LOG.padEnd(55)}|
+|  LOGS DE ACESSO:    ${PATHS.ACCESS_LOG.padEnd(55)}|
++-----------------------------------------------------------------------+
+|  AUTENTICAÇÃO DISCORD                                                 |
++-----------------------------------------------------------------------+
+|  CLIENT_ID (LIMPO):       '${DISCORD_CLIENT_ID}'${(DISCORD_CLIENT_ID && !isNaN(DISCORD_CLIENT_ID)) ? ' (VÁLIDO)' : ' (INVÁLIDO/AUSENTE)'}
+|  CLIENT_SECRET (PRESENTE): ${!!DISCORD_CLIENT_SECRET}
+|  CALLBACK_URL (COMPLETA): '${DISCORD_CALLBACK_URL}'
+|  CALLBACK_PATH (EXTRAÍDO):'${DISCORD_CALLBACK_PATH}'
++-----------------------------------------------------------------------+
+|  VERIFIQUE ESTES VALORES NO PORTAL DO DESENVOLVEDOR DO DISCORD!       |
+|  A CALLBACK_URL NO DISCORD DEVE SER EXATAMENTE IGUAL À COMPLETA ACIMA.|
+|  QUALQUER INCOMPATIBILIDADE CAUSARÁ O ERRO 'APLICATIVO DESCONHECIDO'. |
++-----------------------------------------------------------------------+
+`);
     console.log(`Acesse o portal: http://localhost:${PORT}`);
-    console.log(`Autenticação Discord CLIENT_ID (limpo): '${DISCORD_CLIENT_ID}'`); // Log explícito do ID limpo
-    console.log(`Autenticação Discord CALLBACK_URL: ${DISCORD_CALLBACK_URL}\n`);
 });
