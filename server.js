@@ -63,6 +63,12 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+
+console.log('=== CREDENCIAIS CARREGADAS ===');
+console.log('CLIENT_ID:', CLIENT_ID);
+console.log('CLIENT_SECRET (tamanho):', CLIENT_SECRET ? CLIENT_SECRET.length : 0);
+console.log('CALLBACK_URL:', CALLBACK_URL);
+console.log('==============================');
 // ==========================================
 // 3. SESSÃO E PASSPORT
 // ==========================================
