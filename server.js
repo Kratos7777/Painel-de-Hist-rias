@@ -146,6 +146,11 @@ app.get('/auth/discord/callback', (req, res, next) => {
     })(req, res, next);
 });
 
+    // Redireciona /login para o fluxo correto do Discord
+app.get('/login', (req, res) => {
+    res.redirect('/auth/discord');
+});
+
 app.get('/logout', (req, res) => {
     console.log(`[AUTH] Logout: ${req.user ? req.user.username : 'desconhecido'}`);
     req.logout(() => {
