@@ -1,6 +1,6 @@
 
-📄 Arquivo 1 de 9: server.js
-Substitui inteiro o server.js no VS Code (Ctrl+A → cola → Ctrl+S).
+//📄 Arquivo 1 de 9: server.js
+//Substitui inteiro o server.js no VS Code (Ctrl+A → cola → Ctrl+S).
 
 /**
  * ==============================================================================
@@ -230,6 +230,10 @@ app.get('/trvida/:numero', isAuth, (req, res) => {
 
 app.get('/dashboard', isAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+app.get('/editor', isAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, 'editor.html'));
 });
 
 // ==========================================
