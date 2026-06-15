@@ -362,18 +362,11 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use((err, req, res, next) => {
-    console.error(`[ERRO] (req:${req.requestId}) ${req.method} ${req.path}`);
-    console.error(`  Mensagem: ${err.message}`);
-    console.error(`  Código:   ${err.code || 'N/A'}`);
-    console.error(`  Stack:`, err.stack);
-    res.status(500).json({
-        error: 'Erro interno no servidor.',
-        requestId: req.requestId,
-        ...(NODE_ENV !== 'production' && { message: err.message, code: err.code, path: req.path })
-    });
-});
-// Página 404 customizada e útil
+// 🔥 LINHAS QUE ESTAVAM FALTANDO 🔥
+app.use(express.static(PUBLIC_DIR, { dotfiles: 'deny', index: false, maxAge: '1h' }));
+app.use('/imagens', express.static(IMAGES_DIR, { maxAge: '7d' }));
+
+// Página 404 customizada (vem ANTES do error handler)
 app.use((req, res) => {
     res.status(404).send(`
         <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>404 - Não Encontrado</title></head>
@@ -390,10 +383,17 @@ app.use((req, res) => {
         </body></html>`);
 });
 
-// Tratamento global de erros não capturados
+// Error handler global (SEMPRE por último, com 4 parâmetros)
 app.use((err, req, res, next) => {
-    console.error(`[ERRO] (req:${req.requestId})`, err.stack);
-    res.status(500).json({ error: 'Erro interno no servidor.', requestId: req.requestId });
+    console.error(`[ERRO] (req:${req.requestId}) ${req.method} ${req.path}`);
+    console.error(`  Mensagem: ${err.message}`);
+    console.error(`  Código:   ${err.code || 'N/A'}`);
+    console.error(`  Stack:`, err.stack);
+    res.status(500).json({
+        error: 'Erro interno no servidor.',
+        requestId: req.requestId,
+        ...(NODE_ENV !== 'production' && { message: err.message, code: err.code, path: req.path })
+    });
 });
 
 // ==========================================
