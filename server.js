@@ -1,13 +1,28 @@
+npm install mongoose
+Isso atualiza seu package.json automaticamente.
 
-//📄 Arquivo 1 de 9: server.js
+2️⃣ Adicionar a variável de ambiente no Render
+Vai no painel do Render → seu serviço → aba "Environment" → "Add Environment Variable"
+Key: MONGO_URL
+Value: (cola exatamente isso, prestando atenção que adicionei /portal_historias antes do ? pra dar nome ao banco):
+mongodb+srv://mtda2302_db_user:CMxZfq48xQTgrJsw@cluster0.qlicmvf.mongodb.net/portal_historias?retryWrites=true&w=majority&appName=Cluster0
+Clica em Save Changes
+💡 No seu .env local (se você roda localmente também), adiciona a mesma linha:
+
+MONGO_URL=mongodb+srv://mtda2302_db_user:CMxZfq48xQTgrJsw@cluster0.qlicmvf.mongodb.net/portal_historias?retryWrites=true&w=majority&appName=Cluster0
+3️⃣ Renomear o server.js atual pra backup (segurança)
+No VS Code, renomeia o server.js atual pra server.OLD.js. Se der algum erro, é só renomear de volta e o sistema volta a funcionar como antes.
+
+📄 Arquivo: server.js (COMPLETO — Ctrl+A → cola → Ctrl+S)
+//📄 server.js - v12.1.0 (com persistência MongoDB Atlas)
 //Substitui inteiro o server.js no VS Code (Ctrl+A → cola → Ctrl+S).
 
 /**
  * ==============================================================================
  * 🚀 PORTAL DE HISTÓRIAS - SISTEMA ULTRA PREMIUM (SERVER.JS)
  * ==============================================================================
- * Versão: 12.0.0 - Edição Expandida
- * Stack: Node.js + Express + Passport (Discord OAuth2)
+ * Versão: 12.1.0 - Persistência MongoDB Atlas
+ * Stack: Node.js + Express + Passport (Discord OAuth2) + Mongoose
  * Hospedagem alvo: Render.com (com fallback local)
  * ==============================================================================
  */
@@ -24,6 +39,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -32,7 +48,7 @@ const app = express();
 // ==========================================
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const APP_VERSION = '12.0.0';
+const APP_VERSION = '12.1.0';
 const APP_NAME = 'Portal de Histórias - TR: Vida';
 
 // Limpa variáveis de ambiente (remove aspas, espaços extras e quebras de linha)
@@ -46,6 +62,7 @@ const CLIENT_SECRET = cleanEnv(process.env.CLIENT_SECRET);
 const CALLBACK_URL = cleanEnv(process.env.REDIRECT_URI) || cleanEnv(process.env.CALLBACK_URL);
 const DISCORD_ADMIN_ID = cleanEnv(process.env.DISCORD_ID);
 const SESSION_SECRET = cleanEnv(process.env.SESSION_SECRET) || 'portal_historias_super_secret_2026';
+const MONGO_URL = cleanEnv(process.env.MONGO_URL);
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const DATA_DIR = path.join(PUBLIC_DIR, 'data');
 const IMAGES_DIR = path.join(PUBLIC_DIR, 'imagens');
@@ -65,8 +82,80 @@ console.log(`🔌 Porta:           ${PORT}`);
 console.log(`🆔 Client ID:       ${CLIENT_ID ? CLIENT_ID.substring(0, 6) + '...' : '❌ NÃO DEFINIDO'}`);
 console.log(`🔗 Redirect URI:    ${CALLBACK_URL || '❌ NÃO DEFINIDO'}`);
 console.log(`👑 Admin Discord:   ${DISCORD_ADMIN_ID ? DISCORD_ADMIN_ID.substring(0, 6) + '...' : '❌ NÃO DEFINIDO'}`);
+console.log(`🗄️  MongoDB URL:     ${MONGO_URL ? '✅ configurado' : '❌ NÃO DEFINIDO'}`);
 console.log(`📂 Pasta de dados:  ${DATA_DIR}`);
 console.log('='.repeat(60) + '\n');
+
+// ==========================================
+// 🗄️  1.5. CONEXÃO MONGODB + SCHEMA DE CAPÍTULOS
+// ==========================================
+const capituloSchema = new mongoose.Schema({
+    numero: { type: Number, required: true, unique: true, index: true },
+    conteudo: { type: String, required: true },
+    postadoEm: { type: Date, default: Date.now },
+    atualizadoEm: { type: Date, default: Date.now }
+});
+
+capituloSchema.pre('save', function(next) {
+    this.atualizadoEm = new Date();
+    next();
+});
+
+const Capitulo = mongoose.model('Capitulo', capituloSchema);
+
+let mongoConectado = false;
+
+async function conectarMongo() {
+    if (!MONGO_URL) {
+        console.error('❌ MONGO_URL não configurado! Capítulos não vão persistir.');
+        return;
+    }
+    try {
+        await mongoose.connect(MONGO_URL, {
+            serverSelectionTimeoutMS: 10000
+        });
+        mongoConectado = true;
+        console.log('✅ MongoDB Atlas conectado com sucesso!');
+        await migrarArquivosParaMongo();
+    } catch (err) {
+        console.error('❌ Erro ao conectar no MongoDB:', err.message);
+    }
+}
+
+// Migração automática: se houver trvida{N}.txt no disco, copia pro Mongo (1x só)
+async function migrarArquivosParaMongo() {
+    try {
+        const arquivos = fs.readdirSync(DATA_DIR).filter(f => /^trvida\d+\.txt$/.test(f));
+        if (arquivos.length === 0) return;
+        console.log(`[MIGRAÇÃO] ${arquivos.length} arquivo(s) .txt encontrado(s). Verificando...`);
+        let migrados = 0;
+        for (const f of arquivos) {
+            const numero = parseInt(f.replace(/\D/g, ''), 10);
+            const existe = await Capitulo.findOne({ numero });
+            if (!existe) {
+                const conteudo = fs.readFileSync(path.join(DATA_DIR, f), 'utf8');
+                const stats = fs.statSync(path.join(DATA_DIR, f));
+                await Capitulo.create({ numero, conteudo, postadoEm: stats.mtime, atualizadoEm: stats.mtime });
+                migrados++;
+                console.log(`[MIGRAÇÃO] ✅ Cap. ${numero} importado pro MongoDB`);
+            }
+        }
+        console.log(`[MIGRAÇÃO] Concluída. ${migrados} novo(s), ${arquivos.length - migrados} já existiam.`);
+    } catch (err) {
+        console.error('[MIGRAÇÃO] Erro:', err.message);
+    }
+}
+
+conectarMongo();
+
+mongoose.connection.on('disconnected', () => {
+    mongoConectado = false;
+    console.warn('⚠️  MongoDB desconectado.');
+});
+mongoose.connection.on('reconnected', () => {
+    mongoConectado = true;
+    console.log('✅ MongoDB reconectado.');
+});
 
 // ==========================================
 // 🛡️ 2. MIDDLEWARES GLOBAIS
@@ -76,8 +165,8 @@ app.disable('x-powered-by'); // Remove header que entrega que é Express
 
 app.use(compression());
 app.use(morgan(NODE_ENV === 'production' ? 'tiny' : 'dev'));
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser(SESSION_SECRET));
 
 app.use(helmet({
@@ -204,6 +293,13 @@ const isAdmin = (req, res, next) => {
     res.status(403).send('🚫 Acesso restrito ao autor da obra.');
 };
 
+const requireMongo = (req, res, next) => {
+    if (!mongoConectado) {
+        return res.status(503).json({ error: 'Banco de dados indisponível. Tente novamente em instantes.' });
+    }
+    next();
+};
+
 // ==========================================
 // 📄 6. ROTAS DE PÁGINAS HTML
 // ==========================================
@@ -259,25 +355,8 @@ function buildAvatarUrl(user) {
         : 'https://cdn.discordapp.com/embed/avatars/0.png';
 }
 
-function listarCapitulos() {
-    const arquivos = fs.readdirSync(DATA_DIR).filter(f => /^trvida\d+\.txt$/.test(f));
-    return arquivos.map(f => {
-        const numero = parseInt(f.replace(/\D/g, ''), 10);
-        const stats = fs.statSync(path.join(DATA_DIR, f));
-        return {
-            numero,
-            postadoEm: stats.mtime,
-            tamanho: (stats.size / 1024).toFixed(1) + ' KB',
-            palavras: estimarPalavras(path.join(DATA_DIR, f))
-        };
-    }).sort((a, b) => a.numero - b.numero);
-}
-
-function estimarPalavras(filePath) {
-    try {
-        const txt = fs.readFileSync(filePath, 'utf8');
-        return txt.trim().split(/\s+/).filter(Boolean).length;
-    } catch { return 0; }
+function contarPalavras(txt) {
+    return (txt || '').trim().split(/\s+/).filter(Boolean).length;
 }
 
 app.get('/api/user', (req, res) => {
@@ -291,61 +370,103 @@ app.get('/api/user', (req, res) => {
     });
 });
 
-app.get('/api/capitulos', isAuth, (req, res) => {
+app.get('/api/capitulos', isAuth, requireMongo, async (req, res) => {
     try {
-        res.json(listarCapitulos());
+        const docs = await Capitulo.find({}, 'numero conteudo postadoEm atualizadoEm').sort({ numero: 1 }).lean();
+        const lista = docs.map(d => {
+            const palavras = contarPalavras(d.conteudo);
+            const tamanhoBytes = Buffer.byteLength(d.conteudo || '', 'utf8');
+            return {
+                numero: d.numero,
+                postadoEm: d.postadoEm,
+                atualizadoEm: d.atualizadoEm,
+                tamanho: (tamanhoBytes / 1024).toFixed(1) + ' KB',
+                palavras
+            };
+        });
+        res.json(lista);
     } catch (err) {
         console.error('[API] Erro listar:', err);
         res.status(500).json({ error: 'Erro ao buscar capítulos.' });
     }
 });
 
-app.get('/api/capitulo/:numero', isAuth, (req, res) => {
+app.get('/api/capitulo/:numero', isAuth, requireMongo, async (req, res) => {
     const numero = parseInt(req.params.numero, 10);
     if (isNaN(numero) || numero < 1) return res.status(400).json({ error: 'Número inválido.' });
-    const filePath = path.join(DATA_DIR, `trvida${numero}.txt`);
-    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Capítulo ainda não postado.' });
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) return res.status(500).json({ error: 'Erro na leitura.' });
-        res.json({ numero, conteudo: data, palavras: data.trim().split(/\s+/).filter(Boolean).length });
-    });
+    try {
+        const doc = await Capitulo.findOne({ numero }).lean();
+        if (!doc) return res.status(404).json({ error: 'Capítulo ainda não postado.' });
+        res.json({
+            numero: doc.numero,
+            conteudo: doc.conteudo,
+            palavras: contarPalavras(doc.conteudo),
+            postadoEm: doc.postadoEm,
+            atualizadoEm: doc.atualizadoEm
+        });
+    } catch (err) {
+        console.error('[API] Erro buscar capítulo:', err);
+        res.status(500).json({ error: 'Erro na leitura.' });
+    }
 });
 
-app.post('/api/salvar-capitulo', isAdmin, (req, res) => {
+app.post('/api/salvar-capitulo', isAdmin, requireMongo, async (req, res) => {
     const { numero, conteudo } = req.body;
     if (!numero || !conteudo) return res.status(400).json({ error: 'Número e conteúdo obrigatórios.' });
     const num = parseInt(numero, 10);
     if (isNaN(num) || num < 1) return res.status(400).json({ error: 'Número inválido.' });
-    fs.writeFile(path.join(DATA_DIR, `trvida${num}.txt`), String(conteudo), 'utf8', (err) => {
-        if (err) return res.status(500).json({ error: 'Erro ao salvar.' });
-        console.log(`[EDITOR] Cap. ${num} salvo por ${req.user.username}`);
+    try {
+        const doc = await Capitulo.findOneAndUpdate(
+            { numero: num },
+            { $set: { conteudo: String(conteudo), atualizadoEm: new Date() }, $setOnInsert: { postadoEm: new Date() } },
+            { upsert: true, new: true }
+        );
+        console.log(`[EDITOR] Cap. ${num} salvo no MongoDB por ${req.user.username} (${doc.conteudo.length} chars)`);
         res.json({ success: true, message: `Capítulo ${num} salvo com sucesso!` });
-    });
+    } catch (err) {
+        console.error('[EDITOR] Erro salvar:', err);
+        res.status(500).json({ error: 'Erro ao salvar.' });
+    }
 });
 
-app.delete('/api/capitulo/:numero', isAdmin, (req, res) => {
+app.delete('/api/capitulo/:numero', isAdmin, requireMongo, async (req, res) => {
     const num = parseInt(req.params.numero, 10);
-    const filePath = path.join(DATA_DIR, `trvida${num}.txt`);
-    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Capítulo não encontrado.' });
-    fs.unlinkSync(filePath);
-    console.log(`[EDITOR] Cap. ${num} deletado por ${req.user.username}`);
-    res.json({ success: true, message: `Capítulo ${num} excluído.` });
+    if (isNaN(num) || num < 1) return res.status(400).json({ error: 'Número inválido.' });
+    try {
+        const result = await Capitulo.deleteOne({ numero: num });
+        if (result.deletedCount === 0) return res.status(404).json({ error: 'Capítulo não encontrado.' });
+        console.log(`[EDITOR] Cap. ${num} deletado por ${req.user.username}`);
+        res.json({ success: true, message: `Capítulo ${num} excluído.` });
+    } catch (err) {
+        console.error('[EDITOR] Erro deletar:', err);
+        res.status(500).json({ error: 'Erro ao deletar.' });
+    }
 });
 
-app.get('/api/stats', isAuth, (req, res) => {
-    const capitulos = listarCapitulos();
-    const totalPalavras = capitulos.reduce((acc, c) => acc + c.palavras, 0);
-    res.json({
-        totalCapitulos: capitulos.length,
-        totalPalavras,
-        tempoLeituraEstimado: Math.ceil(totalPalavras / 200) + ' min',
-        ultimoPublicado: capitulos.length > 0 ? capitulos[capitulos.length - 1].postadoEm : null,
-        versao: APP_VERSION
-    });
+app.get('/api/stats', isAuth, requireMongo, async (req, res) => {
+    try {
+        const docs = await Capitulo.find({}, 'numero conteudo postadoEm').sort({ numero: 1 }).lean();
+        const totalPalavras = docs.reduce((acc, d) => acc + contarPalavras(d.conteudo), 0);
+        res.json({
+            totalCapitulos: docs.length,
+            totalPalavras,
+            tempoLeituraEstimado: Math.ceil(totalPalavras / 200) + ' min',
+            ultimoPublicado: docs.length > 0 ? docs[docs.length - 1].postadoEm : null,
+            versao: APP_VERSION
+        });
+    } catch (err) {
+        console.error('[API] Erro stats:', err);
+        res.status(500).json({ error: 'Erro ao buscar estatísticas.' });
+    }
 });
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', version: APP_VERSION, uptime: Math.round(process.uptime()) + 's' });
+    res.json({
+        status: 'ok',
+        version: APP_VERSION,
+        uptime: Math.round(process.uptime()) + 's',
+        mongo: mongoConectado ? 'connected' : 'disconnected'
+    });
 });
 
 // ==========================================
@@ -404,8 +525,9 @@ const server = app.listen(PORT, () => {
     console.log(`🚀 Aliases de login: /auth/discord, /login, /entrar, /signin, /sign-in, /discord\n`);
 });
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     console.log('\n[SHUTDOWN] Encerrando servidor com graça...');
+    try { await mongoose.connection.close(); } catch (e) {}
     server.close(() => process.exit(0));
 });
 
