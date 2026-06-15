@@ -46,8 +46,9 @@ const CLIENT_SECRET = cleanEnv(process.env.CLIENT_SECRET);
 const CALLBACK_URL = cleanEnv(process.env.REDIRECT_URI) || cleanEnv(process.env.CALLBACK_URL);
 const DISCORD_ADMIN_ID = cleanEnv(process.env.DISCORD_ID);
 const SESSION_SECRET = cleanEnv(process.env.SESSION_SECRET) || 'portal_historias_super_secret_2026';
-const DATA_DIR = path.join(__dirname, 'data');
-const IMAGES_DIR = path.join(__dirname, 'imagens');
+const PUBLIC_DIR = path.join(__dirname, 'public');
+const DATA_DIR = path.join(PUBLIC_DIR, 'data');
+const IMAGES_DIR = path.join(PUBLIC_DIR, 'imagens');
 
 // Garante diretórios necessários
 [DATA_DIR, IMAGES_DIR].forEach(dir => {
@@ -214,26 +215,39 @@ const pages = {
     '/configuracoes': 'configuracoes.html'
 };
 
+function enviarPagina(res, nomeArquivo) {
+    const filePath = path.join(PUBLIC_DIR, nomeArquivo);
+    if (!fs.existsSync(filePath)) {
+        console.error(`[PAGINA] ❌ Arquivo não encontrado: ${filePath}`);
+        return res.status(500).send(
+            `<h1>Erro 500</h1><p>Arquivo <code>${nomeArquivo}</code> não foi enviado para o servidor.</p>`
+        );
+    }
+    res.sendFile(filePath, (err) => {
+        if (err) console.error(`[PAGINA] Erro ao enviar ${nomeArquivo}:`, err.message);
+    });
+}
+
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) return res.redirect('/funcionalidades');
-    res.sendFile(path.join(__dirname, pages['/']));
+    enviarPagina(res, pages['/']);
 });
 
 Object.entries(pages).forEach(([route, file]) => {
     if (route === '/') return;
-    app.get(route, isAuth, (req, res) => res.sendFile(path.join(__dirname, file)));
+    app.get(route, isAuth, (req, res) => enviarPagina(res, file));
 });
 
 app.get('/trvida/:numero', isAuth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'capitulo.html'));
+    enviarPagina(res, 'capitulo.html');
 });
 
 app.get('/dashboard', isAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard.html'));
+    enviarPagina(res, 'dashboard.html');
 });
 
 app.get('/editor', isAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'editor.html'));
+    enviarPagina(res, 'editor.html');
 });
 
 // ==========================================
@@ -348,9 +362,17 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.static(__dirname, { dotfiles: 'deny', index: false, maxAge: '1h' }));
-app.use('/imagens', express.static(IMAGES_DIR, { maxAge: '7d' }));
-
+app.use((err, req, res, next) => {
+    console.error(`[ERRO] (req:${req.requestId}) ${req.method} ${req.path}`);
+    console.error(`  Mensagem: ${err.message}`);
+    console.error(`  Código:   ${err.code || 'N/A'}`);
+    console.error(`  Stack:`, err.stack);
+    res.status(500).json({
+        error: 'Erro interno no servidor.',
+        requestId: req.requestId,
+        ...(NODE_ENV !== 'production' && { message: err.message, code: err.code, path: req.path })
+    });
+});
 // Página 404 customizada e útil
 app.use((req, res) => {
     res.status(404).send(`
