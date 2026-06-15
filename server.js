@@ -1,19 +1,4 @@
-npm install mongoose
-Isso atualiza seu package.json automaticamente.
 
-2️⃣ Adicionar a variável de ambiente no Render
-Vai no painel do Render → seu serviço → aba "Environment" → "Add Environment Variable"
-Key: MONGO_URL
-Value: (cola exatamente isso, prestando atenção que adicionei /portal_historias antes do ? pra dar nome ao banco):
-mongodb+srv://mtda2302_db_user:CMxZfq48xQTgrJsw@cluster0.qlicmvf.mongodb.net/portal_historias?retryWrites=true&w=majority&appName=Cluster0
-Clica em Save Changes
-💡 No seu .env local (se você roda localmente também), adiciona a mesma linha:
-
-MONGO_URL=mongodb+srv://mtda2302_db_user:CMxZfq48xQTgrJsw@cluster0.qlicmvf.mongodb.net/portal_historias?retryWrites=true&w=majority&appName=Cluster0
-3️⃣ Renomear o server.js atual pra backup (segurança)
-No VS Code, renomeia o server.js atual pra server.OLD.js. Se der algum erro, é só renomear de volta e o sistema volta a funcionar como antes.
-
-📄 Arquivo: server.js (COMPLETO — Ctrl+A → cola → Ctrl+S)
 //📄 server.js - v12.1.0 (com persistência MongoDB Atlas)
 //Substitui inteiro o server.js no VS Code (Ctrl+A → cola → Ctrl+S).
 
