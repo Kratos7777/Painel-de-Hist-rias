@@ -95,6 +95,15 @@ async function conectarMongo() {
         console.error('❌ MONGO_URL não configurado! Capítulos não vão persistir.');
         return;
     }
+    // ===== INÍCIO BLOCO PROGRESSO =====
+const progressoSchema = new mongoose.Schema({
+    userId: { type: String, required: true, unique: true, index: true },
+    username: { type: String },
+    ultimoCapituloLido: { type: Number, required: true },
+    lidoEm: { type: Date, default: Date.now }
+});
+const Progresso = mongoose.model('Progresso', progressoSchema);
+// ===== FIM BLOCO PROGRESSO =====
     try {
         await mongoose.connect(MONGO_URL, {
             serverSelectionTimeoutMS: 10000
@@ -453,6 +462,57 @@ app.get('/api/health', (req, res) => {
         mongo: mongoConectado ? 'connected' : 'disconnected'
     });
 });
+
+// ===== INÍCIO BLOCO ROTAS PROGRESSO =====
+
+// Salva o último capítulo que o usuário leu
+app.post('/api/progresso', isAuth, requireMongo, async (req, res) => {
+    const { numero } = req.body;
+    const num = parseInt(numero, 10);
+    if (isNaN(num) || num < 1) return res.status(400).json({ error: 'Número inválido.' });
+    try {
+        await Progresso.findOneAndUpdate(
+            { userId: req.user.id },
+            { $set: { username: req.user.username, ultimoCapituloLido: num, lidoEm: new Date() } },
+            { upsert: true, new: true }
+        );
+        res.json({ success: true });
+    } catch (err) {
+        console.error('[PROGRESSO] Erro salvar:', err.message);
+        res.status(500).json({ error: 'Erro ao salvar progresso.' });
+    }
+});
+
+// Retorna o último capítulo lido (usado pelo frontend se quiser exibir)
+app.get('/api/progresso', isAuth, requireMongo, async (req, res) => {
+    try {
+        const doc = await Progresso.findOne({ userId: req.user.id }).lean();
+        res.json({ ultimoCapituloLido: doc ? doc.ultimoCapituloLido : null });
+    } catch (err) {
+        console.error('[PROGRESSO] Erro buscar:', err.message);
+        res.status(500).json({ error: 'Erro ao buscar progresso.' });
+    }
+});
+
+// Redireciona o usuário pro último capítulo lido (ou pro 1 se nunca leu nada)
+app.get('/continuar', isAuth, async (req, res) => {
+    try {
+        if (!mongoConectado) return res.redirect('/trvida/1');
+        const progresso = await Progresso.findOne({ userId: req.user.id }).lean();
+        if (progresso && progresso.ultimoCapituloLido) {
+            // Confirma que o capítulo ainda existe (caso tenha sido deletado)
+            const existe = await Capitulo.findOne({ numero: progresso.ultimoCapituloLido }).lean();
+            if (existe) return res.redirect(`/trvida/${progresso.ultimoCapituloLido}`);
+        }
+        // Fallback: vai pro primeiro capítulo existente, ou pro 1
+        const primeiro = await Capitulo.findOne().sort({ numero: 1 }).lean();
+        return res.redirect(`/trvida/${primeiro ? primeiro.numero : 1}`);
+    } catch (err) {
+        console.error('[CONTINUAR] Erro:', err.message);
+        return res.redirect('/trvida/1');
+    }
+});
+
 
 // ==========================================
 // 📂 8. ARQUIVOS ESTÁTICOS + SEGURANÇA

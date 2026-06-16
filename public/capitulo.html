@@ -302,7 +302,14 @@
 
                 window.history.pushState({}, '', `/trvida/${numero}`);
                 numeroAtual = numero;
-
+                // ===== INÍCIO BLOCO PROGRESSO =====
+                // Salva o progresso de leitura (fire-and-forget, não bloqueia nada)
+                fetch('/api/progresso', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numero })
+                }).catch(() => {});
+                // ===== FIM BLOCO PROGRESSO =====
                 document.getElementById('cap-numero').textContent = numero;
                 document.getElementById('current-cap').textContent = numero;
                 document.getElementById('chapter-title').textContent = `Capítulo ${numero}`;
