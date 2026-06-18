@@ -229,10 +229,20 @@ const startDiscordAuth = (req, res, next) => {
 });
 
 app.get('/auth/discord/callback', (req, res, next) => {
-    passport.authenticate('discord', (err, user) => {
+        passport.authenticate('discord', (err, user) => {
         if (err) {
             console.error(`[AUTH] Erro (req:${req.requestId}):`, err.message);
-            return res.status(500).send(renderAuthError(err.message));
+            // 🔍 Expõe a resposta real do Discord (motivo do fracasso)
+            if (err.oauthError) {
+                console.error(`[AUTH] OAuth status: ${err.oauthError.statusCode}`);
+                console.error(`[AUTH] OAuth body:`, err.oauthError.data);
+            }
+            console.error(`[AUTH] CLIENT_ID usado: ${CLIENT_ID}`);
+            console.error(`[AUTH] CALLBACK_URL usado: ${CALLBACK_URL}`);
+            const detalhe = err.oauthError && err.oauthError.data
+                ? `${err.message}\n\nDiscord respondeu:\n${err.oauthError.data}`
+                : err.message;
+            return res.status(500).send(renderAuthError(detalhe));
         }
         if (!user) {
             console.warn(`[AUTH] Login cancelado (req:${req.requestId})`);
