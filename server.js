@@ -33,8 +33,12 @@ const app = express();
 // ==========================================
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const APP_VERSION = '12.1.0';
+// Localize estas linhas:
+const APP_VERSION = '12.1.1'; // Atualize a versão se quiser
 const APP_NAME = 'Portal de Histórias - TR: Vida';
+
+// ADICIONE ESTA LINHA ABAIXO:
+const DISCORD_PROXY_URL = 'https://discord-proxy.red2005pokemon.workers.dev';
 
 // Limpa variáveis de ambiente (remove aspas, espaços extras e quebras de linha)
 const cleanEnv = (val) => {
@@ -201,6 +205,10 @@ if (CLIENT_ID && CLIENT_SECRET && CALLBACK_URL) {
         clientSecret: CLIENT_SECRET,
         callbackURL: CALLBACK_URL,
         scope: ['identify', 'email'],
+        // 🔥 ADICIONE ESTAS DUAS LINHAS ABAIXO 🔥
+        tokenURL: `${DISCORD_PROXY_URL}/oauth2/token`,
+        userProfileURL: `${DISCORD_PROXY_URL}/users/@me`,
+        // --------------------------------------
         customHeaders: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         }
@@ -214,6 +222,7 @@ if (CLIENT_ID && CLIENT_SECRET && CALLBACK_URL) {
     console.error('❌ ERRO: Variáveis do Discord não configuradas!');
     console.error('   Necessárias: CLIENT_ID, CLIENT_SECRET, REDIRECT_URI');
 }
+
 
 app.use(passport.initialize());
 app.use(passport.session());
