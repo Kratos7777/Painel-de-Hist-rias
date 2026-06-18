@@ -200,7 +200,10 @@ if (CLIENT_ID && CLIENT_SECRET && CALLBACK_URL) {
         clientID: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
         callbackURL: CALLBACK_URL,
-        scope: ['identify', 'email']
+        scope: ['identify', 'email'],
+        customHeaders: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
     }, (accessToken, refreshToken, profile, done) => {
         profile.isAdmin = (profile.id === DISCORD_ADMIN_ID);
         profile.loginTime = new Date().toISOString();
