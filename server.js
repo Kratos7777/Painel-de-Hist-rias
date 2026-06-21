@@ -122,7 +122,15 @@ const capituloObraSchema = new mongoose.Schema({
 capituloObraSchema.index({ obraSlug: 1, numero: 1 }, { unique: true });
 capituloObraSchema.pre('save', function (next) { this.atualizadoEm = new Date(); next(); });
 const CapituloObra = mongoose.model('CapituloObra', capituloObraSchema);
-
+// ===== INÍCIO BLOCO PROGRESSO =====
+const progressoSchema = new mongoose.Schema({
+    userId: { type: String, required: true, unique: true, index: true },
+    username: { type: String },
+    ultimoCapituloLido: { type: Number, required: true },
+    lidoEm: { type: Date, default: Date.now }
+});
+const Progresso = mongoose.model('Progresso', progressoSchema);
+// ===== FIM BLOCO PROGRESSO =====
 // Helper para gerar slug
 function gerarSlug(texto) {
     return String(texto || '').toLowerCase().trim()
@@ -137,15 +145,7 @@ async function conectarMongo() {
         console.error('❌ MONGO_URL não configurado! Capítulos não vão persistir.');
         return;
     }
-    // ===== INÍCIO BLOCO PROGRESSO =====
-const progressoSchema = new mongoose.Schema({
-    userId: { type: String, required: true, unique: true, index: true },
-    username: { type: String },
-    ultimoCapituloLido: { type: Number, required: true },
-    lidoEm: { type: Date, default: Date.now }
-});
-const Progresso = mongoose.model('Progresso', progressoSchema);
-// ===== FIM BLOCO PROGRESSO =====
+
     try {
         await mongoose.connect(MONGO_URL, {
             serverSelectionTimeoutMS: 10000
@@ -367,11 +367,13 @@ const pages = {
 // ==========================================
 // 📄 PÁGINAS — OUTRAS OBRAS + CATÁLOGO
 // ==========================================
+// Localize onde estão as rotas como app.get('/', ...) e adicione estas:
+app.get('/editor-obras', isAdmin, (req, res) => enviarPagina(res, 'editor-obras.html'));
+app.get('/catalogo', isAuth, (req, res) => enviarPagina(res, 'catalogo.html'));
 app.get('/outras-obras', isAuth, (req, res) => enviarPagina(res, 'outras-obras.html'));
 app.get('/obra/:slug', isAuth, (req, res) => enviarPagina(res, 'obra.html'));
 app.get('/obra/:slug/cap/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo-outra-obra.html'));
-app.get('/catalogo', isAuth, (req, res) => enviarPagina(res, 'catalogo.html'));
-app.get('/editor-obras', isAdmin, (req, res) => enviarPagina(res, 'editor-obras.html'));
+
 
 function enviarPagina(res, nomeArquivo) {
     const filePath = path.join(PUBLIC_DIR, nomeArquivo);
@@ -722,6 +724,15 @@ app.post('/api/salvar-tr-vida-info', isAdmin, requireMongo, async (req, res) => 
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+app.get('/api/obras', isAuth, requireMongo, async (req, res) => {
+    try {
+        // Filtra para NÃO trazer a obra principal no catálogo de "outras obras"
+        const obras = await Obra.find({ ehObraPrincipal: { $ne: true } }).sort({ atualizadoEm: -1 }).lean();
+        res.json(obras);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 
 // ==========================================
 // 📂 8. ARQUIVOS ESTÁTICOS + SEGURANÇA
