@@ -344,6 +344,32 @@
 
     </div>
 
+<!-- Procure a área dos botões e use este modelo -->
+<div id="admin-section" style="display: none;">
+    <h2 style="color: #11CAA0; margin-top: 20px;">👑 Painel do Autor</h2>
+    <div class="grid-botoes">
+        <a href="/editor" class="btn">✏️ Editor TR: Vida</a>
+        <a href="/editor-obras" class="btn">📚 Novo Editor de Obras</a>
+    </div>
+</div>
+
+<script>
+    // Esse script verifica se você é admin e mostra a seção acima
+    async function checkAdmin() {
+        try {
+            const response = await fetch('/api/user');
+            const user = await response.json();
+            
+            if (user.isAdmin) {
+                document.getElementById('admin-section').style.display = 'block';
+            }
+        } catch (err) {
+            console.error('Erro ao verificar permissões:', err);
+        }
+    }
+    checkAdmin();
+</script>
+
     <script>
         async function inicializar() {
             try {
