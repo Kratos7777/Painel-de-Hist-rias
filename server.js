@@ -236,20 +236,6 @@ app.use(session({
     }
 }));
 
-const pages = {
-    '/': 'index.html',
-    '/funcionalidades': 'funcionalidades.html',
-    '/capa': 'capa.html',
-    '/perfil': 'perfil.html',
-    '/configuracoes': 'configuracoes.html',
-    '/editor': 'editor.html',
-    '/editor-obras': 'editor-obras.html',
-    '/catalogo': 'catalogo.html',
-    '/outras-obras': 'outras-obras.html',
-    '/obra': 'obra.html',
-    '/capa-detalhes': 'capa-detalhes.html'  // ← ADICIONAR
-};
-
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
