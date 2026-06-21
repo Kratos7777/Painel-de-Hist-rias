@@ -347,6 +347,15 @@ const isAdmin = (req, res, next) => {
     res.status(403).send('🚫 Acesso restrito.');
 };
 
+// Adicione este bloco logo abaixo do isAdmin:
+const requireMongo = (req, res, next) => {
+    if (!mongoConectado) {
+        return res.status(503).json({ error: 'Banco de dados indisponível. Tente novamente em instantes.' });
+    }
+    next();
+};
+
+
 // ==========================================
 // 📄 6. ROTAS DE PÁGINAS HTML
 // ==========================================
