@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang=\"pt-BR\">
+<head>
+<meta charset=\"UTF-8\">
+<title>Catálogo TR: Vida — Portal de Histórias</title>
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:40px 20px}
+.wrap{max-width:900px;margin:0 auto}
+.back{color:#a4b0be;text-decoration:none;font-size:14px;display:inline-block;margin-bottom:20px}
+.back:hover{color:#fff}
+.head{display:flex;gap:24px;margin-bottom:30px;flex-wrap:wrap}
+.capa{width:200px;aspect-ratio:3/4;background:linear-gradient(135deg,#1a1f2c,#0f1115);background-size:cover;background-position:center;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#3a4151;font-size:56px;flex-shrink:0;border:1px solid #232838}
+.info{flex:1;min-width:260px}
+.titulo{font-size:34px;color:#11CAA0;margin-bottom:10px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tag{background:#181c25;color:#11CAA0;padding:4px 12px;border-radius:14px;font-size:12px;border:1px solid #232838}
+.status{font-size:12px;padding:4px 12px;border-radius:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.s-em-andamento{background:#1e3a8a33;color:#60a5fa}
+.s-concluida{background:#11ca6033;color:#11CA60}
+.s-pausada{background:#ffc10733;color:#FFC107}
+.desc{color:#a4b0be;line-height:1.6;margin-top:10px}
+.data{font-size:13px;color:#666;margin-top:10px}
+h2{color:#fff;margin:30px 0 16px;font-size:22px;border-bottom:1px solid #232838;padding-bottom:10px}
+.caps{display:flex;flex-direction:column;gap:8px}
+.cap{background:#181c25;padding:14px 18px;border-radius:8px;border:1px solid #232838;display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:#fff;transition:border-color .2s}
+.cap:hover{border-color:#11CAA0}
+.cap-num{font-weight:700;color:#11CAA0;font-size:15px}
+.cap-meta{font-size:12px;color:#666}
+.empty{color:#666;text-align:center;padding:40px;background:#181c25;border-radius:10px}
+.loading{text-align:center;padding:60px;color:#a4b0be}
+.notice{background:#181c25;border-left:3px solid #FFC107;padding:14px 18px;border-radius:6px;color:#a4b0be;margin-bottom:20px;font-size:14px}
+</style>
+</head>
+<body>
+<div class=\"wrap\">
+  <a href=\"/funcionalidades\" class=\"back\">← Voltar</a>
+  <div id=\"content\" class=\"loading\">Carregando…</div>
+</div>
+<script>
+const STATUS_LABEL={'em-andamento':'Em andamento','concluida':'Concluída','pausada':'Pausada'};
+function fmt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—'}
+
+async function carregar(){
+  try{
+    const r=await fetch('/api/tr-vida-info');
+    const data=await r.json();
+    const o=data.obra;
+    const caps=data.capitulos||[];
+    const capa=o&&o.capaUrl?`background-image:url('${o.capaUrl}')`:'';
+    const icone=o&&o.capaUrl?'':'🌌';
+    const tags=o?(o.generos||[]).map(g=>`<span class=\"tag\">${g}</span>`).join(''):'';
+    const status=o?o.status:'em-andamento';
+    const titulo=o?o.titulo:'TR: Vida';
+    const desc=o?o.descricao:'';
+    const dataOrig=o?o.dataCriacaoOriginal:null;
+    const notice=!o?'<div class=\"notice\">⚠️ Metadados da obra ainda não foram preenchidos. O autor pode preencher em <a href=\"/editor-obras\" style=\"color:#11CAA0\">/editor-obras</a>.</div>':'';
+    const lista=caps.length?caps.map(c=>`
+      <a class=\"cap\" href=\"/trvida/${c.numero}\">
+        <span class=\"cap-num\">Capítulo ${c.numero}</span>
+        <span class=\"cap-meta\">${c.palavras} palavras · ${fmt(c.postadoEm)}</span>
+      </a>`).join(''):'<div class=\"empty\">Nenhum capítulo publicado ainda.</div>';
+    document.getElementById('content').className='';
+    document.getElementById('content').innerHTML=`
+      ${notice}
+      <div class=\"head\">
+        <div class=\"capa\" style=\"${capa}\">${icone}</div>
+        <div class=\"info\">
+          <span class=\"status s-${status}\">${STATUS_LABEL[status]||status}</span>
+          <div class=\"titulo\" style=\"margin-top:10px\">${titulo}</div>
+          <div class=\"meta\">${tags}</div>
+          <div class=\"desc\">${desc||'<em style=\"color:#555\">Sem descrição.</em>'}</div>
+          <div class=\"data\">${dataOrig?'Criada originalmente em: '+fmt(dataOrig):''}</div>
+        </div>
+      </div>
+      <h2>Capítulos (${caps.length})</h2>
+      <div class=\"caps\">${lista}</div>`;
+  }catch(e){
+    document.getElementById('content').innerHTML='<p style=\"color:#ff4757\">Erro: '+e.message+'</p>';
+  }
+}
+carregar();
+</script>
+</body>
+</html>

@@ -91,6 +91,44 @@ capituloSchema.pre('save', function(next) {
 });
 
 const Capitulo = mongoose.model('Capitulo', capituloSchema);
+// ==========================================
+// 🗄️ SCHEMAS: OBRAS + CAPÍTULOS DE OBRAS
+// ==========================================
+const obraSchema = new mongoose.Schema({
+    slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
+    titulo: { type: String, required: true },
+    descricao: { type: String, default: '' },
+    generos: { type: [String], default: [] },
+    capaUrl: { type: String, default: '' },
+    dataCriacaoOriginal: { type: Date },
+    status: { type: String, enum: ['em-andamento', 'concluida', 'pausada', 'oneshot'], default: 'em-andamento' },
+    tipo: { type: String, enum: ['unico', 'serie'], required: true },
+    conteudoUnico: { type: String, default: '' },
+    ehObraPrincipal: { type: Boolean, default: false },
+    postadoEm: { type: Date, default: Date.now },
+    atualizadoEm: { type: Date, default: Date.now }
+});
+obraSchema.pre('save', function (next) { this.atualizadoEm = new Date(); next(); });
+const Obra = mongoose.model('Obra', obraSchema);
+
+const capituloObraSchema = new mongoose.Schema({
+    obraSlug: { type: String, required: true, index: true },
+    numero: { type: Number, required: true },
+    titulo: { type: String, default: '' },
+    conteudo: { type: String, required: true },
+    postadoEm: { type: Date, default: Date.now },
+    atualizadoEm: { type: Date, default: Date.now }
+});
+capituloObraSchema.index({ obraSlug: 1, numero: 1 }, { unique: true });
+capituloObraSchema.pre('save', function (next) { this.atualizadoEm = new Date(); next(); });
+const CapituloObra = mongoose.model('CapituloObra', capituloObraSchema);
+
+// Helper para gerar slug
+function gerarSlug(texto) {
+    return String(texto || '').toLowerCase().trim()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
 let mongoConectado = false;
 
@@ -326,6 +364,14 @@ const pages = {
     '/perfil': 'perfil.html',
     '/configuracoes': 'configuracoes.html'
 };
+// ==========================================
+// 📄 PÁGINAS — OUTRAS OBRAS + CATÁLOGO
+// ==========================================
+app.get('/outras-obras', isAuth, (req, res) => enviarPagina(res, 'outras-obras.html'));
+app.get('/obra/:slug', isAuth, (req, res) => enviarPagina(res, 'obra.html'));
+app.get('/obra/:slug/cap/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo-outra-obra.html'));
+app.get('/catalogo', isAuth, (req, res) => enviarPagina(res, 'catalogo.html'));
+app.get('/editor-obras', isAdmin, (req, res) => enviarPagina(res, 'editor-obras.html'));
 
 function enviarPagina(res, nomeArquivo) {
     const filePath = path.join(PUBLIC_DIR, nomeArquivo);
@@ -535,6 +581,147 @@ app.get('/continuar', isAuth, async (req, res) => {
     }
 });
 
+// ==========================================
+// 📊 API — OBRAS E CAPÍTULOS DE OBRAS
+// ==========================================
+app.get('/api/obras', isAuth, requireMongo, async (req, res) => {
+    try {
+        const obras = await Obra.find({ ehObraPrincipal: { $ne: true } }).sort({ atualizadoEm: -1 }).lean();
+        res.json(obras);
+    } catch (err) { console.error('[OBRAS] listar:', err); res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/obra/:slug', isAuth, requireMongo, async (req, res) => {
+    try {
+        const obra = await Obra.findOne({ slug: req.params.slug }).lean();
+        if (!obra) return res.status(404).json({ error: 'Obra não encontrada.' });
+        let capitulos = [];
+        if (obra.tipo === 'serie') {
+            const caps = await CapituloObra.find({ obraSlug: obra.slug }).sort({ numero: 1 }).lean();
+            capitulos = caps.map(c => ({
+                numero: c.numero, titulo: c.titulo,
+                postadoEm: c.postadoEm, atualizadoEm: c.atualizadoEm,
+                palavras: contarPalavras(c.conteudo)
+            }));
+        }
+        res.json({ ...obra, capitulos });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/obra/:slug/cap/:numero', isAuth, requireMongo, async (req, res) => {
+    const numero = parseInt(req.params.numero, 10);
+    try {
+        const cap = await CapituloObra.findOne({ obraSlug: req.params.slug, numero }).lean();
+        if (!cap) return res.status(404).json({ error: 'Capítulo não encontrado.' });
+        const obra = await Obra.findOne({ slug: req.params.slug }, 'titulo').lean();
+        res.json({ ...cap, obraTitulo: obra ? obra.titulo : '', palavras: contarPalavras(cap.conteudo) });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/salvar-obra', isAdmin, requireMongo, async (req, res) => {
+    const { slug, titulo, descricao, generos, capaUrl, dataCriacaoOriginal, status, tipo, conteudoUnico } = req.body;
+    if (!titulo || !tipo) return res.status(400).json({ error: 'Título e tipo obrigatórios.' });
+    const finalSlug = gerarSlug(slug || titulo);
+    if (!finalSlug) return res.status(400).json({ error: 'Slug inválido.' });
+    try {
+        const generosArr = Array.isArray(generos) ? generos
+            : (generos ? String(generos).split(',').map(g => g.trim()).filter(Boolean) : []);
+        const doc = await Obra.findOneAndUpdate(
+            { slug: finalSlug },
+            {
+                $set: {
+                    titulo, descricao: descricao || '', generos: generosArr,
+                    capaUrl: capaUrl || '',
+                    dataCriacaoOriginal: dataCriacaoOriginal ? new Date(dataCriacaoOriginal) : null,
+                    status: status || 'em-andamento', tipo,
+                    conteudoUnico: tipo === 'unico' ? (conteudoUnico || '') : '',
+                    atualizadoEm: new Date()
+                },
+                $setOnInsert: { postadoEm: new Date(), ehObraPrincipal: false }
+            },
+            { upsert: true, new: true }
+        );
+        res.json({ success: true, obra: doc });
+    } catch (err) {
+        if (err.code === 11000) return res.status(409).json({ error: 'Já existe obra com esse slug.' });
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/obra/:slug', isAdmin, requireMongo, async (req, res) => {
+    try {
+        const obra = await Obra.findOne({ slug: req.params.slug }).lean();
+        if (!obra) return res.status(404).json({ error: 'Obra não encontrada.' });
+        if (obra.ehObraPrincipal) return res.status(403).json({ error: 'Não é possível excluir a obra principal.' });
+        await Obra.deleteOne({ slug: req.params.slug });
+        await CapituloObra.deleteMany({ obraSlug: req.params.slug });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/salvar-cap-obra', isAdmin, requireMongo, async (req, res) => {
+    const { obraSlug, numero, titulo, conteudo } = req.body;
+    const num = parseInt(numero, 10);
+    if (!obraSlug || isNaN(num) || num < 1 || !conteudo) return res.status(400).json({ error: 'Dados inválidos.' });
+    try {
+        const obraExiste = await Obra.findOne({ slug: obraSlug, tipo: 'serie' }).lean();
+        if (!obraExiste) return res.status(404).json({ error: 'Obra (tipo série) não encontrada.' });
+        await CapituloObra.findOneAndUpdate(
+            { obraSlug, numero: num },
+            { $set: { titulo: titulo || '', conteudo: String(conteudo), atualizadoEm: new Date() }, $setOnInsert: { postadoEm: new Date() } },
+            { upsert: true, new: true }
+        );
+        await Obra.updateOne({ slug: obraSlug }, { $set: { atualizadoEm: new Date() } });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/obra/:slug/cap/:numero', isAdmin, requireMongo, async (req, res) => {
+    const num = parseInt(req.params.numero, 10);
+    try {
+        const r = await CapituloObra.deleteOne({ obraSlug: req.params.slug, numero: num });
+        if (r.deletedCount === 0) return res.status(404).json({ error: 'Capítulo não encontrado.' });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// TR: Vida (catálogo + metadados)
+app.get('/api/tr-vida-info', isAuth, requireMongo, async (req, res) => {
+    try {
+        const obra = await Obra.findOne({ ehObraPrincipal: true }).lean();
+        const capitulos = await Capitulo.find({}, 'numero conteudo postadoEm atualizadoEm').sort({ numero: 1 }).lean();
+        res.json({
+            obra,
+            capitulos: capitulos.map(c => ({
+                numero: c.numero, postadoEm: c.postadoEm, atualizadoEm: c.atualizadoEm,
+                palavras: contarPalavras(c.conteudo)
+            }))
+        });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/salvar-tr-vida-info', isAdmin, requireMongo, async (req, res) => {
+    const { titulo, descricao, generos, capaUrl, dataCriacaoOriginal, status } = req.body;
+    try {
+        const generosArr = Array.isArray(generos) ? generos
+            : (generos ? String(generos).split(',').map(g => g.trim()).filter(Boolean) : []);
+        await Obra.findOneAndUpdate(
+            { slug: 'tr-vida' },
+            {
+                $set: {
+                    titulo: titulo || 'TR: Vida', descricao: descricao || '',
+                    generos: generosArr, capaUrl: capaUrl || '',
+                    dataCriacaoOriginal: dataCriacaoOriginal ? new Date(dataCriacaoOriginal) : null,
+                    status: status || 'em-andamento', tipo: 'serie', ehObraPrincipal: true,
+                    atualizadoEm: new Date()
+                },
+                $setOnInsert: { postadoEm: new Date() }
+            },
+            { upsert: true, new: true }
+        );
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
 // ==========================================
 // 📂 8. ARQUIVOS ESTÁTICOS + SEGURANÇA

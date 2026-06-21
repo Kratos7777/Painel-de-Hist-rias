@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang=\"pt-BR\">
+<head>
+<meta charset=\"UTF-8\">
+<title>Capítulo — Portal de Histórias</title>
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:30px 20px}
+.wrap{max-width:780px;margin:0 auto}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:10px}
+.back{color:#a4b0be;text-decoration:none;font-size:14px}
+.back:hover{color:#fff}
+.obra{font-size:13px;color:#666}
+.obra a{color:#11CAA0;text-decoration:none}
+h1{font-size:28px;color:#11CAA0;margin-bottom:6px}
+.titulo{font-size:20px;color:#a4b0be;margin-bottom:24px;font-weight:400}
+.meta{font-size:13px;color:#666;margin-bottom:30px;border-bottom:1px solid #232838;padding-bottom:14px}
+.conteudo{line-height:1.9;font-size:17px;white-space:pre-wrap}
+.loading{text-align:center;padding:60px;color:#a4b0be}
+</style>
+</head>
+<body>
+<div class=\"wrap\">
+  <div id=\"content\" class=\"loading\">Carregando…</div>
+</div>
+<script>
+const parts=location.pathname.split('/');
+const slug=parts[2], numero=parts[4];
+
+function fmt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—'}
+
+async function carregar(){
+  try{
+    const r=await fetch(`/api/obra/${slug}/cap/${numero}`);
+    if(!r.ok){
+      const e=await r.json();
+      document.getElementById('content').innerHTML='<p style=\"color:#ff4757\">'+(e.error||'Erro')+'</p>';
+      return;
+    }
+    const c=await r.json();
+    document.getElementById('content').className='';
+    document.getElementById('content').innerHTML=`
+      <div class=\"nav\">
+        <a class=\"back\" href=\"/obra/${slug}\">← Voltar para a obra</a>
+        <span class=\"obra\">de <a href=\"/obra/${slug}\">${c.obraTitulo}</a></span>
+      </div>
+      <h1>Capítulo ${c.numero}</h1>
+      <div class=\"titulo\">${c.titulo||'<em style=\"color:#555\">Sem título</em>'}</div>
+      <div class=\"meta\">${c.palavras} palavras · postado em ${fmt(c.postadoEm)}${c.atualizadoEm&&c.atualizadoEm!==c.postadoEm?' · atualizado em '+fmt(c.atualizadoEm):''}</div>
+      <div class=\"conteudo\">${c.conteudo.replace(/</g,'&lt;')}</div>`;
+  }catch(e){
+    document.getElementById('content').innerHTML='<p style=\"color:#ff4757\">Erro: '+e.message+'</p>';
+  }
+}
+carregar();
+</script>
+</body>
+</html>
