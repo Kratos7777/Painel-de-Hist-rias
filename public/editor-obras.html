@@ -1,9 +1,17 @@
+Se você colar esse arquivo no projeto, o editor vai abrir, mas TODA ação (listar, salvar, editar) vai falhar com erro 404.
+
+Aviso 2 — Vai sobrescrever o editor atual
+Seu editor atual (que salva capítulos do TR: Vida) não tem essa lógica de "outras obras". Esse novo é uma evolução completa. Se você quiser manter o editor atual funcionando, NÃO substitui ainda — guarda esse arquivo num lugar separado.
+
+✅ Código limpo (com aspas corretas)
+Aqui está. Copia tudo, cola no arquivo editor-novo.html (ou onde quiser) e salva:
+
 <!DOCTYPE html>
-<html lang=\"pt-BR\">
+<html lang="pt-BR">
 <head>
-<meta charset=\"UTF-8\">
+<meta charset="UTF-8">
 <title>Editor de Obras — Portal de Histórias</title>
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:30px 20px}
@@ -51,119 +59,119 @@ button.b{padding:10px 22px;border:none;border-radius:6px;font-weight:700;cursor:
 </style>
 </head>
 <body>
-<div class=\"wrap\">
-  <div class=\"top\">
+<div class="wrap">
+  <div class="top">
     <h1>✏️ Editor de Obras</h1>
-    <a class=\"back\" href=\"/funcionalidades\">← Voltar</a>
+    <a class="back" href="/funcionalidades">← Voltar</a>
   </div>
 
-  <div class=\"tabs\">
-    <button class=\"tab active\" data-tab=\"obras\" onclick=\"trocarTab('obras')\">📚 Outras Obras</button>
-    <button class=\"tab\" data-tab=\"trvida\" onclick=\"trocarTab('trvida')\">🌌 TR: Vida (metadados)</button>
+  <div class="tabs">
+    <button class="tab active" data-tab="obras" onclick="trocarTab('obras')">📚 Outras Obras</button>
+    <button class="tab" data-tab="trvida" onclick="trocarTab('trvida')">🌌 TR: Vida (metadados)</button>
   </div>
 
   <!-- =================== ABA OUTRAS OBRAS =================== -->
-  <div id=\"panel-obras\" class=\"panel active\">
-    <div class=\"card\">
-      <div class=\"section-title\">Obras existentes</div>
-      <div id=\"lista\" class=\"lista-obras\"><em style=\"color:#666\">Carregando...</em></div>
-      <button class=\"b b-sec\" onclick=\"novaObra()\">+ Nova obra</button>
+  <div id="panel-obras" class="panel active">
+    <div class="card">
+      <div class="section-title">Obras existentes</div>
+      <div id="lista" class="lista-obras"><em style="color:#666">Carregando...</em></div>
+      <button class="b b-sec" onclick="novaObra()">+ Nova obra</button>
     </div>
 
-    <div id=\"form-obra\" class=\"card\" style=\"display:none\">
-      <div class=\"section-title\" id=\"form-titulo\">Nova Obra</div>
-      <input type=\"hidden\" id=\"slug-original\">
-      <div class=\"row\">
-        <div><label>Título *</label><input id=\"titulo\" placeholder=\"Ex: A Casa na Floresta\"></div>
-        <div><label>Slug (URL)</label><input id=\"slug\" placeholder=\"auto a partir do título\"><div class=\"hint\">Deixe em branco pra gerar automaticamente</div></div>
+    <div id="form-obra" class="card" style="display:none">
+      <div class="section-title" id="form-titulo">Nova Obra</div>
+      <input type="hidden" id="slug-original">
+      <div class="row">
+        <div><label>Título *</label><input id="titulo" placeholder="Ex: A Casa na Floresta"></div>
+        <div><label>Slug (URL)</label><input id="slug" placeholder="auto a partir do título"><div class="hint">Deixe em branco pra gerar automaticamente</div></div>
       </div>
       <label>Descrição curta</label>
-      <textarea id=\"descricao\" placeholder=\"Resumo de 2-3 linhas que aparece no card\"></textarea>
-      <div class=\"row\">
-        <div><label>Gêneros (separados por vírgula)</label><input id=\"generos\" placeholder=\"Romance, Suspense, Drama\"></div>
-        <div><label>Imagem de capa (URL)</label><input id=\"capaUrl\" placeholder=\"https://...\"></div>
+      <textarea id="descricao" placeholder="Resumo de 2-3 linhas que aparece no card"></textarea>
+      <div class="row">
+        <div><label>Gêneros (separados por vírgula)</label><input id="generos" placeholder="Romance, Suspense, Drama"></div>
+        <div><label>Imagem de capa (URL)</label><input id="capaUrl" placeholder="https://..."></div>
       </div>
-      <div class=\"row\">
-        <div><label>Data de criação original</label><input type=\"date\" id=\"dataCriacaoOriginal\"></div>
+      <div class="row">
+        <div><label>Data de criação original</label><input type="date" id="dataCriacaoOriginal"></div>
         <div><label>Status</label>
-          <select id=\"status\">
-            <option value=\"em-andamento\">Em andamento</option>
-            <option value=\"concluida\">Concluída</option>
-            <option value=\"pausada\">Pausada</option>
-            <option value=\"oneshot\">One-shot</option>
+          <select id="status">
+            <option value="em-andamento">Em andamento</option>
+            <option value="concluida">Concluída</option>
+            <option value="pausada">Pausada</option>
+            <option value="oneshot">One-shot</option>
           </select>
         </div>
       </div>
       <label>Tipo *</label>
-      <select id=\"tipo\" onchange=\"atualizarTipo()\">
-        <option value=\"unico\">Único (conto numa página só)</option>
-        <option value=\"serie\">Série (com vários capítulos)</option>
+      <select id="tipo" onchange="atualizarTipo()">
+        <option value="unico">Único (conto numa página só)</option>
+        <option value="serie">Série (com vários capítulos)</option>
       </select>
 
-      <div id=\"bloco-unico\">
+      <div id="bloco-unico">
         <label>Conteúdo do conto</label>
-        <textarea id=\"conteudoUnico\" style=\"min-height:260px\" placeholder=\"Cole aqui o texto completo da obra...\"></textarea>
+        <textarea id="conteudoUnico" style="min-height:260px" placeholder="Cole aqui o texto completo da obra..."></textarea>
       </div>
 
-      <div id=\"bloco-serie\" style=\"display:none\">
-        <div class=\"section-title\" style=\"margin-top:24px\">Capítulos desta série</div>
-        <div id=\"cap-lista\" class=\"cap-list\"></div>
-        <button class=\"b b-sec\" style=\"margin-top:10px\" onclick=\"novoCap()\">+ Adicionar capítulo</button>
+      <div id="bloco-serie" style="display:none">
+        <div class="section-title" style="margin-top:24px">Capítulos desta série</div>
+        <div id="cap-lista" class="cap-list"></div>
+        <button class="b b-sec" style="margin-top:10px" onclick="novoCap()">+ Adicionar capítulo</button>
       </div>
 
-      <div class=\"btns\">
-        <button class=\"b b-pri\" onclick=\"salvarObra()\">💾 Salvar obra</button>
-        <button class=\"b b-sec\" onclick=\"cancelarObra()\">Cancelar</button>
-        <button class=\"b b-dan\" id=\"btn-excluir\" onclick=\"excluirObra()\" style=\"margin-left:auto;display:none\">🗑 Excluir obra</button>
+      <div class="btns">
+        <button class="b b-pri" onclick="salvarObra()">💾 Salvar obra</button>
+        <button class="b b-sec" onclick="cancelarObra()">Cancelar</button>
+        <button class="b b-dan" id="btn-excluir" onclick="excluirObra()" style="margin-left:auto;display:none">🗑 Excluir obra</button>
       </div>
-      <div id=\"msg-obra\" class=\"msg\"></div>
+      <div id="msg-obra" class="msg"></div>
     </div>
 
     <!-- Editor de capítulo dentro do form -->
-    <div id=\"form-cap\" class=\"card\" style=\"display:none\">
-      <div class=\"section-title\" id=\"form-cap-titulo\">Editar Capítulo</div>
-      <div class=\"row\">
-        <div><label>Número *</label><input type=\"number\" id=\"cap-numero\" min=\"1\"></div>
-        <div><label>Título do capítulo</label><input id=\"cap-titulo\" placeholder=\"Opcional\"></div>
+    <div id="form-cap" class="card" style="display:none">
+      <div class="section-title" id="form-cap-titulo">Editar Capítulo</div>
+      <div class="row">
+        <div><label>Número *</label><input type="number" id="cap-numero" min="1"></div>
+        <div><label>Título do capítulo</label><input id="cap-titulo" placeholder="Opcional"></div>
       </div>
       <label>Conteúdo *</label>
-      <textarea id=\"cap-conteudo\" style=\"min-height:280px\"></textarea>
-      <div class=\"btns\">
-        <button class=\"b b-pri\" onclick=\"salvarCap()\">💾 Salvar capítulo</button>
-        <button class=\"b b-sec\" onclick=\"document.getElementById('form-cap').style.display='none'\">Cancelar</button>
-        <button class=\"b b-dan\" id=\"btn-cap-excluir\" onclick=\"excluirCap()\" style=\"margin-left:auto;display:none\">🗑 Excluir capítulo</button>
+      <textarea id="cap-conteudo" style="min-height:280px"></textarea>
+      <div class="btns">
+        <button class="b b-pri" onclick="salvarCap()">💾 Salvar capítulo</button>
+        <button class="b b-sec" onclick="document.getElementById('form-cap').style.display='none'">Cancelar</button>
+        <button class="b b-dan" id="btn-cap-excluir" onclick="excluirCap()" style="margin-left:auto;display:none">🗑 Excluir capítulo</button>
       </div>
-      <div id=\"msg-cap\" class=\"msg\"></div>
+      <div id="msg-cap" class="msg"></div>
     </div>
   </div>
 
   <!-- =================== ABA TR: VIDA =================== -->
-  <div id=\"panel-trvida\" class=\"panel\">
-    <div class=\"card\">
-      <div class=\"section-title\">Metadados da obra principal (TR: Vida)</div>
-      <p style=\"color:#a4b0be;font-size:14px;margin-bottom:10px\">Esses dados aparecem na página <a href=\"/catalogo\" style=\"color:#11CAA0\">/catalogo</a>. Os capítulos continuam sendo editados em <a href=\"/editor\" style=\"color:#11CAA0\">/editor</a>.</p>
+  <div id="panel-trvida" class="panel">
+    <div class="card">
+      <div class="section-title">Metadados da obra principal (TR: Vida)</div>
+      <p style="color:#a4b0be;font-size:14px;margin-bottom:10px">Esses dados aparecem na página <a href="/catalogo" style="color:#11CAA0">/catalogo</a>. Os capítulos continuam sendo editados em <a href="/editor" style="color:#11CAA0">/editor</a>.</p>
       <label>Título</label>
-      <input id=\"tr-titulo\" placeholder=\"TR: Vida\">
+      <input id="tr-titulo" placeholder="TR: Vida">
       <label>Descrição</label>
-      <textarea id=\"tr-descricao\"></textarea>
-      <div class=\"row\">
-        <div><label>Gêneros (separados por vírgula)</label><input id=\"tr-generos\"></div>
-        <div><label>Capa (URL)</label><input id=\"tr-capaUrl\"></div>
+      <textarea id="tr-descricao"></textarea>
+      <div class="row">
+        <div><label>Gêneros (separados por vírgula)</label><input id="tr-generos"></div>
+        <div><label>Capa (URL)</label><input id="tr-capaUrl"></div>
       </div>
-      <div class=\"row\">
-        <div><label>Data de criação original</label><input type=\"date\" id=\"tr-dataCriacaoOriginal\"></div>
+      <div class="row">
+        <div><label>Data de criação original</label><input type="date" id="tr-dataCriacaoOriginal"></div>
         <div><label>Status</label>
-          <select id=\"tr-status\">
-            <option value=\"em-andamento\">Em andamento</option>
-            <option value=\"concluida\">Concluída</option>
-            <option value=\"pausada\">Pausada</option>
+          <select id="tr-status">
+            <option value="em-andamento">Em andamento</option>
+            <option value="concluida">Concluída</option>
+            <option value="pausada">Pausada</option>
           </select>
         </div>
       </div>
-      <div class=\"btns\">
-        <button class=\"b b-pri\" onclick=\"salvarTrVida()\">💾 Salvar metadados</button>
+      <div class="btns">
+        <button class="b b-pri" onclick="salvarTrVida()">💾 Salvar metadados</button>
       </div>
-      <div id=\"msg-tr\" class=\"msg\"></div>
+      <div id="msg-tr" class="msg"></div>
     </div>
   </div>
 </div>
@@ -189,15 +197,15 @@ async function carregarObras(){
   const r=await fetch('/api/obras');
   obrasCache=await r.json();
   const div=document.getElementById('lista');
-  if(!obrasCache.length){div.innerHTML='<em style=\"color:#666\">Nenhuma obra criada ainda.</em>';return}
+  if(!obrasCache.length){div.innerHTML='<em style="color:#666">Nenhuma obra criada ainda.</em>';return}
   div.innerHTML=obrasCache.map(o=>`
-    <div class=\"obra-item\">
-      <div class=\"obra-item-info\">
-        <span class=\"obra-item-titulo\">${o.titulo}</span>
-        <span class=\"obra-item-meta\">${o.tipo==='unico'?'Conto único':'Série'} · ${o.status} · /${o.slug}</span>
+    <div class="obra-item">
+      <div class="obra-item-info">
+        <span class="obra-item-titulo">${o.titulo}</span>
+        <span class="obra-item-meta">${o.tipo==='unico'?'Conto único':'Série'} · ${o.status} · /${o.slug}</span>
       </div>
-      <div class=\"obra-item-acts\">
-        <button class=\"mini b-pri\" onclick=\"editarObra('${o.slug}')\">Editar</button>
+      <div class="obra-item-acts">
+        <button class="mini b-pri" onclick="editarObra('${o.slug}')">Editar</button>
       </div>
     </div>`).join('');
 }
@@ -247,11 +255,11 @@ function atualizarTipo(){
 
 function renderCaps(caps){
   const div=document.getElementById('cap-lista');
-  if(!caps.length){div.innerHTML='<em style=\"color:#666;padding:8px\">Nenhum capítulo ainda.</em>';return}
+  if(!caps.length){div.innerHTML='<em style="color:#666;padding:8px">Nenhum capítulo ainda.</em>';return}
   div.innerHTML=caps.map(c=>`
-    <div class=\"cap-item\" onclick=\"editarCap('${editandoSlug}',${c.numero})\">
+    <div class="cap-item" onclick="editarCap('${editandoSlug}',${c.numero})">
       <span>Cap. ${c.numero}${c.titulo?' — '+c.titulo:''}</span>
-      <span style=\"color:#666;font-size:12px\">${c.palavras||0} palavras</span>
+      <span style="color:#666;font-size:12px">${c.palavras||0} palavras</span>
     </div>`).join('');
 }
 

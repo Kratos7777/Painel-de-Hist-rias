@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang=\"pt-BR\">
+<html lang="pt-BR">
 <head>
-<meta charset=\"UTF-8\">
+<meta charset="UTF-8">
 <title>Capítulo — Portal de Histórias</title>
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:30px 20px}
@@ -21,8 +21,8 @@ h1{font-size:28px;color:#11CAA0;margin-bottom:6px}
 </style>
 </head>
 <body>
-<div class=\"wrap\">
-  <div id=\"content\" class=\"loading\">Carregando…</div>
+<div class="wrap">
+  <div id="content" class="loading">Carregando…</div>
 </div>
 <script>
 const parts=location.pathname.split('/');
@@ -35,22 +35,22 @@ async function carregar(){
     const r=await fetch(`/api/obra/${slug}/cap/${numero}`);
     if(!r.ok){
       const e=await r.json();
-      document.getElementById('content').innerHTML='<p style=\"color:#ff4757\">'+(e.error||'Erro')+'</p>';
+      document.getElementById('content').innerHTML='<p style="color:#ff4757">'+(e.error||'Erro')+'</p>';
       return;
     }
     const c=await r.json();
     document.getElementById('content').className='';
     document.getElementById('content').innerHTML=`
-      <div class=\"nav\">
-        <a class=\"back\" href=\"/obra/${slug}\">← Voltar para a obra</a>
-        <span class=\"obra\">de <a href=\"/obra/${slug}\">${c.obraTitulo}</a></span>
+      <div class="nav">
+        <a class="back" href="/obra/${slug}">← Voltar para a obra</a>
+        <span class="obra">de <a href="/obra/${slug}">${c.obraTitulo}</a></span>
       </div>
       <h1>Capítulo ${c.numero}</h1>
-      <div class=\"titulo\">${c.titulo||'<em style=\"color:#555\">Sem título</em>'}</div>
-      <div class=\"meta\">${c.palavras} palavras · postado em ${fmt(c.postadoEm)}${c.atualizadoEm&&c.atualizadoEm!==c.postadoEm?' · atualizado em '+fmt(c.atualizadoEm):''}</div>
-      <div class=\"conteudo\">${c.conteudo.replace(/</g,'&lt;')}</div>`;
+      <div class="titulo">${c.titulo||'<em style="color:#555">Sem título</em>'}</div>
+      <div class="meta">${c.palavras} palavras · postado em ${fmt(c.postadoEm)}${c.atualizadoEm&&c.atualizadoEm!==c.postadoEm?' · atualizado em '+fmt(c.atualizadoEm):''}</div>
+      <div class="conteudo">${c.conteudo.replace(/</g,'&lt;')}</div>`;
   }catch(e){
-    document.getElementById('content').innerHTML='<p style=\"color:#ff4757\">Erro: '+e.message+'</p>';
+    document.getElementById('content').innerHTML='<p style="color:#ff4757">Erro: '+e.message+'</p>';
   }
 }
 carregar();

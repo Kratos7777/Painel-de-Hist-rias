@@ -1,45 +1,45 @@
 <!DOCTYPE html>
-<html lang=\"pt-BR\">
+<html lang="pt-BR">
 <head>
-<meta charset=\"UTF-8\">
+<meta charset="UTF-8">
 <title>Outras Obras — Portal de Histórias</title>
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:40px 20px}
-.wrap{max-width:1200px;margin:0 auto}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:12px}
-h1{font-size:32px;color:#11CAA0}
+.wrap{max-width:1100px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:10px}
 .back{color:#a4b0be;text-decoration:none;font-size:14px}
 .back:hover{color:#fff}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
-.card{background:#181c25;border-radius:12px;overflow:hidden;border:1px solid #232838;transition:transform .2s,border-color .2s;cursor:pointer;display:flex;flex-direction:column}
-.card:hover{transform:translateY(-4px);border-color:#11CAA0}
-.capa{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#1a1f2c,#0f1115);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#3a4151;font-size:48px}
-.body{padding:18px;flex:1;display:flex;flex-direction:column;gap:8px}
-.titulo{font-size:18px;font-weight:700;color:#fff}
-.desc{font-size:14px;color:#a4b0be;line-height:1.5;flex:1}
-.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.tag{background:#0f1115;color:#11CAA0;padding:3px 10px;border-radius:12px;font-size:11px;border:1px solid #232838}
-.status{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:inline-block;width:fit-content}
+h1{font-size:30px;color:#11CAA0}
+.subtitle{color:#666;margin-bottom:30px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.card{background:#181c25;border:1px solid #232838;border-radius:10px;overflow:hidden;text-decoration:none;color:#fff;transition:border-color .2s,transform .2s;display:flex;flex-direction:column}
+.card:hover{border-color:#11CAA0;transform:translateY(-2px)}
+.card-capa{aspect-ratio:3/4;background:linear-gradient(135deg,#1a1f2c,#0f1115);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#3a4151;font-size:48px}
+.card-body{padding:14px 16px}
+.card-titulo{font-weight:700;color:#11CAA0;margin-bottom:6px;font-size:16px}
+.card-meta{font-size:12px;color:#666;display:flex;gap:8px;flex-wrap:wrap}
+.card-desc{font-size:13px;color:#a4b0be;margin-top:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.status{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .s-em-andamento{background:#1e3a8a33;color:#60a5fa}
 .s-concluida{background:#11ca6033;color:#11CA60}
 .s-pausada{background:#ffc10733;color:#FFC107}
-.s-oneshot{background:#a855f733;color:#c084fc}
-.empty{text-align:center;padding:80px 20px;color:#666}
+.s-oneshot{background:#9333ea33;color:#c4a3ff}
+.empty{text-align:center;padding:60px;background:#181c25;border-radius:10px;color:#666}
 .loading{text-align:center;padding:60px;color:#a4b0be}
 </style>
 </head>
 <body>
-<div class=\"wrap\">
-  <div class=\"top\">
+<div class="wrap">
+  <div class="top">
     <div>
       <h1>📚 Outras Obras</h1>
-      <p style=\"color:#a4b0be;margin-top:6px\">Histórias avulsas e arquivos antigos do universo expandido.</p>
+      <p class="subtitle">Contos, romances e séries paralelas do autor</p>
     </div>
-    <a href=\"/funcionalidades\" class=\"back\">← Voltar</a>
+    <a href="/funcionalidades" class="back">← Voltar</a>
   </div>
-  <div id=\"content\" class=\"loading\">Carregando obras...</div>
+  <div id="content" class="loading">Carregando…</div>
 </div>
 <script>
 const STATUS_LABEL={'em-andamento':'Em andamento','concluida':'Concluída','pausada':'Pausada','oneshot':'One-shot'};
@@ -47,31 +47,32 @@ const STATUS_LABEL={'em-andamento':'Em andamento','concluida':'Concluída','paus
 async function carregar(){
   try{
     const r=await fetch('/api/obras');
-    if(!r.ok)throw new Error('Falha ao carregar');
     const obras=await r.json();
-    const c=document.getElementById('content');
+    const el=document.getElementById('content');
     if(!obras.length){
-      c.className='empty';
-      c.innerHTML='<p style=\"font-size:20px;margin-bottom:8px\">Nada por aqui ainda…</p><p>O autor ainda não publicou outras obras.</p>';
+      el.className='';
+      el.innerHTML='<div class="empty">Nenhuma obra publicada ainda.</div>';
       return;
     }
-    c.className='grid';
-    c.innerHTML=obras.map(o=>{
+    el.className='grid';
+    el.innerHTML=obras.map(o=>{
       const capa=o.capaUrl?`background-image:url('${o.capaUrl}')`:'';
-      const icone=o.capaUrl?'':'📖';
-      const tags=(o.generos||[]).map(g=>`<span class=\"tag\">${g}</span>`).join('');
-      return `<div class=\"card\" onclick=\"location.href='/obra/${o.slug}'\">
-        <div class=\"capa\" style=\"${capa}\">${icone}</div>
-        <div class=\"body\">
-          <span class=\"status s-${o.status}\">${STATUS_LABEL[o.status]||o.status}</span>
-          <div class=\"titulo\">${o.titulo}</div>
-          <div class=\"desc\">${o.descricao||'<em style=\"color:#555\">Sem descrição.</em>'}</div>
-          <div class=\"tags\">${tags}</div>
-        </div>
-      </div>`;
+      const icone=o.capaUrl?'':(o.tipo==='unico'?'📝':'📖');
+      return `
+        <a class="card" href="/obra/${o.slug}">
+          <div class="card-capa" style="${capa}">${icone}</div>
+          <div class="card-body">
+            <div class="card-titulo">${o.titulo}</div>
+            <div class="card-meta">
+              <span class="status s-${o.status}">${STATUS_LABEL[o.status]||o.status}</span>
+              <span>${o.tipo==='unico'?'Conto único':'Série'}</span>
+            </div>
+            <div class="card-desc">${o.descricao||''}</div>
+          </div>
+        </a>`;
     }).join('');
   }catch(e){
-    document.getElementById('content').innerHTML='<p style=\"color:#ff4757\">Erro ao carregar: '+e.message+'</p>';
+    document.getElementById('content').innerHTML='<p style="color:#ff4757">Erro: '+e.message+'</p>';
   }
 }
 carregar();

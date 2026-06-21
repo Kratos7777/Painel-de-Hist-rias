@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang=\"pt-BR\">
+<html lang="pt-BR">
 <head>
-<meta charset=\"UTF-8\">
+<meta charset="UTF-8">
 <title>Catálogo TR: Vida — Portal de Histórias</title>
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:40px 20px}
@@ -34,9 +34,9 @@ h2{color:#fff;margin:30px 0 16px;font-size:22px;border-bottom:1px solid #232838;
 </style>
 </head>
 <body>
-<div class=\"wrap\">
-  <a href=\"/funcionalidades\" class=\"back\">← Voltar</a>
-  <div id=\"content\" class=\"loading\">Carregando…</div>
+<div class="wrap">
+  <a href="/funcionalidades" class="back">← Voltar</a>
+  <div id="content" class="loading">Carregando…</div>
 </div>
 <script>
 const STATUS_LABEL={'em-andamento':'Em andamento','concluida':'Concluída','pausada':'Pausada'};
@@ -50,34 +50,34 @@ async function carregar(){
     const caps=data.capitulos||[];
     const capa=o&&o.capaUrl?`background-image:url('${o.capaUrl}')`:'';
     const icone=o&&o.capaUrl?'':'🌌';
-    const tags=o?(o.generos||[]).map(g=>`<span class=\"tag\">${g}</span>`).join(''):'';
+    const tags=o?(o.generos||[]).map(g=>`<span class="tag">${g}</span>`).join(''):'';
     const status=o?o.status:'em-andamento';
     const titulo=o?o.titulo:'TR: Vida';
     const desc=o?o.descricao:'';
     const dataOrig=o?o.dataCriacaoOriginal:null;
-    const notice=!o?'<div class=\"notice\">⚠️ Metadados da obra ainda não foram preenchidos. O autor pode preencher em <a href=\"/editor-obras\" style=\"color:#11CAA0\">/editor-obras</a>.</div>':'';
+    const notice=!o?'<div class="notice">⚠️ Metadados da obra ainda não foram preenchidos. O autor pode preencher em <a href="/editor-obras" style="color:#11CAA0">/editor-obras</a>.</div>':'';
     const lista=caps.length?caps.map(c=>`
-      <a class=\"cap\" href=\"/trvida/${c.numero}\">
-        <span class=\"cap-num\">Capítulo ${c.numero}</span>
-        <span class=\"cap-meta\">${c.palavras} palavras · ${fmt(c.postadoEm)}</span>
-      </a>`).join(''):'<div class=\"empty\">Nenhum capítulo publicado ainda.</div>';
+      <a class="cap" href="/trvida/${c.numero}">
+        <span class="cap-num">Capítulo ${c.numero}</span>
+        <span class="cap-meta">${c.palavras} palavras · ${fmt(c.postadoEm)}</span>
+      </a>`).join(''):'<div class="empty">Nenhum capítulo publicado ainda.</div>';
     document.getElementById('content').className='';
     document.getElementById('content').innerHTML=`
       ${notice}
-      <div class=\"head\">
-        <div class=\"capa\" style=\"${capa}\">${icone}</div>
-        <div class=\"info\">
-          <span class=\"status s-${status}\">${STATUS_LABEL[status]||status}</span>
-          <div class=\"titulo\" style=\"margin-top:10px\">${titulo}</div>
-          <div class=\"meta\">${tags}</div>
-          <div class=\"desc\">${desc||'<em style=\"color:#555\">Sem descrição.</em>'}</div>
-          <div class=\"data\">${dataOrig?'Criada originalmente em: '+fmt(dataOrig):''}</div>
+      <div class="head">
+        <div class="capa" style="${capa}">${icone}</div>
+        <div class="info">
+          <span class="status s-${status}">${STATUS_LABEL[status]||status}</span>
+          <div class="titulo" style="margin-top:10px">${titulo}</div>
+          <div class="meta">${tags}</div>
+          <div class="desc">${desc||'<em style="color:#555">Sem descrição.</em>'}</div>
+          <div class="data">${dataOrig?'Criada originalmente em: '+fmt(dataOrig):''}</div>
         </div>
       </div>
       <h2>Capítulos (${caps.length})</h2>
-      <div class=\"caps\">${lista}</div>`;
+      <div class="caps">${lista}</div>`;
   }catch(e){
-    document.getElementById('content').innerHTML='<p style=\"color:#ff4757\">Erro: '+e.message+'</p>';
+    document.getElementById('content').innerHTML='<p style="color:#ff4757">Erro: '+e.message+'</p>';
   }
 }
 carregar();

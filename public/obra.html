@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Obra — Portal de Histórias</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:40px 20px}
+.wrap{max-width:900px;margin:0 auto}
+.back{color:#a4b0be;text-decoration:none;font-size:14px;display:inline-block;margin-bottom:20px}
+.back:hover{color:#fff}
+.head{display:flex;gap:24px;margin-bottom:30px;flex-wrap:wrap}
+.capa{width:200px;aspect-ratio:3/4;background:linear-gradient(135deg,#1a1f2c,#0f1115);background-size:cover;background-position:center;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#3a4151;font-size:56px;flex-shrink:0;border:1px solid #232838}
+.info{flex:1;min-width:260px}
+.titulo{font-size:32px;color:#11CAA0;margin:10px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tag{background:#181c25;color:#11CAA0;padding:4px 12px;border-radius:14px;font-size:12px;border:1px solid #232838}
+.status{font-size:12px;padding:4px 12px;border-radius:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.s-em-andamento{background:#1e3a8a33;color:#60a5fa}
+.s-concluida{background:#11ca6033;color:#11CA60}
+.s-pausada{background:#ffc10733;color:#FFC107}
+.s-oneshot{background:#9333ea33;color:#c4a3ff}
+.desc{color:#a4b0be;line-height:1.6;margin-top:10px}
+.data{font-size:13px;color:#666;margin-top:10px}
+h2{color:#fff;margin:30px 0 16px;font-size:22px;border-bottom:1px solid #232838;padding-bottom:10px}
+.caps{display:flex;flex-direction:column;gap:8px}
+.cap{background:#181c25;padding:14px 18px;border-radius:8px;border:1px solid #232838;display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:#fff;transition:border-color .2s}
+.cap:hover{border-color:#11CAA0}
+.cap-num{font-weight:700;color:#11CAA0;font-size:15px}
+.cap-titulo{color:#a4b0be;font-size:14px}
+.cap-meta{font-size:12px;color:#666}
+.unico{background:#181c25;padding:30px;border-radius:10px;line-height:1.9;font-size:16px;white-space:pre-wrap;border-left:3px solid #11CAA0}
+.empty{color:#666;text-align:center;padding:40px;background:#181c25;border-radius:10px}
+.loading{text-align:center;padding:60px;color:#a4b0be}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/outras-obras" class="back">← Todas as obras</a>
+  <div id="content" class="loading">Carregando…</div>
+</div>
+<script>
+const slug=location.pathname.split('/')[2];
+const STATUS_LABEL={'em-andamento':'Em andamento','concluida':'Concluída','pausada':'Pausada','oneshot':'One-shot'};
+function fmt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—'}
+
+async function carregar(){
+  try{
+    const r=await fetch('/api/obra/'+slug);
+    if(!r.ok){
+      const e=await r.json();
+      document.getElementById('content').innerHTML='<p style="color:#ff4757">'+(e.error||'Erro')+'</p>';
+      return;
+    }
+    const o=await r.json();
+    const capa=o.capaUrl?`background-image:url('${o.capaUrl}')`:'';
+    const icone=o.capaUrl?'':(o.tipo==='unico'?'📝':'📖');
+    const tags=(o.generos||[]).map(g=>`<span class="tag">${g}</span>`).join('');
+    
+    let corpo='';
+    if(o.tipo==='unico'){
+      corpo=`<h2>Leitura</h2><div class="unico">${(o.conteudoUnico||'').replace(/</g,'&lt;')||'<em style="color:#555">Sem conteúdo ainda.</em>'}</div>`;
+    }else{
+      const lista=o.capitulos&&o.capitulos.length?o.capitulos.map(c=>`
+        <a class="cap" href="/obra/${o.slug}/cap/${c.numero}">
+          <div>
+            <span class="cap-num">Capítulo ${c.numero}</span>
+            ${c.titulo?` <span class="cap-titulo">— ${c.titulo}</span>`:''}
+          </div>
+          <span class="cap-meta">${c.palavras} palavras · ${fmt(c.postadoEm)}</span>
+        </a>`).join(''):'<div class="empty">Nenhum capítulo publicado ainda.</div>';
+      corpo=`<h2>Capítulos (${o.capitulos?o.capitulos.length:0})</h2><div class="caps">${lista}</div>`;
+    }
+    
+    document.getElementById('content').className='';
+    document.getElementById('content').innerHTML=`
+      <div class="head">
+        <div class="capa" style="${capa}">${icone}</div>
+        <div class="info">
+          <span class="status s-${o.status}">${STATUS_LABEL[o.status]||o.status}</span>
+          <div class="titulo">${o.titulo}</div>
+          <div class="meta">${tags}</div>
+          <div class="desc">${o.descricao||'<em style="color:#555">Sem descrição.</em>'}</div>
+          <div class="data">${o.dataCriacaoOriginal?'Criada originalmente em: '+fmt(o.dataCriacaoOriginal):''}</div>
+        </div>
+      </div>
+      ${corpo}`;
+  }catch(e){
+    document.getElementById('content').innerHTML='<p style="color:#ff4757">Erro: '+e.message+'</p>';
+  }
+}
+carregar();
+</script>
+</body>
+</html>
