@@ -344,14 +344,7 @@ const isAuth = (req, res, next) => {
 const isAdmin = (req, res, next) => {
     if (req.isAuthenticated() && req.user.id === DISCORD_ADMIN_ID) return next();
     if (req.path.startsWith('/api/')) return res.status(403).json({ error: 'Permissão negada.' });
-    res.status(403).send('🚫 Acesso restrito ao autor da obra.');
-};
-
-const requireMongo = (req, res, next) => {
-    if (!mongoConectado) {
-        return res.status(503).json({ error: 'Banco de dados indisponível. Tente novamente em instantes.' });
-    }
-    next();
+    res.status(403).send('🚫 Acesso restrito.');
 };
 
 // ==========================================
@@ -362,18 +355,38 @@ const pages = {
     '/funcionalidades': 'funcionalidades.html',
     '/capa': 'capa.html',
     '/perfil': 'perfil.html',
-    '/configuracoes': 'configuracoes.html'
+    '/configuracoes': 'configuracoes.html',
+    '/editor': 'editor.html',           // Editor Antigo (TR: Vida)
+    '/editor-obras': 'editor-obras.html', // Editor Novo (Outras Obras)
+    '/catalogo': 'catalogo.html',
+    '/outras-obras': 'outras-obras.html',
+    '/obra': 'obra.html'
 };
-// ==========================================
-// 📄 PÁGINAS — OUTRAS OBRAS + CATÁLOGO
-// ==========================================
-// Localize onde estão as rotas como app.get('/', ...) e adicione estas:
-app.get('/editor-obras', isAdmin, (req, res) => enviarPagina(res, 'editor-obras.html'));
-app.get('/catalogo', isAuth, (req, res) => enviarPagina(res, 'catalogo.html'));
-app.get('/outras-obras', isAuth, (req, res) => enviarPagina(res, 'outras-obras.html'));
+
+function enviarPagina(res, nomeArquivo) {
+    const filePath = path.join(PUBLIC_DIR, nomeArquivo);
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).send(`Erro: Arquivo ${nomeArquivo} não encontrado.`);
+    }
+    res.sendFile(filePath);
+}
+
+app.get('/', (req, res) => req.isAuthenticated() ? res.redirect('/funcionalidades') : enviarPagina(res, 'index.html'));
+
+// Rotas protegidas (Usuário Comum)
+['/funcionalidades', '/capa', '/perfil', '/configuracoes', '/catalogo', '/outras-obras'].forEach(route => {
+    app.get(route, isAuth, (req, res) => enviarPagina(res, pages[route]));
+});
+
+// Rota dinâmica de obra
 app.get('/obra/:slug', isAuth, (req, res) => enviarPagina(res, 'obra.html'));
 app.get('/obra/:slug/cap/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo-outra-obra.html'));
+app.get('/trvida/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo.html'));
 
+// Rotas de Admin (Editores)
+app.get('/editor', isAdmin, (req, res) => enviarPagina(res, 'editor.html'));
+app.get('/editor-obras', isAdmin, (req, res) => enviarPagina(res, 'editor-obras.html'));
+app.get('/dashboard', isAdmin, (req, res) => enviarPagina(res, 'dashboard.html'));
 
 function enviarPagina(res, nomeArquivo) {
     const filePath = path.join(PUBLIC_DIR, nomeArquivo);
