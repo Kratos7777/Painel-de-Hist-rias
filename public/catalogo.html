@@ -1,86 +1,547 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Catálogo TR: Vida — Portal de Histórias</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:40px 20px}
-.wrap{max-width:900px;margin:0 auto}
-.back{color:#a4b0be;text-decoration:none;font-size:14px;display:inline-block;margin-bottom:20px}
-.back:hover{color:#fff}
-.head{display:flex;gap:24px;margin-bottom:30px;flex-wrap:wrap}
-.capa{width:200px;aspect-ratio:3/4;background:linear-gradient(135deg,#1a1f2c,#0f1115);background-size:cover;background-position:center;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#3a4151;font-size:56px;flex-shrink:0;border:1px solid #232838}
-.info{flex:1;min-width:260px}
-.titulo{font-size:34px;color:#11CAA0;margin-bottom:10px}
-.meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
-.tag{background:#181c25;color:#11CAA0;padding:4px 12px;border-radius:14px;font-size:12px;border:1px solid #232838}
-.status{font-size:12px;padding:4px 12px;border-radius:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.s-em-andamento{background:#1e3a8a33;color:#60a5fa}
-.s-concluida{background:#11ca6033;color:#11CA60}
-.s-pausada{background:#ffc10733;color:#FFC107}
-.desc{color:#a4b0be;line-height:1.6;margin-top:10px}
-.data{font-size:13px;color:#666;margin-top:10px}
-h2{color:#fff;margin:30px 0 16px;font-size:22px;border-bottom:1px solid #232838;padding-bottom:10px}
-.caps{display:flex;flex-direction:column;gap:8px}
-.cap{background:#181c25;padding:14px 18px;border-radius:8px;border:1px solid #232838;display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:#fff;transition:border-color .2s}
-.cap:hover{border-color:#11CAA0}
-.cap-num{font-weight:700;color:#11CAA0;font-size:15px}
-.cap-meta{font-size:12px;color:#666}
-.empty{color:#666;text-align:center;padding:40px;background:#181c25;border-radius:10px}
-.loading{text-align:center;padding:60px;color:#a4b0be}
-.notice{background:#181c25;border-left:3px solid #FFC107;padding:14px 18px;border-radius:6px;color:#a4b0be;margin-bottom:20px;font-size:14px}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <a href="/funcionalidades" class="back">← Voltar</a>
-  <div id="content" class="loading">Carregando…</div>
-</div>
-<script>
-const STATUS_LABEL={'em-andamento':'Em andamento','concluida':'Concluída','pausada':'Pausada'};
-function fmt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—'}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11CAA0">
+    <title>Catálogo — Portal de Histórias</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-async function carregar(){
-  try{
-    const r=await fetch('/api/tr-vida-info');
-    const data=await r.json();
-    const o=data.obra;
-    const caps=data.capitulos||[];
-    const capa=o&&o.capaUrl?`background-image:url('${o.capaUrl}')`:'';
-    const icone=o&&o.capaUrl?'':'🌌';
-    const tags=o?(o.generos||[]).map(g=>`<span class="tag">${g}</span>`).join(''):'';
-    const status=o?o.status:'em-andamento';
-    const titulo=o?o.titulo:'TR: Vida';
-    const desc=o?o.descricao:'';
-    const dataOrig=o?o.dataCriacaoOriginal:null;
-    const notice=!o?'<div class="notice">⚠️ Metadados da obra ainda não foram preenchidos. O autor pode preencher em <a href="/editor-obras" style="color:#11CAA0">/editor-obras</a>.</div>':'';
-    const lista=caps.length?caps.map(c=>`
-      <a class="cap" href="/trvida/${c.numero}">
-        <span class="cap-num">Capítulo ${c.numero}</span>
-        <span class="cap-meta">${c.palavras} palavras · ${fmt(c.postadoEm)}</span>
-      </a>`).join(''):'<div class="empty">Nenhum capítulo publicado ainda.</div>';
-    document.getElementById('content').className='';
-    document.getElementById('content').innerHTML=`
-      ${notice}
-      <div class="head">
-        <div class="capa" style="${capa}">${icone}</div>
-        <div class="info">
-          <span class="status s-${status}">${STATUS_LABEL[status]||status}</span>
-          <div class="titulo" style="margin-top:10px">${titulo}</div>
-          <div class="meta">${tags}</div>
-          <div class="desc">${desc||'<em style="color:#555">Sem descrição.</em>'}</div>
-          <div class="data">${dataOrig?'Criada originalmente em: '+fmt(dataOrig):''}</div>
+        body {
+            background: linear-gradient(135deg, #0f1115 0%, #1a1f2e 50%, #121212 100%);
+            color: #F3F0DF;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(17, 202, 160, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(88, 101, 242, 0.06) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .navbar {
+            background: linear-gradient(135deg, #11CAA0 0%, #0a9d7f 100%);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar h1 { color: white; font-size: 1.3rem; }
+
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.12);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: background 0.25s, transform 0.25s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 56px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .page-header h2 {
+            font-size: 2.6rem;
+            color: #11CAA0;
+            font-weight: 800;
+            text-shadow: 0 4px 20px rgba(17,202,160,0.3);
+            margin-bottom: 12px;
+        }
+
+        .page-header p {
+            color: #A8B0C0;
+            font-size: 1rem;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        /* ── OBRA PRINCIPAL (DESTAQUE) ── */
+        .destaque-section {
+            margin-bottom: 60px;
+            animation: fadeIn 0.8s ease-out 0.1s both;
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            color: #6E7686;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(17,202,160,0.3), transparent);
+        }
+
+        .card-destaque {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 32px;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(17,202,160,0.1) 0%, rgba(24,28,37,0.8) 100%);
+            border: 2px solid rgba(17,202,160,0.35);
+            border-radius: 16px;
+            padding: 32px;
+            text-decoration: none;
+            color: #F3F0DF;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-destaque::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(17,202,160,0.15), transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-destaque:hover {
+            border-color: #11CAA0;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(17,202,160,0.25);
+        }
+
+        .destaque-capa {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .destaque-capa-placeholder {
+            width: 100%;
+            aspect-ratio: 2/3;
+            border-radius: 10px;
+            background: rgba(17,24,39,0.8);
+            border: 2px dashed rgba(17,202,160,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: rgba(17,202,160,0.4);
+        }
+
+        .destaque-info { position: relative; z-index: 1; }
+
+        .destaque-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #11CAA0, #0a9d7f);
+            color: #121212;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+
+        .destaque-titulo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #F3F0DF;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .destaque-descricao {
+            color: #A8B0C0;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .destaque-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-valor { font-size: 1.3rem; font-weight: 800; color: #11CAA0; }
+        .stat-label { font-size: 0.72rem; color: #6E7686; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ── GRID OUTRAS OBRAS ── */
+        .outras-section {
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .obras-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 22px;
+        }
+
+        .obra-card {
+            background: rgba(24,28,37,0.8);
+            border: 1px solid rgba(17,202,160,0.15);
+            border-radius: 14px;
+            overflow: hidden;
+            text-decoration: none;
+            color: #F3F0DF;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .obra-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at center, rgba(17,202,160,0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .obra-card:hover {
+            border-color: #11CAA0;
+            transform: translateY(-8px);
+            box-shadow: 0 18px 40px rgba(17,202,160,0.2);
+        }
+
+        .obra-card:hover::before { opacity: 1; }
+
+        .card-capa {
+            width: 100%;
+            aspect-ratio: 3/2;
+            object-fit: cover;
+            background: rgba(17,24,39,0.9);
+            display: block;
+        }
+
+        .card-capa-placeholder {
+            width: 100%;
+            aspect-ratio: 3/2;
+            background: linear-gradient(135deg, #0f1115, #1a1f2e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: rgba(17,202,160,0.3);
+        }
+
+        .card-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-titulo {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #F3F0DF;
+            line-height: 1.3;
+        }
+
+        .card-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-genero { background: rgba(17,202,160,0.12); border: 1px solid rgba(17,202,160,0.3); color: #11CAA0; }
+        .badge-status-em-andamento { background: rgba(255,200,0,0.12); border: 1px solid rgba(255,200,0,0.3); color: #FFC800; }
+        .badge-status-concluida    { background: rgba(17,202,160,0.12); border: 1px solid rgba(17,202,160,0.35); color: #11CAA0; }
+        .badge-status-pausada      { background: rgba(255,82,82,0.1);   border: 1px solid rgba(255,82,82,0.3);   color: #FF5252; }
+        .badge-status-oneshot      { background: rgba(88,101,242,0.12); border: 1px solid rgba(88,101,242,0.35); color: #818CF8; }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid rgba(17,202,160,0.1);
+            font-size: 0.78rem;
+            color: #6E7686;
+            margin-top: auto;
+        }
+
+        .card-footer strong { color: #11CAA0; }
+
+        /* VER TODAS */
+        .ver-todas {
+            text-align: center;
+            margin-top: 36px;
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: transparent;
+            color: #11CAA0;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: 2px solid #11CAA0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: rgba(17,202,160,0.12);
+            transform: translateY(-2px);
+        }
+
+        /* ── LOADING / EMPTY / ERROR ── */
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(17,202,160,0.2);
+            border-top-color: #11CAA0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .loading-state { text-align: center; padding: 80px 20px; color: #A0A0A0; }
+
+        .empty-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 50px 20px;
+            color: #6E7686;
+            background: rgba(24,28,37,0.5);
+            border-radius: 12px;
+            border: 1px dashed rgba(17,202,160,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .card-destaque { grid-template-columns: 1fr; }
+            .destaque-capa, .destaque-capa-placeholder { max-width: 160px; }
+            .obras-grid { grid-template-columns: 1fr 1fr; }
+            .page-header h2 { font-size: 2rem; }
+            .navbar { flex-direction: column; }
+        }
+
+        @media (max-width: 480px) {
+            .obras-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script src="/global.js"></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <h1>🗂️ Catálogo</h1>
+        <div class="nav-links">
+            <a href="/outras-obras">📚 Outras Obras</a>
+            <a href="/funcionalidades">🏠 Início</a>
+            <a href="/logout">Sair</a>
         </div>
-      </div>
-      <h2>Capítulos (${caps.length})</h2>
-      <div class="caps">${lista}</div>`;
-  }catch(e){
-    document.getElementById('content').innerHTML='<p style="color:#ff4757">Erro: '+e.message+'</p>';
-  }
-}
-carregar();
-</script>
+    </nav>
+
+    <div class="container">
+
+        <div class="page-header">
+            <h2>🗂️ Catálogo de Obras</h2>
+            <p>Todas as histórias do portal em um único lugar.</p>
+        </div>
+
+        <div id="catalogo-container">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Carregando catálogo...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function formatarData(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+        }
+
+        function labelStatus(s) {
+            const m = { 'em-andamento': 'Em Andamento', 'concluida': 'Concluída', 'pausada': 'Pausada', 'oneshot': 'One-Shot' };
+            return m[s] || s;
+        }
+
+        function renderDestaque(obra, capitulos) {
+            const capaHtml = obra && obra.capaUrl
+                ? `<img src="${obra.capaUrl}" alt="${obra.titulo}" class="destaque-capa" onerror="this.outerHTML='<div class=\\'destaque-capa-placeholder\\'>📖</div>'">`
+                : `<div class="destaque-capa-placeholder">📖</div>`;
+
+            const titulo = obra ? obra.titulo : 'TR: Vida';
+            const descricao = obra && obra.descricao ? obra.descricao : 'A obra principal do portal.';
+            const totalCaps = capitulos ? capitulos.length : '—';
+
+            return `
+                <div class="destaque-section">
+                    <div class="section-label">⭐ Obra Principal</div>
+                    <a href="/obra/tr-vida" class="card-destaque">
+                        ${capaHtml}
+                        <div class="destaque-info">
+                            <span class="destaque-tag">⭐ Obra Principal</span>
+                            <h3 class="destaque-titulo">${titulo}</h3>
+                            <p class="destaque-descricao">${descricao}</p>
+                            <div class="destaque-stats">
+                                <div class="stat">
+                                    <span class="stat-valor">${totalCaps}</span>
+                                    <span class="stat-label">Capítulos</span>
+                                </div>
+                                ${obra && obra.status ? `
+                                <div class="stat">
+                                    <span class="stat-valor" style="font-size:0.9rem">${labelStatus(obra.status)}</span>
+                                    <span class="stat-label">Status</span>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    </a>
+                </div>`;
+        }
+
+        function renderCard(obra) {
+            const capaHtml = obra.capaUrl
+                ? `<img src="${obra.capaUrl}" alt="${obra.titulo}" class="card-capa" loading="lazy" onerror="this.outerHTML='<div class=\\'card-capa-placeholder\\'>📖</div>'">`
+                : `<div class="card-capa-placeholder">📖</div>`;
+
+            const generos = (obra.generos || []).slice(0, 2).map(g =>
+                `<span class="badge badge-genero">${g}</span>`
+            ).join('');
+
+            const statusBadge = `<span class="badge badge-status-${obra.status || 'em-andamento'}">${labelStatus(obra.status)}</span>`;
+
+            return `
+                <a href="/obra/${obra.slug}" class="obra-card">
+                    ${capaHtml}
+                    <div class="card-body">
+                        <div class="card-titulo">${obra.titulo}</div>
+                        <div class="card-badges">
+                            ${statusBadge}
+                            ${generos}
+                        </div>
+                        <div class="card-footer">
+                            <span>📅 ${formatarData(obra.atualizadoEm)}</span>
+                            <strong>Ler →</strong>
+                        </div>
+                    </div>
+                </a>`;
+        }
+
+        async function carregarCatalogo() {
+            const container = document.getElementById('catalogo-container');
+            try {
+                // Busca obra principal e outras obras em paralelo
+                const [rPrincipal, rOutras] = await Promise.all([
+                    fetch('/api/tr-vida-info'),
+                    fetch('/api/obras')
+                ]);
+
+                const principal = rPrincipal.ok ? await rPrincipal.json() : null;
+                const outras = rOutras.ok ? await rOutras.json() : [];
+
+                const obraInfo = principal ? principal.obra : null;
+                const capitulos = principal ? principal.capitulos : [];
+
+                let html = renderDestaque(obraInfo, capitulos);
+
+                if (outras && outras.length > 0) {
+                    const grid = outras.map(renderCard).join('');
+                    html += `
+                        <div class="outras-section">
+                            <div class="section-label">📚 Outras Obras</div>
+                            <div class="obras-grid">${grid}</div>
+                            <div class="ver-todas">
+                                <a href="/outras-obras" class="btn-outline">Ver todas as obras →</a>
+                            </div>
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="outras-section">
+                            <div class="section-label">📚 Outras Obras</div>
+                            <div class="obras-grid">
+                                <div class="empty-state">
+                                    <span style="font-size:2.5rem">📭</span>
+                                    <p style="margin-top:12px">Nenhuma outra obra publicada ainda.</p>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+
+                container.innerHTML = html;
+
+            } catch (e) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:60px;color:#FF6B6B;background:rgba(255,107,107,0.1);border-radius:12px;border:1px solid rgba(255,107,107,0.3);">
+                        ⚠️ ${e.message || 'Erro ao carregar o catálogo.'}
+                    </div>`;
+            }
+        }
+
+        carregarCatalogo();
+    </script>
+
 </body>
 </html>

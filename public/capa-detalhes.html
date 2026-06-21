@@ -3,163 +3,539 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Carregando Obra... | Portal de Histórias</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="theme-color" content="#11CAA0">
+    <title>Capa da Obra — Portal de Histórias</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f1115; color: #e5e7eb; }
-        .glass { background: rgba(24, 28, 37, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .capa-shadow { box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .btn-primary { background: #11CAA0; color: #0f1115; transition: all 0.3s ease; }
-        .btn-primary:hover { background: #0ea885; transform: translateY(-2px); }
-        .shimmer { background: linear-gradient(90deg, #181c25 25%, #242b38 50%, #181c25 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-    </style>
-</head>
-<body class="min-h-screen pb-20">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <!-- Header / Nav -->
-    <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto">
-        <a href="/" class="text-2xl font-bold text-[#11CAA0] flex items-center gap-2">
-            <i class="fas fa-book-open"></i> Portal
-        </a>
-        <div class="flex gap-4">
-            <a href="/funcionalidades" class="text-sm text-gray-400 hover:text-white transition">Painel</a>
-            <a href="/logout" class="text-sm text-red-400 hover:text-red-300 transition">Sair</a>
+        body {
+            background: linear-gradient(135deg, #0f1115 0%, #1a1f2e 50%, #121212 100%);
+            color: #F3F0DF;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(17, 202, 160, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(88, 101, 242, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: linear-gradient(135deg, #11CAA0 0%, #0a9d7f 100%);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar h1 {
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.12);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: background 0.25s, transform 0.25s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        /* ── LAYOUT PRINCIPAL ── */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── HERO: capa + info ── */
+        .hero {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 40px;
+            align-items: start;
+            margin-bottom: 52px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .capa-img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(17,202,160,0.3);
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            background: rgba(24,28,37,0.7);
+            display: block;
+        }
+
+        .capa-placeholder {
+            width: 100%;
+            aspect-ratio: 2/3;
+            border-radius: 12px;
+            background: rgba(24,28,37,0.8);
+            border: 2px dashed rgba(17,202,160,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: rgba(17,202,160,0.4);
+        }
+
+        .obra-info { display: flex; flex-direction: column; gap: 18px; }
+
+        .obra-titulo {
+            font-size: 2.4rem;
+            color: #11CAA0;
+            font-weight: 800;
+            line-height: 1.2;
+            text-shadow: 0 4px 20px rgba(17,202,160,0.3);
+        }
+
+        .obra-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-genero {
+            background: rgba(17,202,160,0.15);
+            border: 1px solid rgba(17,202,160,0.4);
+            color: #11CAA0;
+        }
+
+        .badge-status-em-andamento { background: rgba(255,200,0,0.15); border: 1px solid rgba(255,200,0,0.4); color: #FFC800; }
+        .badge-status-concluida    { background: rgba(17,202,160,0.15); border: 1px solid rgba(17,202,160,0.4); color: #11CAA0; }
+        .badge-status-pausada      { background: rgba(255,82,82,0.15);  border: 1px solid rgba(255,82,82,0.4);  color: #FF5252; }
+        .badge-status-oneshot      { background: rgba(88,101,242,0.15); border: 1px solid rgba(88,101,242,0.4); color: #818CF8; }
+
+        .obra-meta-lista {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: #A8B0C0;
+            font-size: 0.92rem;
+        }
+
+        .obra-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .obra-meta-item strong { color: #F3F0DF; font-size: 1rem; }
+        .obra-meta-label { color: #6E7686; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .obra-descricao {
+            color: #C8CDD8;
+            line-height: 1.8;
+            font-size: 1rem;
+            background: rgba(24,28,37,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 3px solid rgba(17,202,160,0.4);
+        }
+
+        .btn-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #11CAA0, #0a9d7f);
+            color: #121212;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .btn-cta:hover {
+            background: linear-gradient(135deg, #0a9d7f, #087f65);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(17,202,160,0.35);
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: transparent;
+            color: #11CAA0;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: 2px solid #11CAA0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .btn-outline:hover {
+            background: rgba(17,202,160,0.12);
+            transform: translateY(-2px);
+        }
+
+        .cta-group { display: flex; gap: 14px; flex-wrap: wrap; }
+
+        /* ── LISTA DE CAPÍTULOS ── */
+        .section-titulo {
+            font-size: 1.5rem;
+            color: #11CAA0;
+            margin-bottom: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-titulo span {
+            font-size: 0.85rem;
+            color: #6E7686;
+            font-weight: 400;
+            background: rgba(17,202,160,0.1);
+            border: 1px solid rgba(17,202,160,0.25);
+            padding: 3px 12px;
+            border-radius: 20px;
+        }
+
+        .capitulos-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .capitulo-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 22px;
+            background: rgba(24,28,37,0.7);
+            border: 1px solid rgba(17,202,160,0.12);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #F3F0DF;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .capitulo-item:hover {
+            border-color: #11CAA0;
+            background: rgba(17,202,160,0.08);
+            transform: translateX(6px);
+            box-shadow: 0 4px 16px rgba(17,202,160,0.15);
+        }
+
+        .capitulo-num {
+            min-width: 50px;
+            font-size: 0.82rem;
+            color: #11CAA0;
+            font-weight: 700;
+            text-align: center;
+            background: rgba(17,202,160,0.12);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .capitulo-info { flex: 1; }
+        .capitulo-titulo-item { font-size: 0.97rem; font-weight: 600; }
+
+        .capitulo-sub {
+            display: flex;
+            gap: 16px;
+            font-size: 0.8rem;
+            color: #6E7686;
+            margin-top: 3px;
+        }
+
+        .capitulo-seta {
+            color: #11CAA0;
+            font-size: 1.1rem;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .capitulo-item:hover .capitulo-seta {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* ── LOADING / ERROR ── */
+        .loading-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #A0A0A0;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(17,202,160,0.2);
+            border-top-color: #11CAA0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #FF6B6B;
+            background: rgba(255,107,107,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,107,107,0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6E7686;
+            background: rgba(24,28,37,0.5);
+            border-radius: 12px;
+            border: 1px dashed rgba(17,202,160,0.2);
+        }
+
+        .empty-state p { margin-top: 12px; font-size: 0.95rem; }
+
+        /* ── SEPARADOR ── */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(17,202,160,0.3), transparent);
+            margin: 48px 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero { grid-template-columns: 1fr; }
+            .capa-img, .capa-placeholder { max-width: 200px; margin: 0 auto; }
+            .obra-titulo { font-size: 1.8rem; }
+            .capitulo-item { flex-wrap: wrap; }
+            .navbar { flex-direction: column; }
+            .cta-group { flex-direction: column; }
+            .btn-cta, .btn-outline { width: 100%; justify-content: center; }
+        }
+    </style>
+    <script src="/global.js"></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <h1 id="nav-titulo">📖 Portal de Histórias</h1>
+        <div class="nav-links">
+            <a href="/catalogo">🗂️ Catálogo</a>
+            <a href="/funcionalidades">🏠 Início</a>
+            <a href="/logout">Sair</a>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-6 mt-10">
-        <!-- Hero Section: Detalhes da Obra -->
-        <div id="loading-skeleton" class="flex flex-col md:flex-row gap-10 animate-pulse">
-            <div class="w-full md:w-80 h-[450px] shimmer rounded-xl"></div>
-            <div class="flex-1 space-y-4">
-                <div class="h-10 w-3/4 shimmer rounded"></div>
-                <div class="h-6 w-1/4 shimmer rounded"></div>
-                <div class="h-32 w-full shimmer rounded"></div>
+    <div class="container">
+        <div id="conteudo">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Carregando obra...</p>
             </div>
         </div>
-
-        <div id="obra-content" class="hidden flex flex-col md:flex-row gap-10">
-            <!-- Capa -->
-            <div class="w-full md:w-80 flex-shrink-0">
-                <img id="obra-capa" src="" alt="Capa" class="w-full h-auto rounded-xl capa-shadow border border-gray-800">
-            </div>
-
-            <!-- Info -->
-            <div class="flex-1">
-                <div class="flex flex-wrap items-center gap-3 mb-4" id="obra-generos">
-                    <!-- Gêneros via JS -->
-                </div>
-                <h1 id="obra-titulo" class="text-4xl md:text-5xl font-bold mb-4 text-white"></h1>
-                <p id="obra-status" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-800 text-gray-300 mb-6"></p>
-                
-                <div class="glass p-6 rounded-2xl mb-8">
-                    <h2 class="text-lg font-semibold mb-3 text-[#11CAA0]">Sinopse</h2>
-                    <p id="obra-descricao" class="text-gray-400 leading-relaxed"></p>
-                </div>
-
-                <div class="flex gap-4">
-                    <button id="btn-ler-agora" class="btn-primary px-8 py-3 rounded-xl font-bold flex items-center gap-2">
-                        <i class="fas fa-play"></i> Começar Leitura
-                    </button>
-                    <button class="bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-xl font-bold transition">
-                        <i class="far fa-bookmark"></i> Salvar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lista de Capítulos -->
-        <section class="mt-20">
-            <div class="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
-                <h3 class="text-2xl font-bold text-white">Capítulos</h3>
-                <span id="total-caps" class="text-gray-500">0 capítulos</span>
-            </div>
-
-            <div id="lista-capitulos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Capítulos via JS -->
-            </div>
-        </section>
-    </main>
+    </div>
 
     <script>
-        // Lógica Inteligente de Carregamento
+        // Detecta o slug da URL: /obra/:slug
+        function obterSlug() {
+            const m = window.location.pathname.match(/^\/obra\/([^\/]+)/);
+            return m ? m[1] : null;
+        }
+
+        function formatarData(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function labelStatus(s) {
+            const m = { 'em-andamento': 'Em Andamento', 'concluida': 'Concluída', 'pausada': 'Pausada', 'oneshot': 'One-Shot' };
+            return m[s] || s;
+        }
+
+        function classeStatus(s) {
+            return 'badge badge-status-' + (s || 'em-andamento');
+        }
+
+        function montarHero(obra, capitulos, ehPrincipal) {
+            const capTexto = capitulos.length === 1 ? '1 capítulo' : `${capitulos.length} capítulos`;
+
+            let capaHtml = '';
+            if (obra.capaUrl) {
+                capaHtml = `<img src="${obra.capaUrl}" alt="Capa de ${obra.titulo}" class="capa-img" onerror="this.outerHTML='<div class=\\'capa-placeholder\\'>📚</div>'">`;
+            } else {
+                capaHtml = `<div class="capa-placeholder">📚</div>`;
+            }
+
+            const generosHtml = (obra.generos || []).map(g =>
+                `<span class="badge badge-genero">${g}</span>`
+            ).join('');
+
+            // Botão de ação principal
+            let btnAcao = '';
+            if (capitulos.length > 0) {
+                const primeroCap = capitulos[0];
+                const urlPrimeiro = ehPrincipal
+                    ? `/trvida/${primeroCap.numero}`
+                    : `/obra/${obra.slug}/cap/${primeroCap.numero}`;
+                btnAcao = `<a href="${urlPrimeiro}" class="btn-cta">▶ Começar a Ler</a>`;
+            }
+
+            document.getElementById('nav-titulo').textContent = `📖 ${obra.titulo}`;
+            document.title = `${obra.titulo} — Portal de Histórias`;
+
+            return `
+                <div class="hero">
+                    <div>${capaHtml}</div>
+                    <div class="obra-info">
+                        <h1 class="obra-titulo">${obra.titulo}</h1>
+                        <div class="obra-badges">
+                            <span class="${classeStatus(obra.status)}">${labelStatus(obra.status)}</span>
+                            ${generosHtml}
+                        </div>
+                        <div class="obra-meta-lista">
+                            <div class="obra-meta-item">
+                                <span class="obra-meta-label">Capítulos</span>
+                                <strong>${capitulos.length}</strong>
+                            </div>
+                            ${obra.dataCriacaoOriginal ? `
+                            <div class="obra-meta-item">
+                                <span class="obra-meta-label">Início</span>
+                                <strong>${formatarData(obra.dataCriacaoOriginal)}</strong>
+                            </div>` : ''}
+                            <div class="obra-meta-item">
+                                <span class="obra-meta-label">Atualizado</span>
+                                <strong>${formatarData(obra.atualizadoEm)}</strong>
+                            </div>
+                        </div>
+                        ${obra.descricao ? `<p class="obra-descricao">${obra.descricao}</p>` : ''}
+                        <div class="cta-group">
+                            ${btnAcao}
+                            <a href="/catalogo" class="btn-outline">← Voltar ao Catálogo</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+            `;
+        }
+
+        function montarListaCapitulos(obra, capitulos, ehPrincipal) {
+            if (!capitulos || capitulos.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <span style="font-size:3rem">📭</span>
+                        <p>Nenhum capítulo publicado ainda.</p>
+                    </div>`;
+            }
+
+            const itens = capitulos.map(cap => {
+                const url = ehPrincipal
+                    ? `/trvida/${cap.numero}`
+                    : `/obra/${obra.slug}/cap/${cap.numero}`;
+
+                const titulo = cap.titulo || `Capítulo ${cap.numero}`;
+                const palavras = cap.palavras ? `${cap.palavras.toLocaleString('pt-BR')} palavras` : '';
+                const data = formatarData(cap.postadoEm);
+
+                return `
+                    <a href="${url}" class="capitulo-item">
+                        <span class="capitulo-num">Cap. ${cap.numero}</span>
+                        <div class="capitulo-info">
+                            <div class="capitulo-titulo-item">${titulo}</div>
+                            <div class="capitulo-sub">
+                                ${palavras ? `<span>📝 ${palavras}</span>` : ''}
+                                <span>📅 ${data}</span>
+                            </div>
+                        </div>
+                        <span class="capitulo-seta">→</span>
+                    </a>`;
+            }).join('');
+
+            return `
+                <h2 class="section-titulo">
+                    📋 Capítulos <span>${capitulos.length} publicado${capitulos.length !== 1 ? 's' : ''}</span>
+                </h2>
+                <div class="capitulos-lista">${itens}</div>`;
+        }
+
         async function carregarObra() {
-            // Pega o slug da URL (ex: /obra/tempus-requiem)
-            const pathParts = window.location.pathname.split('/');
-            const slug = pathParts[pathParts.length - 1];
+            const slug = obterSlug();
+            const div = document.getElementById('conteudo');
+
+            if (!slug) {
+                div.innerHTML = `<div class="error-state">⚠️ Obra não identificada na URL.</div>`;
+                return;
+            }
 
             try {
-                const response = await fetch(`/api/obra/${slug}`);
-                if (!response.ok) throw new Error('Obra não encontrada');
-                
-                const obra = await response.json();
-
-                // Preenche os dados básicos
-                document.getElementById('page-title').innerText = `${obra.titulo} | Portal`;
-                document.getElementById('obra-titulo').innerText = obra.titulo;
-                document.getElementById('obra-capa').src = obra.capaUrl || '/imagens/default-capa.jpg';
-                document.getElementById('obra-descricao').innerText = obra.descricao || 'Sem sinopse disponível.';
-                document.getElementById('obra-status').innerText = obra.status.toUpperCase();
-                document.getElementById('total-caps').innerText = `${obra.capitulos.length} capítulos`;
-
-                // Gêneros
-                const generosContainer = document.getElementById('obra-generos');
-                obra.generos.forEach(gen => {
-                    const span = document.createElement('span');
-                    span.className = 'px-3 py-1 bg-[#11CAA015] text-[#11CAA0] border border-[#11CAA030] rounded-lg text-xs font-medium';
-                    span.innerText = gen;
-                    generosContainer.appendChild(span);
-                });
-
-                // Capítulos
-                const listaContainer = document.getElementById('lista-capitulos');
-                if (obra.capitulos.length === 0) {
-                    listaContainer.innerHTML = '<p class="text-gray-500 col-span-full">Nenhum capítulo postado ainda.</p>';
-                } else {
-                    obra.capitulos.forEach(cap => {
-                        const card = document.createElement('a');
-                        // Ajuste de rota conforme o tipo da obra
-                        const rotaLeitura = obra.ehObraPrincipal ? `/trvida/${cap.numero}` : `/obra/${obra.slug}/cap/${cap.numero}`;
-                        
-                        card.href = rotaLeitura;
-                        card.className = 'glass p-4 rounded-xl flex items-center justify-between hover:border-[#11CAA0] transition group';
-                        card.innerHTML = `
-                            <div>
-                                <span class="text-xs text-gray-500 block mb-1">Capítulo ${cap.numero}</span>
-                                <span class="font-semibold text-gray-200 group-hover:text-[#11CAA0] transition">${cap.titulo || 'Sem título'}</span>
-                            </div>
-                            <i class="fas fa-chevron-right text-gray-600 group-hover:text-[#11CAA0]"></i>
-                        `;
-                        listaContainer.appendChild(card);
-                    });
-
-                    // Botão Ler Agora (leva ao primeiro capítulo)
-                    document.getElementById('btn-ler-agora').onclick = () => {
-                        const primeiroCap = obra.capitulos[0].numero;
-                        window.location.href = obra.ehObraPrincipal ? `/trvida/${primeiroCap}` : `/obra/${obra.slug}/cap/${primeiroCap}`;
-                    };
+                const r = await fetch(`/api/obra/${slug}`);
+                if (!r.ok) {
+                    const err = await r.json().catch(() => ({}));
+                    throw new Error(err.error || 'Obra não encontrada.');
                 }
+                const data = await r.json();
+                const obra = data;
+                const capitulos = data.capitulos || [];
+                const ehPrincipal = !!data.ehObraPrincipal;
 
-                // Mostrar conteúdo e esconder skeleton
-                document.getElementById('loading-skeleton').classList.add('hidden');
-                document.getElementById('obra-content').classList.remove('hidden');
+                div.innerHTML =
+                    montarHero(obra, capitulos, ehPrincipal) +
+                    montarListaCapitulos(obra, capitulos, ehPrincipal);
 
-            } catch (err) {
-                console.error(err);
-                document.body.innerHTML = `
-                    <div class="min-h-screen flex flex-col items-center justify-center text-center p-6">
-                        <h1 class="text-6xl font-bold text-red-500 mb-4">404</h1>
-                        <p class="text-xl text-gray-400 mb-8">Ops! Não conseguimos encontrar essa obra.</p>
-                        <a href="/" class="btn-primary px-8 py-3 rounded-xl font-bold">Voltar ao Início</a>
-                    </div>
-                `;
+            } catch (e) {
+                div.innerHTML = `
+                    <div class="error-state">
+                        <p style="font-size:2rem;margin-bottom:12px">⚠️</p>
+                        <strong>${e.message}</strong>
+                        <br><br>
+                        <a href="/catalogo" style="color:#11CAA0;text-decoration:none;font-weight:600;">← Voltar ao Catálogo</a>
+                    </div>`;
             }
         }
 
-        window.onload = carregarObra;
+        carregarObra();
     </script>
+
 </body>
 </html>

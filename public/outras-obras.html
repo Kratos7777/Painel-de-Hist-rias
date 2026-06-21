@@ -1,81 +1,438 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Outras Obras — Portal de Histórias</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:40px 20px}
-.wrap{max-width:1100px;margin:0 auto}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:10px}
-.back{color:#a4b0be;text-decoration:none;font-size:14px}
-.back:hover{color:#fff}
-h1{font-size:30px;color:#11CAA0}
-.subtitle{color:#666;margin-bottom:30px;font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
-.card{background:#181c25;border:1px solid #232838;border-radius:10px;overflow:hidden;text-decoration:none;color:#fff;transition:border-color .2s,transform .2s;display:flex;flex-direction:column}
-.card:hover{border-color:#11CAA0;transform:translateY(-2px)}
-.card-capa{aspect-ratio:3/4;background:linear-gradient(135deg,#1a1f2c,#0f1115);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#3a4151;font-size:48px}
-.card-body{padding:14px 16px}
-.card-titulo{font-weight:700;color:#11CAA0;margin-bottom:6px;font-size:16px}
-.card-meta{font-size:12px;color:#666;display:flex;gap:8px;flex-wrap:wrap}
-.card-desc{font-size:13px;color:#a4b0be;margin-top:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.status{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.s-em-andamento{background:#1e3a8a33;color:#60a5fa}
-.s-concluida{background:#11ca6033;color:#11CA60}
-.s-pausada{background:#ffc10733;color:#FFC107}
-.s-oneshot{background:#9333ea33;color:#c4a3ff}
-.empty{text-align:center;padding:60px;background:#181c25;border-radius:10px;color:#666}
-.loading{text-align:center;padding:60px;color:#a4b0be}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="top">
-    <div>
-      <h1>📚 Outras Obras</h1>
-      <p class="subtitle">Contos, romances e séries paralelas do autor</p>
-    </div>
-    <a href="/funcionalidades" class="back">← Voltar</a>
-  </div>
-  <div id="content" class="loading">Carregando…</div>
-</div>
-<script>
-const STATUS_LABEL={'em-andamento':'Em andamento','concluida':'Concluída','pausada':'Pausada','oneshot':'One-shot'};
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11CAA0">
+    <title>Outras Obras — Portal de Histórias</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-async function carregar(){
-  try{
-    const r=await fetch('/api/obras');
-    const obras=await r.json();
-    const el=document.getElementById('content');
-    if(!obras.length){
-      el.className='';
-      el.innerHTML='<div class="empty">Nenhuma obra publicada ainda.</div>';
-      return;
-    }
-    el.className='grid';
-    el.innerHTML=obras.map(o=>{
-      const capa=o.capaUrl?`background-image:url('${o.capaUrl}')`:'';
-      const icone=o.capaUrl?'':(o.tipo==='unico'?'📝':'📖');
-      return `
-        <a class="card" href="/obra/${o.slug}">
-          <div class="card-capa" style="${capa}">${icone}</div>
-          <div class="card-body">
-            <div class="card-titulo">${o.titulo}</div>
-            <div class="card-meta">
-              <span class="status s-${o.status}">${STATUS_LABEL[o.status]||o.status}</span>
-              <span>${o.tipo==='unico'?'Conto único':'Série'}</span>
+        body {
+            background: linear-gradient(135deg, #0f1115 0%, #1a1f2e 50%, #121212 100%);
+            color: #F3F0DF;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(17, 202, 160, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(88, 101, 242, 0.06) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .navbar {
+            background: linear-gradient(135deg, #11CAA0 0%, #0a9d7f 100%);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar h1 { color: white; font-size: 1.3rem; }
+
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.12);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: background 0.25s, transform 0.25s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .page-header h2 {
+            font-size: 2.4rem;
+            color: #11CAA0;
+            font-weight: 800;
+            text-shadow: 0 4px 20px rgba(17,202,160,0.3);
+            margin-bottom: 12px;
+        }
+
+        .page-header p {
+            color: #A8B0C0;
+            font-size: 1rem;
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ── FILTROS ── */
+        .filtros {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+            animation: fadeIn 0.8s ease-out 0.1s both;
+        }
+
+        .filtro-btn {
+            padding: 8px 20px;
+            background: transparent;
+            border: 1px solid rgba(17,202,160,0.3);
+            color: #A8B0C0;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .filtro-btn:hover, .filtro-btn.ativo {
+            background: rgba(17,202,160,0.15);
+            border-color: #11CAA0;
+            color: #11CAA0;
+        }
+
+        /* ── GRID DE CARDS ── */
+        .obras-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .obra-card {
+            background: rgba(24,28,37,0.8);
+            border: 1px solid rgba(17,202,160,0.15);
+            border-radius: 14px;
+            overflow: hidden;
+            text-decoration: none;
+            color: #F3F0DF;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .obra-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(17,202,160,0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .obra-card:hover {
+            border-color: #11CAA0;
+            transform: translateY(-8px);
+            box-shadow: 0 18px 40px rgba(17,202,160,0.2);
+        }
+
+        .obra-card:hover::before { opacity: 1; }
+
+        .card-capa {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: rgba(17,24,39,0.9);
+            display: block;
+        }
+
+        .card-capa-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #0f1115, #1a1f2e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: rgba(17,202,160,0.3);
+        }
+
+        .card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-titulo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #F3F0DF;
+            line-height: 1.3;
+        }
+
+        .card-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-genero {
+            background: rgba(17,202,160,0.12);
+            border: 1px solid rgba(17,202,160,0.3);
+            color: #11CAA0;
+        }
+
+        .badge-tipo-unico    { background: rgba(88,101,242,0.15); border: 1px solid rgba(88,101,242,0.35); color: #818CF8; }
+        .badge-tipo-serie    { background: rgba(17,202,160,0.1);  border: 1px solid rgba(17,202,160,0.3);  color: #11CAA0; }
+        .badge-status-em-andamento { background: rgba(255,200,0,0.12); border: 1px solid rgba(255,200,0,0.3); color: #FFC800; }
+        .badge-status-concluida    { background: rgba(17,202,160,0.12); border: 1px solid rgba(17,202,160,0.35); color: #11CAA0; }
+        .badge-status-pausada      { background: rgba(255,82,82,0.1);   border: 1px solid rgba(255,82,82,0.3);   color: #FF5252; }
+        .badge-status-oneshot      { background: rgba(88,101,242,0.12); border: 1px solid rgba(88,101,242,0.35); color: #818CF8; }
+
+        .card-descricao {
+            font-size: 0.85rem;
+            color: #8A919E;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(17,202,160,0.1);
+            font-size: 0.8rem;
+            color: #6E7686;
+        }
+
+        .card-footer strong { color: #11CAA0; }
+
+        /* ── LOADING / EMPTY / ERROR ── */
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(17,202,160,0.2);
+            border-top-color: #11CAA0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .loading-state {
+            text-align: center; padding: 80px 20px; color: #A0A0A0;
+        }
+
+        .empty-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #6E7686;
+            background: rgba(24,28,37,0.5);
+            border-radius: 12px;
+            border: 1px dashed rgba(17,202,160,0.2);
+        }
+
+        .empty-state p { margin-top: 12px; }
+
+        .error-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #FF6B6B;
+            background: rgba(255,107,107,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,107,107,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .obras-grid { grid-template-columns: 1fr 1fr; }
+            .page-header h2 { font-size: 1.8rem; }
+            .navbar { flex-direction: column; }
+        }
+
+        @media (max-width: 480px) {
+            .obras-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script src="/global.js"></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <h1>📚 Outras Obras</h1>
+        <div class="nav-links">
+            <a href="/catalogo">🗂️ Catálogo</a>
+            <a href="/funcionalidades">🏠 Início</a>
+            <a href="/logout">Sair</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="page-header">
+            <h2>📚 Outras Obras</h2>
+            <p>Explore as histórias secundárias e projetos especiais do portal.</p>
+        </div>
+
+        <div class="filtros" id="filtros">
+            <button class="filtro-btn ativo" onclick="filtrar('todos', this)">Todos</button>
+            <button class="filtro-btn" onclick="filtrar('serie', this)">Séries</button>
+            <button class="filtro-btn" onclick="filtrar('unico', this)">One-Shots</button>
+            <button class="filtro-btn" onclick="filtrar('em-andamento', this)">Em Andamento</button>
+            <button class="filtro-btn" onclick="filtrar('concluida', this)">Concluídas</button>
+        </div>
+
+        <div id="obras-container">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Carregando obras...</p>
             </div>
-            <div class="card-desc">${o.descricao||''}</div>
-          </div>
-        </a>`;
-    }).join('');
-  }catch(e){
-    document.getElementById('content').innerHTML='<p style="color:#ff4757">Erro: '+e.message+'</p>';
-  }
-}
-carregar();
-</script>
+        </div>
+
+    </div>
+
+    <script>
+        let todasObras = [];
+        let filtroAtivo = 'todos';
+
+        function formatarData(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+        }
+
+        function labelStatus(s) {
+            const m = { 'em-andamento': 'Em Andamento', 'concluida': 'Concluída', 'pausada': 'Pausada', 'oneshot': 'One-Shot' };
+            return m[s] || s;
+        }
+
+        function renderCard(obra) {
+            const capaHtml = obra.capaUrl
+                ? `<img src="${obra.capaUrl}" alt="${obra.titulo}" class="card-capa" loading="lazy" onerror="this.outerHTML='<div class=\\'card-capa-placeholder\\'>📖</div>'">`
+                : `<div class="card-capa-placeholder">📖</div>`;
+
+            const generos = (obra.generos || []).slice(0, 2).map(g =>
+                `<span class="badge badge-genero">${g}</span>`
+            ).join('');
+
+            const descricao = obra.descricao
+                ? `<p class="card-descricao">${obra.descricao}</p>`
+                : '';
+
+            const tipoBadge = obra.tipo === 'unico'
+                ? `<span class="badge badge-tipo-unico">One-Shot</span>`
+                : `<span class="badge badge-tipo-serie">Série</span>`;
+
+            const statusBadge = `<span class="badge badge-status-${obra.status || 'em-andamento'}">${labelStatus(obra.status)}</span>`;
+
+            const url = `/obra/${obra.slug}`;
+
+            return `
+                <a href="${url}" class="obra-card">
+                    ${capaHtml}
+                    <div class="card-body">
+                        <div class="card-titulo">${obra.titulo}</div>
+                        <div class="card-badges">
+                            ${statusBadge}
+                            ${tipoBadge}
+                            ${generos}
+                        </div>
+                        ${descricao}
+                        <div class="card-footer">
+                            <span>📅 ${formatarData(obra.atualizadoEm)}</span>
+                            <strong>Ver obra →</strong>
+                        </div>
+                    </div>
+                </a>`;
+        }
+
+        function renderGrid(obras) {
+            const container = document.getElementById('obras-container');
+
+            if (!obras || obras.length === 0) {
+                container.innerHTML = `
+                    <div class="obras-grid">
+                        <div class="empty-state">
+                            <span style="font-size:3rem">📭</span>
+                            <p>Nenhuma obra encontrada com esse filtro.</p>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = `<div class="obras-grid">${obras.map(renderCard).join('')}</div>`;
+        }
+
+        function filtrar(tipo, btn) {
+            filtroAtivo = tipo;
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+            btn.classList.add('ativo');
+
+            let filtradas = todasObras;
+            if (tipo === 'serie' || tipo === 'unico') {
+                filtradas = todasObras.filter(o => o.tipo === tipo);
+            } else if (tipo !== 'todos') {
+                filtradas = todasObras.filter(o => o.status === tipo);
+            }
+            renderGrid(filtradas);
+        }
+
+        async function carregarObras() {
+            try {
+                const r = await fetch('/api/obras');
+                if (!r.ok) throw new Error('Erro ao buscar obras.');
+                todasObras = await r.json();
+                renderGrid(todasObras);
+            } catch (e) {
+                document.getElementById('obras-container').innerHTML = `
+                    <div class="obras-grid">
+                        <div class="error-state">
+                            ⚠️ ${e.message || 'Erro ao carregar as obras.'}
+                        </div>
+                    </div>`;
+            }
+        }
+
+        carregarObras();
+    </script>
+
 </body>
 </html>

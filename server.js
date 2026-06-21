@@ -236,6 +236,20 @@ app.use(session({
     }
 }));
 
+const pages = {
+    '/': 'index.html',
+    '/funcionalidades': 'funcionalidades.html',
+    '/capa': 'capa.html',
+    '/perfil': 'perfil.html',
+    '/configuracoes': 'configuracoes.html',
+    '/editor': 'editor.html',
+    '/editor-obras': 'editor-obras.html',
+    '/catalogo': 'catalogo.html',
+    '/outras-obras': 'outras-obras.html',
+    '/obra': 'obra.html',
+    '/capa-detalhes': 'capa-detalhes.html'  // ← ADICIONAR
+};
+
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
@@ -613,9 +627,6 @@ app.get('/continuar', isAuth, async (req, res) => {
 
 // --- ADICIONE POR VOLTA DA LINHA 610 ---
 // Esta rota faz com que /obra/qualquer-nome abra a página capa-detalhes.html
-app.get('/obra/:slug', isAuth, (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, 'capa-detalhes.html'));
-});
 
 app.get('/api/obras', isAuth, requireMongo, async (req, res) => {
     try {

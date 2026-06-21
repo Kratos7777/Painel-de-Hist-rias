@@ -1,59 +1,439 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Capítulo — Portal de Histórias</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#0f1115;color:#fff;min-height:100vh;padding:30px 20px}
-.wrap{max-width:780px;margin:0 auto}
-.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:10px}
-.back{color:#a4b0be;text-decoration:none;font-size:14px}
-.back:hover{color:#fff}
-.obra{font-size:13px;color:#666}
-.obra a{color:#11CAA0;text-decoration:none}
-h1{font-size:28px;color:#11CAA0;margin-bottom:6px}
-.titulo{font-size:20px;color:#a4b0be;margin-bottom:24px;font-weight:400}
-.meta{font-size:13px;color:#666;margin-bottom:30px;border-bottom:1px solid #232838;padding-bottom:14px}
-.conteudo{line-height:1.9;font-size:17px;white-space:pre-wrap}
-.loading{text-align:center;padding:60px;color:#a4b0be}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11CAA0">
+    <title>Capítulo — Portal de Histórias</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #121212;
+            color: #F3F0DF;
+            font-family: 'Georgia', 'Garamond', serif;
+            line-height: 1.9;
+            min-height: 100vh;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .reading-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #11CAA0, #5EE5C3);
+            width: 0%;
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(17,202,160,0.5);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #11CAA0 0%, #0a9d7f 100%);
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            flex-wrap: wrap;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-left { display: flex; flex-direction: column; gap: 2px; }
+
+        .navbar h1 {
+            color: white;
+            font-size: 1.2rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .navbar-obra {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.8rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.12);
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background 0.25s, transform 0.25s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .chapter-number {
+            text-align: center;
+            color: #A0A0A0;
+            font-size: 0.88rem;
+            margin-bottom: 8px;
+            font-style: italic;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .chapter-title {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #11CAA0;
+            font-size: 2rem;
+            text-shadow: 0 2px 8px rgba(17,202,160,0.2);
+            font-weight: 700;
+        }
+
+        .obra-breadcrumb {
+            text-align: center;
+            margin-bottom: 28px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .obra-breadcrumb a {
+            color: #6E7686;
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+        }
+
+        .obra-breadcrumb a:hover { color: #11CAA0; }
+        .obra-breadcrumb span { color: #4A5060; margin: 0 8px; }
+
+        .chapter-meta {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 32px;
+            font-family: 'Segoe UI', sans-serif;
+            color: #A0A0A0;
+            font-size: 0.88rem;
+            flex-wrap: wrap;
+        }
+
+        .chapter-meta span { display: flex; align-items: center; gap: 6px; }
+        .chapter-meta strong { color: #11CAA0; }
+
+        .chapter-content {
+            background: rgba(24,28,37,0.5);
+            padding: 36px 32px;
+            border-radius: 10px;
+            border-left: 3px solid #11CAA0;
+            min-height: 400px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            font-size: 1.08rem;
+            line-height: 2;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: #A0A0A0;
+            padding: 50px;
+            font-style: italic;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px; height: 20px;
+            border: 2px solid rgba(17,202,160,0.3);
+            border-top-color: #11CAA0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .error {
+            text-align: center;
+            color: #FF6B6B;
+            padding: 40px;
+            background: rgba(255,107,107,0.1);
+            border-radius: 10px;
+            border: 1px solid #FF6B6B;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 50px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(17,202,160,0.25);
+            flex-wrap: wrap;
+            gap: 16px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .nav-btn {
+            padding: 12px 26px;
+            border: 2px solid #11CAA0;
+            color: #11CAA0;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: transparent;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(17,202,160,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(17,202,160,0.22);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .nav-btn-capa {
+            padding: 10px 20px;
+            border: 1px solid rgba(17,202,160,0.35);
+            color: #A8B0C0;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.88rem;
+        }
+
+        .nav-btn-capa:hover {
+            border-color: #11CAA0;
+            color: #11CAA0;
+            background: rgba(17,202,160,0.08);
+        }
+
+        .chapter-info {
+            text-align: center;
+            color: #A0A0A0;
+            font-size: 0.88rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .chapter-info strong { color: #11CAA0; }
+
+        .shortcut-hint {
+            text-align: center;
+            margin-top: 28px;
+            color: #6E7686;
+            font-size: 0.82rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .shortcut-hint kbd {
+            background: rgba(17,202,160,0.12);
+            border: 1px solid rgba(17,202,160,0.3);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-family: monospace;
+            color: #11CAA0;
+            font-size: 0.78rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; }
+            .chapter-content { padding: 24px 18px; font-size: 1rem; }
+            .navigation { flex-direction: column; }
+            .nav-btn { width: 100%; }
+            .chapter-title { font-size: 1.6rem; }
+        }
+    </style>
+    <script src="/global.js"></script>
 </head>
+
 <body>
-<div class="wrap">
-  <div id="content" class="loading">Carregando…</div>
-</div>
-<script>
-const parts=location.pathname.split('/');
-const slug=parts[2], numero=parts[4];
 
-function fmt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—'}
+    <div class="reading-progress" id="reading-progress"></div>
 
-async function carregar(){
-  try{
-    const r=await fetch(`/api/obra/${slug}/cap/${numero}`);
-    if(!r.ok){
-      const e=await r.json();
-      document.getElementById('content').innerHTML='<p style="color:#ff4757">'+(e.error||'Erro')+'</p>';
-      return;
-    }
-    const c=await r.json();
-    document.getElementById('content').className='';
-    document.getElementById('content').innerHTML=`
-      <div class="nav">
-        <a class="back" href="/obra/${slug}">← Voltar para a obra</a>
-        <span class="obra">de <a href="/obra/${slug}">${c.obraTitulo}</a></span>
-      </div>
-      <h1>Capítulo ${c.numero}</h1>
-      <div class="titulo">${c.titulo||'<em style="color:#555">Sem título</em>'}</div>
-      <div class="meta">${c.palavras} palavras · postado em ${fmt(c.postadoEm)}${c.atualizadoEm&&c.atualizadoEm!==c.postadoEm?' · atualizado em '+fmt(c.atualizadoEm):''}</div>
-      <div class="conteudo">${c.conteudo.replace(/</g,'&lt;')}</div>`;
-  }catch(e){
-    document.getElementById('content').innerHTML='<p style="color:#ff4757">Erro: '+e.message+'</p>';
-  }
-}
-carregar();
-</script>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <h1 id="nav-titulo">📖 Capítulo</h1>
+            <span class="navbar-obra" id="nav-obra"></span>
+        </div>
+        <div class="nav-links">
+            <a id="link-capa-obra" href="/catalogo">← Capa da Obra</a>
+            <a href="/catalogo">🗂️ Catálogo</a>
+            <a href="/logout">Sair</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <p class="chapter-number">Capítulo <span id="cap-numero">—</span></p>
+        <h2 class="chapter-title" id="chapter-title">Carregando...</h2>
+        <div class="obra-breadcrumb">
+            <a href="/catalogo">Catálogo</a>
+            <span>›</span>
+            <a href="#" id="breadcrumb-obra">Obra</a>
+            <span>›</span>
+            <span style="color:#A0A0A0" id="breadcrumb-cap">Capítulo</span>
+        </div>
+
+        <div class="chapter-meta" id="chapter-meta" style="display:none;">
+            <span>📝 <strong id="meta-palavras">0</strong> palavras</span>
+            <span>⏱️ <strong id="meta-tempo">0 min</strong> de leitura</span>
+        </div>
+
+        <article class="chapter-content" id="chapter-content">
+            <div class="loading-content">Carregando capítulo <span class="spinner"></span></div>
+        </article>
+
+        <p class="chapter-info" style="margin-top:20px;">
+            Lendo capítulo <strong id="current-cap">—</strong> de <strong id="total-capitulos">—</strong>
+        </p>
+
+        <div class="navigation">
+            <button class="nav-btn" id="btn-anterior" disabled onclick="irParaCapitulo(-1)">← Anterior</button>
+            <a id="btn-capa" href="#" class="nav-btn-capa">📖 Capa da Obra</a>
+            <button class="nav-btn" id="btn-proximo" disabled onclick="irParaCapitulo(1)">Próximo →</button>
+        </div>
+
+        <p class="shortcut-hint">
+            Atalhos: <kbd>←</kbd> anterior · <kbd>→</kbd> próximo · <kbd>T</kbd> tema
+        </p>
+    </main>
+
+    <script>
+        // Detecta /obra/:slug/cap/:numero
+        function obterParams() {
+            const m = window.location.pathname.match(/^\/obra\/([^\/]+)\/cap\/(\d+)/);
+            return m ? { slug: m[1], numero: parseInt(m[2]) } : null;
+        }
+
+        let params = obterParams();
+        let numeroAtual = params ? params.numero : 1;
+        let totalCapitulos = 0;
+        let obraSlug = params ? params.slug : null;
+        let obraTitulo = '';
+
+        function atualizarBarraProgresso() {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            const p = h > 0 ? (window.scrollY / h) * 100 : 0;
+            document.getElementById('reading-progress').style.width = p + '%';
+        }
+        window.addEventListener('scroll', atualizarBarraProgresso, { passive: true });
+
+        function atualizarBotoesNavegacao() {
+            document.getElementById('btn-anterior').disabled = numeroAtual <= 1;
+            document.getElementById('btn-proximo').disabled = numeroAtual >= totalCapitulos;
+        }
+
+        async function carregarCapitulo(numero) {
+            const div = document.getElementById('chapter-content');
+            div.innerHTML = '<div class="loading-content">Carregando capítulo <span class="spinner"></span></div>';
+
+            try {
+                const r = await fetch(`/api/obra/${obraSlug}/cap/${numero}`);
+                if (!r.ok) {
+                    const e = await r.json().catch(() => ({ error: 'Capítulo não encontrado.' }));
+                    throw new Error(e.error);
+                }
+
+                const data = await r.json();
+                const conteudo = data.conteudo || '';
+                obraTitulo = data.obraTitulo || obraTitulo;
+
+                window.history.pushState({}, '', `/obra/${obraSlug}/cap/${numero}`);
+                numeroAtual = numero;
+
+                // Atualiza UI
+                document.getElementById('cap-numero').textContent = numero;
+                document.getElementById('current-cap').textContent = numero;
+                document.title = `Cap. ${numero} — ${obraTitulo} — Portal de Histórias`;
+
+                const titulo = data.titulo || `Capítulo ${numero}`;
+                document.getElementById('chapter-title').textContent = titulo;
+                document.getElementById('nav-titulo').textContent = `📖 ${titulo}`;
+                document.getElementById('nav-obra').textContent = obraTitulo;
+                document.getElementById('breadcrumb-cap').textContent = titulo;
+                document.getElementById('breadcrumb-obra').textContent = obraTitulo;
+                document.getElementById('breadcrumb-obra').href = `/obra/${obraSlug}`;
+                document.getElementById('link-capa-obra').href = `/obra/${obraSlug}`;
+                document.getElementById('btn-capa').href = `/obra/${obraSlug}`;
+
+                if (data.palavras) {
+                    document.getElementById('chapter-meta').style.display = 'flex';
+                    document.getElementById('meta-palavras').textContent = data.palavras.toLocaleString('pt-BR');
+                    document.getElementById('meta-tempo').textContent = Math.ceil(data.palavras / 200) + ' min';
+                }
+
+                div.innerHTML = '';
+                div.textContent = conteudo;
+
+                atualizarBotoesNavegacao();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (e) {
+                div.innerHTML = `<div class="error">⚠️ ${e.message || 'Erro ao carregar o capítulo.'}</div>`;
+            }
+        }
+
+        function irParaCapitulo(direcao) {
+            const novo = numeroAtual + direcao;
+            if (novo >= 1 && novo <= totalCapitulos) carregarCapitulo(novo);
+        }
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowLeft')  irParaCapitulo(-1);
+            if (e.key === 'ArrowRight') irParaCapitulo(1);
+        });
+
+        async function init() {
+            if (!params) {
+                document.getElementById('chapter-content').innerHTML =
+                    `<div class="error">⚠️ URL inválida. Acesse a obra pelo catálogo.</div>`;
+                return;
+            }
+
+            try {
+                // Carrega info da obra para saber o total de capítulos
+                const r = await fetch(`/api/obra/${obraSlug}`);
+                if (r.ok) {
+                    const data = await r.json();
+                    obraTitulo = data.titulo || '';
+                    totalCapitulos = (data.capitulos || []).length;
+                    document.getElementById('total-capitulos').textContent = totalCapitulos;
+                    document.getElementById('nav-obra').textContent = obraTitulo;
+                    document.getElementById('breadcrumb-obra').textContent = obraTitulo;
+                    document.getElementById('breadcrumb-obra').href = `/obra/${obraSlug}`;
+                    document.getElementById('link-capa-obra').href = `/obra/${obraSlug}`;
+                    document.getElementById('btn-capa').href = `/obra/${obraSlug}`;
+                }
+            } catch (_) {}
+
+            carregarCapitulo(numeroAtual);
+        }
+
+        init();
+    </script>
+
 </body>
 </html>
