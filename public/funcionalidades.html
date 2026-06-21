@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -226,55 +224,57 @@
             box-shadow: 0 8px 22px rgba(17, 202, 160, 0.35);
         }
 
+        /* --- ESTILOS DO PAINEL ADMIN (VERMELHO) --- */
         .admin-section {
-            display: none;
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.12) 0%, rgba(255, 107, 107, 0.04) 100%);
-            border-left: 4px solid #FF6B6B;
-            padding: 32px;
-            border-radius: 10px;
+            display: none; /* Escondido por padrão */
+            background: linear-gradient(135deg, rgba(255, 82, 82, 0.15) 0%, rgba(255, 82, 82, 0.05) 100%);
+            border: 2px solid #FF5252;
+            padding: 40px;
+            border-radius: 14px;
             text-align: center;
+            margin-top: 50px;
             animation: slideUp 0.85s ease-out 0.7s both;
+            box-shadow: 0 8px 24px rgba(255, 82, 82, 0.2);
         }
 
-        .admin-section.visible { display: block; }
-
-        .admin-badge {
-            display: inline-block;
-            padding: 10px 22px;
-            background: linear-gradient(135deg, #FF6B6B, #FF5252);
-            color: white;
-            border-radius: 22px;
-            font-weight: 700;
-            font-size: 1rem;
-            box-shadow: 0 4px 14px rgba(255, 107, 107, 0.4);
-            margin-bottom: 18px;
-            animation: pulse 2.5s ease-in-out infinite;
+        .admin-section h2 {
+            color: #FF5252;
+            margin-bottom: 24px;
+            font-size: 1.8rem;
+            font-weight: 800;
         }
 
-        .admin-section p { color: #FFB0B0; font-size: 1.05rem; margin-bottom: 18px; }
+        .grid-admin {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-        .admin-section a {
-            display: inline-block;
-            padding: 12px 30px;
-            background: #FF6B6B;
+        .btn-admin {
+            padding: 14px 30px;
+            background: #FF5252;
             color: white;
             text-decoration: none;
             border-radius: 8px;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             font-weight: 700;
+            font-size: 0.98rem;
+            border: none;
+            cursor: pointer;
         }
 
-        .admin-section a:hover {
-            background: #FF5252;
+        .btn-admin:hover {
+            background: #D32F2F;
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(255, 107, 107, 0.4);
+            box-shadow: 0 6px 18px rgba(255, 82, 82, 0.4);
         }
 
         @media (max-width: 768px) {
             .header h1 { font-size: 2.2rem; }
             .features-grid { grid-template-columns: 1fr; }
-            .buttons { flex-direction: column; }
-            .btn { width: 100%; }
+            .buttons, .grid-admin { flex-direction: column; }
+            .btn, .btn-admin { width: 100%; }
             .cta-section { padding: 30px 20px; }
         }
     </style>
@@ -335,40 +335,16 @@
             </div>
         </section>
 
-        <section class="admin-section" id="admin-section">
-            <div class="admin-badge">👑 Painel Administrativo</div>
-            <p>Você tem acesso ao painel de edição. Gerencie os capítulos da história.</p>
-            <a href="/editor">
-                ✏️ Ir para o Editor
-            </a>
+        <!-- NOVO PAINEL ADMINISTRATIVO VERMELHO -->
+        <section id="admin-panel" class="admin-section">
+            <h2>👑 Painel do Autor</h2>
+            <div class="grid-admin">
+                <a href="/editor" class="btn-admin">✏️ Editor de Capítulos</a>
+                <a href="/editor-obras" class="btn-admin">📚 Editor de Obras</a>
+            </div>
+        </section>
 
     </div>
-
-<!-- Procure a área dos botões e use este modelo -->
-<div id="admin-section" style="display: none;">
-    <h2 style="color: #11CAA0; margin-top: 20px;">👑 Painel do Autor</h2>
-    <div class="grid-botoes">
-        <a href="/editor" class="btn">✏️ Editor TR: Vida</a>
-        <a href="/editor-obras" class="btn">📚 Novo Editor de Obras</a>
-    </div>
-</div>
-
-<script>
-    // Esse script verifica se você é admin e mostra a seção acima
-    async function checkAdmin() {
-        try {
-            const response = await fetch('/api/user');
-            const user = await response.json();
-            
-            if (user.isAdmin) {
-                document.getElementById('admin-section').style.display = 'block';
-            }
-        } catch (err) {
-            console.error('Erro ao verificar permissões:', err);
-        }
-    }
-    checkAdmin();
-</script>
 
     <script>
         async function inicializar() {
@@ -376,15 +352,29 @@
                 const r = await fetch('/api/user');
                 if (!r.ok) return;
                 const u = await r.json();
-                document.getElementById('user-pill').style.display = 'inline-block';
-                if (u.isAdmin) {
-                    document.getElementById('admin-section').classList.add('visible');
+                
+                // Exibe a saudação
+                const userPill = document.getElementById('user-pill');
+                if (userPill) {
+                    userPill.style.display = 'inline-block';
+                    const nameSpan = userPill.querySelector('[data-user-name]');
+                    if (nameSpan && u.nome) nameSpan.textContent = u.nome;
+                }
+
+                // Lógica de Admin: Mostra o painel vermelho se for admin
+                if (u.isAdmin === true) {
+                    const adminPanel = document.getElementById('admin-panel');
+                    if (adminPanel) {
+                        adminPanel.style.display = 'block';
+                    }
                 }
             } catch (e) {
                 console.error('Erro ao verificar usuário:', e);
             }
         }
-        inicializar();
+        
+        // Garante que o script rode após o carregamento da página
+        window.addEventListener('load', inicializar);
     </script>
 
 </body>
