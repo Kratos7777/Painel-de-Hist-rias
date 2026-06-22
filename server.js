@@ -367,37 +367,10 @@ const pages = {
     '/capa': 'capa.html',
     '/perfil': 'perfil.html',
     '/configuracoes': 'configuracoes.html',
-    '/editor': 'editor.html',           // Editor Antigo (TR: Vida)
-    '/editor-obras': 'editor-obras.html', // Editor Novo (Outras Obras)
     '/catalogo': 'catalogo.html',
     '/outras-obras': 'outras-obras.html',
     '/obra': 'obra.html'
 };
-
-function enviarPagina(res, nomeArquivo) {
-    const filePath = path.join(PUBLIC_DIR, nomeArquivo);
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).send(`Erro: Arquivo ${nomeArquivo} não encontrado.`);
-    }
-    res.sendFile(filePath);
-}
-
-app.get('/', (req, res) => req.isAuthenticated() ? res.redirect('/funcionalidades') : enviarPagina(res, 'index.html'));
-
-// Rotas protegidas (Usuário Comum)
-['/funcionalidades', '/capa', '/perfil', '/configuracoes', '/catalogo', '/outras-obras'].forEach(route => {
-    app.get(route, isAuth, (req, res) => enviarPagina(res, pages[route]));
-});
-
-// Rota dinâmica de obra
-app.get('/obra/:slug', isAuth, (req, res) => enviarPagina(res, 'obra.html'));
-app.get('/obra/:slug/cap/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo-outra-obra.html'));
-app.get('/trvida/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo.html'));
-
-// Rotas de Admin (Editores)
-app.get('/editor', isAdmin, (req, res) => enviarPagina(res, 'editor.html'));
-app.get('/editor-obras', isAdmin, (req, res) => enviarPagina(res, 'editor-obras.html'));
-app.get('/dashboard', isAdmin, (req, res) => enviarPagina(res, 'dashboard.html'));
 
 function enviarPagina(res, nomeArquivo) {
     const filePath = path.join(PUBLIC_DIR, nomeArquivo);
@@ -417,22 +390,21 @@ app.get('/', (req, res) => {
     enviarPagina(res, pages['/']);
 });
 
+// Rotas protegidas (Usuário Comum)
 Object.entries(pages).forEach(([route, file]) => {
     if (route === '/') return;
     app.get(route, isAuth, (req, res) => enviarPagina(res, file));
 });
 
-app.get('/trvida/:numero', isAuth, (req, res) => {
-    enviarPagina(res, 'capitulo.html');
-});
+// Rotas dinâmicas de obra
+app.get('/obra/:slug', isAuth, (req, res) => enviarPagina(res, 'capa-detalhes.html'));
+app.get('/obra/:slug/cap/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo-outra-obra.html'));
+app.get('/trvida/:numero', isAuth, (req, res) => enviarPagina(res, 'capitulo.html'));
 
-app.get('/dashboard', isAdmin, (req, res) => {
-    enviarPagina(res, 'dashboard.html');
-});
-
-app.get('/editor', isAdmin, (req, res) => {
-    enviarPagina(res, 'editor.html');
-});
+// Rotas de Admin (Editores)
+app.get('/editor', isAdmin, (req, res) => enviarPagina(res, 'editor.html'));
+app.get('/editor-obras', isAdmin, (req, res) => enviarPagina(res, 'editor-obras.html'));
+app.get('/dashboard', isAdmin, (req, res) => enviarPagina(res, 'dashboard.html'));
 
 // ==========================================
 // 📊 7. API
@@ -611,17 +583,6 @@ app.get('/continuar', isAuth, async (req, res) => {
 // 📊 API — OBRAS E CAPÍTULOS DE OBRAS
 // ==========================================
 
-// --- ADICIONE POR VOLTA DA LINHA 610 ---
-// Esta rota faz com que /obra/qualquer-nome abra a página capa-detalhes.html
-
-app.get('/api/obras', isAuth, requireMongo, async (req, res) => {
-    try {
-        const obras = await Obra.find({ ehObraPrincipal: { $ne: true } }).sort({ atualizadoEm: -1 }).lean();
-        res.json(obras);
-    } catch (err) { console.error('[OBRAS] listar:', err); res.status(500).json({ error: err.message }); }
-});
-
-// --- COLOQUE ISSO NA LINHA 618 ---
 app.get('/api/obra/:slug', isAuth, requireMongo, async (req, res) => {
     try {
         const { slug } = req.params;
